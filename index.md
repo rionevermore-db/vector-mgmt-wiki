@@ -4,7 +4,9 @@
 
 ## Concepts（算法 / 数据结构）
 
-_暂无。Week 1 brain-dump 后填充。_
+- [HNSW](./concepts/hnsw.md) — 分层 proximity graph，O(log N) ANN，事实工业标准
+- [NSW](./concepts/nsw.md) — HNSW 前作，单层 proximity graph，polylog 复杂度
+- [Proximity Graph](./concepts/proximity-graph.md) — 一类基于"邻近关系"的图，HNSW / NSW / FANNG / NNDescent 的共同基础
 
 ## Systems（产品 / 工程系统）
 
@@ -16,7 +18,7 @@ _暂无。_
 
 ## Benchmarks（测评）
 
-_暂无。_
+- [HNSW vs Faiss PQ on 200M SIFT](./benchmarks/hnsw-vs-faiss-200m-sift.md) — HNSW 论文 §5.4：HNSW 速度赢、Faiss 内存赢
 
 ## Queries（高价值 query 答案存档）
 

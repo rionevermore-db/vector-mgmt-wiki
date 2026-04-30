@@ -6,7 +6,7 @@
 
 | Key | 标题 | 作者 | 年份 | 类型 | 文件 | Ingest 日期 |
 |---|---|---|---|---|---|---|
-| _暂无_ | | | | | | |
+| malkov-2016-hnsw | Efficient and Robust Approximate Nearest Neighbor Search using Hierarchical Navigable Small World Graphs | Yu. A. Malkov, D. A. Yashunin | 2016 (arXiv) / 2020 (IS) | paper | papers/malkov-2016-hnsw.pdf | 2026-04-30 |
 
 ## 命名约定
 
