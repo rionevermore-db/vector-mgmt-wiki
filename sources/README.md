@@ -1,0 +1,18 @@
+# Sources
+
+> Raw materials。**不可变**——文件一旦放入只能新增不能改。
+
+## Source 清单
+
+| Key | 标题 | 作者 | 年份 | 类型 | 文件 | Ingest 日期 |
+|---|---|---|---|---|---|---|
+| _暂无_ | | | | | | |
+
+## 命名约定
+
+- 论文：`papers/<first-author-year-shortname>.pdf`，例：`chen-2021-spann.pdf`
+- 文档：`docs/<vendor>-<topic>.md`，例：`pinecone-sharding.md`
+
+## 引用方式
+
+在 wiki page 的 frontmatter `sources` 字段里写本表的 Key（如 `[chen-2021-spann]`）。
