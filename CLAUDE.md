@@ -211,18 +211,40 @@ ASCII 或链接到 sources/docs 中的图。
 
 ### Ingest（消化新源）
 
-输入：sources/ 中新增的一份 raw material（PDF 或 markdown）。
+**入口路径有两种：**
 
-步骤：
-1. 阅读 source，向用户口头报告 takeaway，等待用户补充
-2. 决定该 source 影响哪些 page type，候选包括：
+- **路径 A（推荐，标题驱动）**：用户给一个标题/作者+年份/主题描述（如 "ingest SPANN 论文"、"ingest Manu Milvus 2022"），LLM 自动定位 + 下载。
+- **路径 B（手动 fallback）**：用户自己下载 PDF 放到 `sources/papers/` 后告诉 LLM 文件路径。**适用场景**：付费墙论文（ACM/IEEE 闭门）、公司内部文档、扫描版老论文、用户已经手上有 PDF 不想重新下。
+
+#### 路径 A 步骤（自动获取）
+
+1. **解析标题** → WebSearch 找规范来源；优先级：arXiv > 作者主页/官方 PDF > 会议官网 > 其他镜像
+2. **向用户确认**："找到 `<full title>`，`<arxiv-or-source-url>`，下载并 ingest 吗？" → 等用户点头
+3. **下载到 sources/**：用 `Invoke-WebRequest` 下到 `sources/papers/<first-author-year-shortname>.pdf`，符合命名约定
+4. **进入步骤 5**（读 + ingest 流程）
+
+> **路径 A 的失败/降级**：
+> - WebSearch 找不到合法 URL → 报告用户、转路径 B
+> - PDF 是付费墙（DOI 跳转、需登录）→ 报告用户、转路径 B
+> - 找到的 URL 存在多个版本（preprint vs 期刊版、v1 vs v3）→ 列出选项让用户挑
+
+#### 路径 B 步骤（手动）
+
+1. 用户告知 PDF 路径（已放在 `sources/papers/`）
+2. 如果文件名不符合 `<first-author-year-shortname>.pdf` 约定，**首次 ingest 时**询问用户能否重命名（一旦重命名后即冻结）
+
+#### 公共步骤（路径 A、B 汇合）
+
+5. 阅读 source，向用户口头报告 takeaway，等待用户补充
+6. 决定该 source 影响哪些 page type，候选包括：
    - 新建 1 个或多个 page（concepts / systems / topics / benchmarks）
    - 更新若干已有 page（添加新 finding、修订过时陈述、加 cross-link）
-3. 执行所有文件操作
-4. 更新 `index.md` 的对应章节
-5. 更新被影响 page 的 frontmatter `updated` 字段
-6. 在 `log.md` 末尾追加一条 ingest 记录
-7. 报告"本次 ingest 影响 N 个文件，新增 X 个、更新 Y 个"
+7. 执行所有文件操作
+8. 更新 `index.md` 的对应章节
+9. 更新被影响 page 的 frontmatter `updated` 字段
+10. 在 `sources/README.md` 表格追加该 source（key、标题、作者、年份、文件、ingest 日期）
+11. 在 `log.md` 末尾追加一条 ingest 记录
+12. 报告"本次 ingest 影响 N 个文件，新增 X 个、更新 Y 个"
 
 > **目标**：一篇有信息量的论文应该触发 5-15 个文件改动。如果只触发 1-2 个，要么 source 信息密度低，要么 wiki 结构不够细——后者是 lint 的事。
 
@@ -260,7 +282,8 @@ ASCII 或链接到 sources/docs 中的图。
 
 ## 给 Claude Code 的元指令
 
-- 用户在仓库根目录 ChatGPT/Claude Code 里说 **"ingest <source-path>"** → 执行 Ingest workflow
+- 用户说 **"ingest <标题/作者+年份/主题>"** → 执行 Ingest workflow 路径 A（自动找 URL → 确认 → 下载 → ingest）
+- 用户说 **"ingest <source-path>"**（已存在的本地 PDF 路径）→ 执行 Ingest workflow 路径 B
 - 用户提问任何技术问题 → 默认走 Query workflow（先用 wiki 找答案）
 - 用户说 **"lint"** → 执行 Lint workflow
 - 用户说 **"plan"** → 报告当前 wiki 状态：page 数、最近 ingest、可见的覆盖盲点
