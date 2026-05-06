@@ -2,9 +2,9 @@
 title: Proximity Graph（邻近图）
 type: concept
 sources: [malkov-2016-hnsw]
-related: [hnsw.md, nsw.md]
+related: [hnsw.md, nsw.md, product-quantization.md]
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-07
 ---
 
 # Proximity Graph
@@ -32,7 +32,7 @@ updated: 2026-04-30
 |---|---|---|---|
 | **树** | KD-tree, VP-tree | 低维 (<20) | 维度灾难下退化为线扫 |
 | **哈希** | LSH (FALCONN) | 高维欧氏 / 余弦 | 召回-速度 trade-off 较差 |
-| **量化** | PQ, IVFPQ (Faiss) | 十亿级、内存敏感 | 精度有损 |
+| **量化** | [PQ / IVFPQ](./product-quantization.md) (Faiss) | 十亿级、内存敏感 | 精度有损 |
 | **Proximity graph** | NSW, HNSW, FANNG | 中高维、内存充足 | 内存开销大、删除困难 |
 
 [malkov-2016-hnsw §2.1 + §5]

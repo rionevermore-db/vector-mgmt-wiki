@@ -2,14 +2,14 @@
 title: HNSW vs Faiss PQ on 200M SIFT
 type: benchmark
 sources: [malkov-2016-hnsw]
-related: [../concepts/hnsw.md]
+related: [../concepts/hnsw.md, ../concepts/product-quantization.md]
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-07
 ---
 
 # HNSW vs Faiss PQ on 200M SIFT
 
-**TL;DR**: HNSW 论文 §5.4 的对比实验。HNSW 在召回-延迟曲线上完胜 Faiss 的两套 PQ 配置，但内存占用是 Faiss 的 2–3 倍。[malkov-2016-hnsw §5.4 + Fig 15 + Table 3]
+**TL;DR**: HNSW 论文 §5.4 的对比实验。HNSW 在召回-延迟曲线上完胜 Faiss 的两套 [PQ](../concepts/product-quantization.md) 配置，但内存占用是 Faiss 的 2–3 倍。[malkov-2016-hnsw §5.4 + Fig 15 + Table 3]
 
 ## 实验设置
 

@@ -7,6 +7,7 @@
 | Key | 标题 | 作者 | 年份 | 类型 | 文件 | Ingest 日期 |
 |---|---|---|---|---|---|---|
 | malkov-2016-hnsw | Efficient and Robust Approximate Nearest Neighbor Search using Hierarchical Navigable Small World Graphs | Yu. A. Malkov, D. A. Yashunin | 2016 (arXiv) / 2020 (IS) | paper | papers/malkov-2016-hnsw.pdf | 2026-04-30 |
+| jegou-2011-pq | Product Quantization for Nearest Neighbor Search | Hervé Jégou, Matthijs Douze, Cordelia Schmid | 2011 (TPAMI) | paper | papers/jegou-2011-pq.pdf | 2026-05-07 |
 
 ## 命名约定
 

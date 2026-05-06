@@ -2,9 +2,9 @@
 title: HNSW（分层可导航小世界图）
 type: concept
 sources: [malkov-2016-hnsw]
-related: [nsw.md, proximity-graph.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md]
+related: [nsw.md, proximity-graph.md, product-quantization.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md]
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-07
 ---
 
 # HNSW
@@ -58,7 +58,7 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 
 ## 与同类对比
 
-| | HNSW | NSW | Faiss IVFPQ |
+| | HNSW | NSW | [Faiss IVFPQ](./product-quantization.md) |
 |---|---|---|---|
 | 数据结构 | 多层 proximity graph | 单层 proximity graph | 倒排表 + PQ 量化 |
 | 搜索复杂度 | O(log N) | polylog | 近似 O(√N) 桶 |
