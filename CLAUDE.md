@@ -211,10 +211,11 @@ ASCII 或链接到 sources/docs 中的图。
 
 ### Ingest（消化新源）
 
-**入口路径有两种：**
+**入口路径有三种：**
 
-- **路径 A（推荐，标题驱动）**：用户给一个标题/作者+年份/主题描述（如 "ingest SPANN 论文"、"ingest Manu Milvus 2022"），LLM 自动定位 + 下载。
-- **路径 B（手动 fallback）**：用户自己下载 PDF 放到 `sources/papers/` 后告诉 LLM 文件路径。**适用场景**：付费墙论文（ACM/IEEE 闭门）、公司内部文档、扫描版老论文、用户已经手上有 PDF 不想重新下。
+- **路径 A（论文，标题驱动）**：用户给一个标题/作者+年份/主题描述（如 "ingest SPANN 论文"、"ingest Manu Milvus 2022"），LLM 自动定位 + 下载 PDF。
+- **路径 B（论文，手动 fallback）**：用户自己下载 PDF 放到 `sources/papers/` 后告诉 LLM 文件路径。**适用场景**：付费墙论文（ACM/IEEE 闭门）、公司内部文档、扫描版老论文、用户已经手上有 PDF 不想重新下。
+- **路径 C（产品文档，全量抓取）**：用户给产品名（如 "ingest Pinecone 文档"），LLM 把全套官方文档拉到 `sources/docs/<vendor>/`。
 
 #### 路径 A 步骤（自动获取）
 
@@ -233,7 +234,35 @@ ASCII 或链接到 sources/docs 中的图。
 1. 用户告知 PDF 路径（已放在 `sources/papers/`）
 2. 如果文件名不符合 `<first-author-year-shortname>.pdf` 约定，**首次 ingest 时**询问用户能否重命名（一旦重命名后即冻结）
 
-#### 公共步骤（路径 A、B 汇合）
+#### 路径 C 步骤（产品文档，全量抓取）
+
+获取优先级从高到低：
+
+1. **`llms.txt` / `llms-full.txt`** — 厂商主动合并的 LLM 友好文档。先 WebFetch `<site>/llms-full.txt` 或 `<site>/llms.txt`。**Pinecone / Anthropic / OpenAI** 等已有，趋势扩散中。一次拉到位，最干净。
+2. **GitHub 文档仓库** — 已知映射：
+   - Milvus → `milvus-io/milvus-docs`
+   - Qdrant → `qdrant/landing_page`（docs 子目录）
+   - Weaviate → `weaviate/weaviate-io`
+   - Vespa → `vespa-engine/documentation`
+   `git clone` 到 `sources/docs/<vendor>/`，保留 commit hash 写进 frontmatter
+3. **Sitemap 爬取** — 兜底。读 `<site>/sitemap.xml` 列出 URL → 报告页数让用户确认是否全抓 → 逐页 WebFetch 转 markdown
+
+**存储约定**：
+- 全部落到 `sources/docs/<vendor>/`（子目录，不平铺），原始路径结构尽量保留
+- 在 `sources/docs/<vendor>/_meta.md` 写 frontmatter：`source-url`（站点根）、`fetched-at`（日期）、`acquisition-method`（llms-txt / git-clone / sitemap-crawl）、`commit-hash`（如 git clone）
+- 在 `sources/README.md` 表格里 source key 用 `<vendor>-docs`（如 `pinecone-docs`、`milvus-docs`），文件列指向子目录
+
+**版本演化**：文档变了不要改原文件，新建 `sources/docs/<vendor>-<YYYY-MM>/`（如 `milvus-2026-08/`）作为新快照，旧快照保留作历史。
+
+**Wiki 层硬约束（避免退化为文档镜像）**：
+- 一个产品文档全套抓进来后，wiki 层**不应**机械生成数十上百个 page
+- 默认产出：**1 个 `systems/<vendor>.md` 主 page**（架构、关键设计、scale 边界、生产案例）
+- 仅在产品有专属算法/独创概念时增产 0-2 个 `concepts/<product-specific>.md`（如 Milvus 的 Knowhere、Pinecone 的 pod-based sharding）
+- raw docs 留在 sources/docs/ 作为 citation 锚点，**正文引用要细到具体页**（如 `[per sources/docs/milvus/architecture/overview.md]`）
+
+> **Why**：Wiki 的价值是"沉淀过的认知"，不是"docs 的复制"。如果一篇官方文档已经写得很好，wiki page 应该指向它而不是复述。
+
+#### 公共步骤（路径 A、B、C 汇合）
 
 5. 阅读 source，向用户口头报告 takeaway，等待用户补充
 6. 决定该 source 影响哪些 page type，候选包括：
@@ -282,8 +311,9 @@ ASCII 或链接到 sources/docs 中的图。
 
 ## 给 Claude Code 的元指令
 
-- 用户说 **"ingest <标题/作者+年份/主题>"** → 执行 Ingest workflow 路径 A（自动找 URL → 确认 → 下载 → ingest）
+- 用户说 **"ingest <论文标题/作者+年份/主题>"** → 执行 Ingest workflow 路径 A（自动找 URL → 确认 → 下载 PDF → ingest）
 - 用户说 **"ingest <source-path>"**（已存在的本地 PDF 路径）→ 执行 Ingest workflow 路径 B
+- 用户说 **"ingest <产品名> 文档"**（如 "ingest Pinecone 文档"）→ 执行 Ingest workflow 路径 C（llms.txt → GitHub → sitemap 顺序尝试）
 - 用户提问任何技术问题 → 默认走 Query workflow（先用 wiki 找答案）
 - 用户说 **"lint"** → 执行 Lint workflow
 - 用户说 **"plan"** → 报告当前 wiki 状态：page 数、最近 ingest、可见的覆盖盲点
