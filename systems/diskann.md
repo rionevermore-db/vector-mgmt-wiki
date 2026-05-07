@@ -2,7 +2,7 @@
 title: DiskANN（System）
 type: system
 sources: [subramanya-2019-diskann, chen-2021-spann]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, faiss.md, spann.md, milvus.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, faiss.md, spann.md, milvus.md, spfresh.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -136,7 +136,7 @@ PQ 失真大 → 图遍历可能走偏路径，需要更多 hops；但终点全�
 - **PQ 失真的 cascading effect**：PQ 越粗糙，图遍历越绕路，越多 SSD 读；论文未量化此 trade-off
 - **SSD 寿命**：>5000 QPS × 几百 μs 随机读 = 高 IOPS 持续负载；commodity SSD 寿命影响未讨论
 - **网络存储情况下不可用**：所有 latency 假设基于本地 NVMe SSD；分布式存储 / 远程块设备完全失效
-- **更新与删除**：与 [NSG](../concepts/nsg.md) 一样不支持增量；merged 方案下加点更难
+- **更新与删除**：与 [NSG](../concepts/nsg.md) 一样不支持增量；merged 方案下加点更难。**周期 streamingMerge global rebuild 的资源峰值 1100 GB DRAM + 32 cores × 2 天**——[SPFresh](./spfresh.md) [xu-2023-spfresh] 的对照实验（100 day × 1% daily update）显示 DiskANN P99.9 latency 在 rebuild 时飙到 >20ms。Cluster-based 路线（[SPANN](./spann.md)）已有 SPFresh in-place 解；**graph-based 路线（DiskANN/Vamana）的 in-place update 仍是开放问题**。详见 [topics/in-place-vs-out-of-place-updates.md](../topics/in-place-vs-out-of-place-updates.md)
 - **和 Faiss 的最优组合**：理论上 [Faiss](./faiss.md) 的 IVF + Vamana coarse quantizer 是新点子，但当前两个生态独立
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

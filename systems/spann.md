@@ -2,7 +2,7 @@
 title: SPANN（System）
 type: system
 sources: [chen-2021-spann]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, diskann.md, faiss.md, milvus.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../benchmarks/spann-vs-diskann-billion.md]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, diskann.md, faiss.md, milvus.md, spfresh.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/spann-vs-diskann-billion.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -135,7 +135,7 @@ SPANN 可看作"Faiss IVF 的 SSD 化版本"，但把"内存里 PQ codes"的预�
 
 ## Open Questions
 
-- **数据漂移下的退化**：closure clustering 训练好后簇分配冻结；新加点需要重 cluster
+- ~~**数据漂移下的退化**：closure clustering 训练好后簇分配冻结；新加点需要重 cluster~~ —— **2026-05-07 ingest [SPFresh](./spfresh.md) 已解**：同团队（Microsoft Research Asia）SOSP 2023 论文在 SPANN 之上加 [LIRE](../concepts/lire.md) 协议，实现 in-place 增量再平衡，0.4% 的插入触发本地 split + reassign，完全不需要全局 rebuild。详见 [topics/in-place-vs-out-of-place-updates.md](../topics/in-place-vs-out-of-place-updates.md)
 - **小 latency budget 下的边界**：<1 ms 内 SPANN 是否还能保 recall？论文 Fig 6 边界不清晰
 - **现代高维 embedding（768-d / 1024-d）**：posting list 上限对 byte 向量是 12 KB、float 向量是 48 KB（论文 §3.1）。128-d byte → 12 KB / 128 ≈ 96 vec；768-d float → 48 KB / 3072 ≈ 16 vec；1024-d float → 48 KB / 4096 ≈ 12 vec。绝对数字仍然急剧收缩，足以让 closure replicas 与 query-aware pruning 的成本结构改变 —— 论文未在此区间评估
 - **Closure replicas = 8 是经验值**：与 DiskANN 的 W=4-8 一样是工程调参，无理论指导

@@ -2,7 +2,7 @@
 title: Milvus（Vector DBMS）
 type: system
 sources: [wang-2021-milvus, milvus-docs, douze-2024-faiss-library]
-related: [faiss.md, diskann.md, spann.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md]
+related: [faiss.md, diskann.md, spann.md, spfresh.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

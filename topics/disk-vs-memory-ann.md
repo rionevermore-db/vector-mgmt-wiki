@@ -2,7 +2,7 @@
 title: Disk vs Memory ANN（SSD 与 DRAM 的 ANN 路线）
 type: topic
 sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../concepts/lire.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../systems/spfresh.md, ./in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/spfresh-vs-diskann-spann-update.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -35,6 +35,7 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 | **GPU brute force** | [Faiss-GPU](../systems/faiss.md) | HBM | 高 | 单卡 ~32 GB |
 | **磁盘 + 量化导航 + SSD re-rank** | [DiskANN](../systems/diskann.md) | DRAM (PQ) + SSD (graph + full vec) | **98.68%** | 64 GB |
 | **磁盘 + IVF + 全精度 posting list** | [SPANN](../systems/spann.md) | DRAM (centroids + SPTAG) + SSD (full posting list) | **>90% @ ~1 ms** | ~32 GB |
+| **磁盘 + IVF + 全精度 + In-place 增量** | **[SPFresh](../systems/spfresh.md)** | DRAM (centroids + version map) + raw NVMe (SPDK) | >0.86 @ ~5 ms（1B stress test） | **持续 ~10 GB**（无 rebuild peak） |
 
 [subramanya-2019-diskann §1, §4.4]; [douze-2024-faiss-library §5.5 Fig 8]; [chen-2021-spann §4.2]
 

@@ -13,6 +13,7 @@
 - [WarpSelect](./concepts/warpselect.md) — Faiss-GPU 的 k-selection 算法，状态全在寄存器、单次扫描，55% 峰值带宽
 - [Vamana](./concepts/vamana.md) — 单层 graph + α-controlled RobustPrune + 两遍构建，DiskANN 的内存层算法
 - [Woodpecker](./concepts/woodpecker.md) — Milvus 2.6 自研 zero-disk WAL；S3 上 750 MB/s 吞吐（5.8× over Kafka）；MemoryBuffer / QuorumBuffer 双部署模式
+- [LIRE](./concepts/lire.md) — SPFresh 的 Lightweight Incremental REbalancing 协议；2 必要条件 + 5 操作 + cascading 收敛证明；仅 0.4% 插入触发 rebalance
 
 ## Systems（产品 / 工程系统）
 
@@ -20,6 +21,7 @@
 - [DiskANN](./systems/diskann.md) — Microsoft 开源的 SSD-resident ANN 系统，单机 64 GB RAM 跑 1B SIFT @ 98% recall；graph + SSD 路线
 - [SPANN](./systems/spann.md) — Microsoft 开源的 SSD-resident ANN 系统，centroids in DRAM + posting lists on SSD；inverted file 路线；Bing 几千亿规模生产
 - [Milvus](./systems/milvus.md) — Zilliz 开源的 vector DBMS（不是 library/算法系统）；建在 Faiss 之上 + LSM segment + shared-storage 分布式 + 五策略 attribute filtering + multi-vector query；SIGMOD 2021，LF AI 孵化
+- [SPFresh](./systems/spfresh.md) — Microsoft 在 SPANN 之上加 LIRE 协议，**首个 billion-scale in-place 增量更新**系统；100 days × 1% daily update 持续 10 GB + 2 cores（DiskANN rebuild 需 1100 GB + 32 cores × 2 天）；SOSP 2023
 
 ## Topics（跨概念主题）
 
@@ -29,6 +31,7 @@
 - [Disk vs Memory ANN](./topics/disk-vs-memory-ann.md) — SSD vs DRAM 的 ANN 路线；DiskANN（graph）与 SPANN（inverted file）两条 SSD 路线对比
 - [Attribute Filtering](./topics/attribute-filtering.md) — 向量+属性混合查询的五策略框架（Faiss IDSelector / AnalyticDB-V cost-based / Milvus partition-based）；后者比前者快 13.7×
 - [Multi-Vector Queries](./topics/multi-vector-queries.md) — 多向量 entity 的 top-k 查询；vector fusion（仅适用内积）vs iterative merging（基于 Fagin NRA，通用）
+- [In-Place vs Out-of-Place Updates](./topics/in-place-vs-out-of-place-updates.md) — 向量索引更新策略；周期 rebuild（DiskANN/Faiss/Milvus）vs in-place 增量（SPFresh LIRE）；graph-based 在 in-place 仍开放
 
 ## Benchmarks（测评）
 
@@ -41,6 +44,7 @@
 - [DiskANN on SIFT1B](./benchmarks/diskann-sift1b.md) — DiskANN 论文 §4：1B SIFT 1-recall@1 = 98.68% @ <5ms（同等内存下 IVFOADC+G+P plateau 62.74%）
 - [SPANN vs DiskANN on Billion-scale](./benchmarks/spann-vs-diskann-billion.md) — SPANN 论文 §4：在三个 billion-scale 数据集上 SPANN 比 DiskANN 在 90% recall 时快 2×
 - [Milvus vs SPTAG / Vearch / 商业系统](./benchmarks/milvus-vs-prior-sift10m-deep10m.md) — Milvus 论文 §7：6.4×–73× faster than Vearch / SPTAG / 商业 ABC；SIFT1B 单节点 + 12 节点近线性扩展；cache-aware 2.7× / AVX512 1.5× / SQ8H 系统胜 pure CPU/GPU
+- [SPFresh vs DiskANN / SPANN+ on 100-Day Update](./benchmarks/spfresh-vs-diskann-spann-update.md) — SPFresh 论文 §5：100 days × 1% daily update 模拟，SPFresh P99.9 平均 2.41× lower than DiskANN，5.30× lower memory；1B stress test 饱和 NVMe 400K IOPS
 
 ## Queries（高价值 query 答案存档）
 

@@ -16,6 +16,7 @@
 | chen-2021-spann | SPANN: Highly-efficient Billion-scale Approximate Nearest Neighbor Search | Qi Chen, Bing Zhao, Haidong Wang, Mingqin Li, Chuanjie Liu, Zengzhong Li, Mao Yang, Jingdong Wang | 2021 (NeurIPS) | paper | papers/chen-2021-spann.pdf | 2026-05-07 |
 | wang-2021-milvus | Milvus: A Purpose-Built Vector Data Management System | Jianguo Wang, Xiaomeng Yi, Rentong Guo, Hai Jin, Peng Xu, Shengjun Li, Xiangyu Wang, Xiangzhou Guo, Chengming Li, Xiaohai Xu, Kun Yu, Yuxing Yuan, Yinghao Zou, Jiquan Long, Yudong Cai, Zhenxiang Li, Zhifeng Zhang, Yihua Mo, Jun Gu, Ruiyi Jiang, Yi Wei, Charles Xie | 2021 (SIGMOD) | paper | papers/wang-2021-milvus.pdf | 2026-05-07 |
 | milvus-docs | Milvus 官方文档（v2.6.x） | Zilliz / Milvus community | 2026 (commit f7f7c21) | docs | docs/milvus/ | 2026-05-07 |
+| xu-2023-spfresh | SPFresh: Incremental In-Place Update for Billion-Scale Vector Search | Yuming Xu, Hengyu Liang, Jin Li, Shuotao Xu, Qi Chen, Qianxi Zhang, Cheng Li, Ziyue Yang, Fan Yang, Yuqing Yang, Peng Cheng, Mao Yang | 2023 (SOSP) | paper | papers/xu-2023-spfresh.pdf | 2026-05-07 |
 
 ## 命名约定
 
