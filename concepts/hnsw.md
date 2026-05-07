@@ -1,8 +1,8 @@
 ---
 title: HNSW（分层可导航小世界图）
 type: concept
-sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann]
-related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, ../topics/mips-vs-l2-nn.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md]
+sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, douze-2024-faiss-library]
+related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---
@@ -72,7 +72,8 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 ## 典型实现
 
 - 作者实现：[`nmslib/hnsw`](https://github.com/nmslib/hnsw)，C++ header-only，支持增量构建。
-- Faiss（Facebook Research）自 2018 年起内置 HNSW 实现。
+- **HNSWlib** 后来成为 HNSW 的事实参考实现，被 Faiss、Milvus 等主流库引用 [55 in douze-2024-faiss-library]。
+- [Faiss `IndexHNSW`](../systems/faiss.md)（Facebook Research）自 2018 年起内置 HNSW 实现，支持与 IVF（`IndexHNSWFlat`）、ScalarQuantizer（`IndexHNSWScalarQuantizer`）等组合。在 IVF 索引中也常被用作 **HNSW-as-coarse-quantizer**（`IVF_HNSW`）。[douze-2024-faiss-library §5.1, §A.7]
 - 工程要点：避免使用通用 BLAS 距离函数；C 风格手动内存管理 + prefetch，比 nmslib 通用框架显著更快。[malkov-2016-hnsw §5]
 
 ## Open Questions

@@ -11,6 +11,7 @@
 | fu-2017-nsg | Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph | Cong Fu, Chao Xiang, Changxu Wang, Deng Cai | 2017 (arXiv) / 2019 (VLDB) | paper | papers/fu-2017-nsg.pdf | 2026-05-07 |
 | guo-2019-scann | Accelerating Large-Scale Inference with Anisotropic Vector Quantization | Ruiqi Guo, Philip Sun, Erik Lindgren, Quan Geng, David Simcha, Felix Chern, Sanjiv Kumar | 2019 (arXiv) / 2020 (ICML) | paper | papers/guo-2019-scann.pdf | 2026-05-07 |
 | johnson-2017-faiss-gpu | Billion-scale similarity search with GPUs | Jeff Johnson, Matthijs Douze, Hervé Jégou | 2017 (arXiv) / 2021 (IEEE TBD) | paper | papers/johnson-2017-faiss-gpu.pdf | 2026-05-07 |
+| douze-2024-faiss-library | The Faiss Library | Matthijs Douze, Alexandr Guzhva, Chengqi Deng, Jeff Johnson, Gergely Szilvasy, Pierre-Emmanuel Mazaré, Maria Lomeli, Lucas Hosseini, Hervé Jégou | 2024 (arXiv) | paper | papers/douze-2024-faiss-library.pdf | 2026-05-07 |
 
 ## 命名约定
 

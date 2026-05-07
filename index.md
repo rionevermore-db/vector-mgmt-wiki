@@ -14,12 +14,13 @@
 
 ## Systems（产品 / 工程系统）
 
-_暂无（Faiss 库本身待 Douze 2024 论文 ingest 后建立 systems/faiss.md）。_
+- [Faiss](./systems/faiss.md) — Meta 开源的 ANN 算法工具箱，C++17 + Python；工业事实标准；不是数据库
 
 ## Topics（跨概念主题）
 
 - [MIPS vs L2-NN](./topics/mips-vs-l2-nn.md) — 最大内积搜索与最近邻搜索的根本差异，影响 ScaNN / HNSW / NSG / PQ 的设计与适用边界
 - [GPU vs CPU ANN](./topics/gpu-vs-cpu-ann.md) — CPU 偏好图遍历、GPU 偏好 brute-force + fused k-selection；同一算法在两种硬件上最优形态不同
+- [Index Selection](./topics/index-selection.md) — Faiss 决策树式索引选型：N + memory + 增量需求 + filtered search 的组合决定 index 类型
 
 ## Benchmarks（测评）
 
@@ -28,6 +29,7 @@ _暂无（Faiss 库本身待 Douze 2024 论文 ingest 后建立 systems/faiss.md
 - [NSG vs Graph ANNs on Million-Scale](./benchmarks/nsg-vs-graph-anns-million.md) — NSG 论文 §4.1：NSG 在四个百万级数据集上击败 HNSW / FANNG / KGraph 等
 - [ScaNN on Glove1.2M MIPS](./benchmarks/scann-glove1.2m-mips.md) — ScaNN 论文 §5：anisotropic loss 把 Recall1@10 从 0.83 拉到 0.91，且击败 ann-benchmarks 11 个算法
 - [Faiss-GPU on SIFT1B / DEEP1B / YFCC100M](./benchmarks/faiss-gpu-sift1b-deep1b.md) — Faiss-GPU 论文 §6：SIFT1B 8.5×、DEEP1B 4 GPU 抵 128 CPU 服务器、YFCC100M 35 min 构图
+- [Faiss Trillion-scale Index](./benchmarks/faiss-trillion-scale.md) — Faiss 论文 §7.1：Meta 内部 1.5T × 144-d 索引，54 字节/向量，20 服务器 mmap 83 TiB
 
 ## Queries（高价值 query 答案存档）
 

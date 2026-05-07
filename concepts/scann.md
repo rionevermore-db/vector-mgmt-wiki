@@ -1,8 +1,8 @@
 ---
 title: ScaNN（Anisotropic Vector Quantization）
 type: concept
-sources: [guo-2019-scann]
-related: [product-quantization.md, hnsw.md, nsg.md, ../topics/mips-vs-l2-nn.md, ../benchmarks/scann-glove1.2m-mips.md]
+sources: [guo-2019-scann, douze-2024-faiss-library]
+related: [product-quantization.md, hnsw.md, nsg.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../benchmarks/scann-glove1.2m-mips.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -103,6 +103,14 @@ T 是论文唯一引入的超参数。Glove1.2M 上 T=0.2 接近最优（Fig 3a�
 - 作者实现：[`google-research/scann`](https://github.com/google-research/google-research/tree/master/scann)
 - 工程栈：anisotropic PQ + SIMD-based ADC（Guo 2016b）+ 上层 vector quantization tree（Wu et al. 2017）做 IVF
 - Bazel 构建，Python 接口；TensorFlow Serving 集成
+
+## 工业影响
+
+ScaNN 的 4-bit interleaved SIMD layout 后被 [Faiss](../systems/faiss.md) 借鉴用于其 `IndexFastScan` / `IndexIVFPQFastScan` 系列。[douze-2024-faiss-library §A.3] 明说：
+
+> "The 4-bit product and additive quantizer implementations are implemented in this way, inspired by the SCANN library."
+
+且补充承认 ScaNN 的工程优化在原 ICML 论文里**没写** —— 是开源代码里的隐藏知识。这是 wiki 中首次记录的"工业库借鉴算法论文实现"的反向影响关系。
 
 ## Open Questions
 

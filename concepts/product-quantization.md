@@ -1,8 +1,8 @@
 ---
 title: Product Quantization（PQ / IVFADC）
 type: concept
-sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu]
-related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
+sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library]
+related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -118,6 +118,35 @@ PQ 论文优化 reconstruction error `||x − x̃||²`，隐含假设所有 (q, 
   - 二者可组合（S × R GPUs）。[johnson-2017-faiss-gpu §5.4]
 
 详见 [Faiss-GPU on SIFT1B / DEEP1B / YFCC100M](../benchmarks/faiss-gpu-sift1b-deep1b.md) 与 [topics/gpu-vs-cpu-ann.md](../topics/gpu-vs-cpu-ann.md)。
+
+## Quantizer 家族中的位置（[Faiss 综述 §4](../systems/faiss.md)）
+
+[douze-2024-faiss-library §4] 把所有量化方法拉到一个 hierarchy：
+
+```
+binary (1-bit scalar)
+  ⊂ scalar quantizer (per-dim, 4/6/8 bit)
+    ⊂ product quantizer (PQ — 本 page)
+      ⊂ product-additive quantizer (PRQ, PLSQ)
+        ⊂ additive quantizer (RQ, LSQ)
+          ⊂ general MCQ
+```
+
+每层比上一层有更多自由度（更准）但也更贵（更慢、训练更多）。**PQ 在这个层级里相当于"M 个 1-level additive quantizer"的特例**。
+
+代表算法：
+
+- **Residual Quantizer (RQ)**：依次量化残差 [Chen 2010]
+- **Local Search Quantizer (LSQ)**：simulated annealing 优化 codebook [Martinez 2016, 2018]
+- **Product Residual Quantizer (PRQ)**：M 子向量 × 各自 RQ
+- **Product LSQ (PLSQ)**：M 子向量 × 各自 LSQ
+- 全部支持类似 ADC 的距离查询（[douze-2024-faiss-library Eq 14]）
+
+经验（[douze-2024-faiss-library §4.4 + Fig 3]）：
+
+- 小 code（<32 byte）下 LSQ / RQ 优于 PQ；
+- 大 code（>64 byte）下 PRQ / PLSQ 接管；
+- [ScaNN](./scann.md) 的 anisotropic loss 与所有这些方法**正交**，可以叠加。
 
 ## Open Questions
 
