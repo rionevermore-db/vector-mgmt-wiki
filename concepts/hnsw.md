@@ -86,3 +86,5 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 - MIPS 任务下 [ScaNN](./scann.md) 在 Glove1.2M 高 recall 区间击败 HNSW（包括 nmslib 与 faiss 实现）[guo-2019-scann §5.3 + Fig 4b]；HNSW 的 L2 中心设计是否适合 MIPS 主导的现代 embedding 检索场景？详见 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
 - HNSW 的边选择启发式（Alg 4）隐式使用 α=1；[Vamana](./vamana.md) 把 α 暴露为可调参数后击败 HNSW（million-scale）[subramanya-2019-diskann §2.4 + §4.1]。HNSW 的多层 hierarchy 是否仍是必要的？开放争议。
 - HNSW 假设 index 全在 DRAM；当数据规模超过单机 DRAM 时只能简单分片。[DiskANN](../systems/diskann.md) 给出 SSD-resident 替代路线（单机 64 GB RAM 跑 1B SIFT @ 98% recall）。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
+
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

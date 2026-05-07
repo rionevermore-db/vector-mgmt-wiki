@@ -1,8 +1,8 @@
 ---
 title: Disk vs Memory ANN（SSD 与 DRAM 的 ANN 路线）
 type: topic
-sources: [subramanya-2019-diskann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../systems/diskann.md, ../systems/faiss.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/faiss-trillion-scale.md]
+sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -34,8 +34,9 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 | **多机分片** | NSG @ Taobao（32 partition × 1/32 数据） | 分布式 DRAM | ~98% | N 台机器 × 数十 GB |
 | **GPU brute force** | [Faiss-GPU](../systems/faiss.md) | HBM | 高 | 单卡 ~32 GB |
 | **磁盘 + 量化导航 + SSD re-rank** | [DiskANN](../systems/diskann.md) | DRAM (PQ) + SSD (graph + full vec) | **98.68%** | 64 GB |
+| **磁盘 + IVF + 全精度 posting list** | [SPANN](../systems/spann.md) | DRAM (centroids + SPTAG) + SSD (full posting list) | **>90% @ ~1 ms** | ~32 GB |
 
-[subramanya-2019-diskann §1, §4.4]; [douze-2024-faiss-library §5.5 Fig 8]
+[subramanya-2019-diskann §1, §4.4]; [douze-2024-faiss-library §5.5 Fig 8]; [chen-2021-spann §4.2]
 
 ## 关键洞见 1：算法对随机访问延迟的敏感度
 
@@ -59,7 +60,30 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 
 这一模式（DRAM-PQ + SSD-FullPrecision）是 [PQ](../concepts/product-quantization.md) 范式之后的新混合模式。
 
-## 关键洞见 3：内存层级与算法选择的强耦合
+## 关键洞见 3：两条 SSD 路线 —— Graph vs Inverted File
+
+[DiskANN](../systems/diskann.md) 与 [SPANN](../systems/spann.md) 同期、同公司（Microsoft）、同目标（1B+ 单机 SSD），但走**对立算法路线**：
+
+| | [DiskANN](../systems/diskann.md) | [SPANN](../systems/spann.md) |
+|---|---|---|
+| 路线 | **Graph + SSD** | **IVF + SSD** |
+| 内存放什么 | PQ codes（32 byte/vec） | Centroids（~16% 总向量）+ SPTAG 索引 |
+| SSD 放什么 | Vamana graph + 全精度向量（同扇区） | Posting list（全精度，不量化） |
+| 是否用 PQ | 是（仅导航） | **否** |
+| SSD 访问模式 | 多次小读（每跳一次，beam search 批 4-8） | **少量大读**（K 个 posting list） |
+| 90% recall 延迟 | ~3-4 ms | **~1 ms** |
+| 公平 benchmark 下 | DiskANN 快慢交替 | **SPANN 在低 latency budget 下系统性领先** [chen-2021-spann §4.2] |
+
+**两条路线的本质差异**：
+
+- **DiskANN**：把 graph 算法的"少跳"思路移到 SSD，每跳成本仍高所以用 PQ 加速决策、用 beam search 批量化 IO
+- **SPANN**：把 IVF 算法的"局部扫描"思路移到 SSD，posting list 大小可控所以一次 SSD 大读可拿全部候选 → 不需要量化
+
+**为什么 SPANN 能不用 PQ**：因为 inverted file 的访问模式是 *block-sequential*（一次读一个 posting list），SSD 顺序读带宽足够。Graph 是 *random-pointer-chasing*，每次读小 → IOPS 上限触顶 → 必须用 PQ 减少候选。
+
+详见 [SPANN vs DiskANN benchmark](../benchmarks/spann-vs-diskann-billion.md)。
+
+## 关键洞见 4：内存层级与算法选择的强耦合
 
 | 层级 | 算法偏好 |
 |---|---|
@@ -86,4 +110,7 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 - **网络存储 ANN**：所有"disk-resident"分析假设本地 NVMe；远程块设备 / 对象存储下 latency 完全不同。
 - **持久内存（CXL、Optane）作为中间层**：DRAM 与 SSD 之间出现新的存储层；ANN 算法适配未在 wiki 任何 source 覆盖。
 - **SSD 寿命与 wear leveling**：高 QPS ANN 服务对 SSD 是持续随机读负载；写入压力低但寿命经济性需要量化。
-- **SPANN（Chen 2021）等后继路线**：用 inverted file + SSD-resident posting list 路线（与 DiskANN graph 路线对立），wiki 尚未 ingest。
+- **CAGRA / GGNN 等 GPU graph 索引**：把图算法移到 GPU，是与 SSD 路线平行的另一种 scale-out 思路。wiki 尚未 ingest。
+- **DiskANN vs SPANN 的最终归宿**：两条路线各自有边界（DiskANN 在高 latency budget 下追平、SPANN 在 query 难度极不均时退化）；最终是融合方案（HBC + graph）还是路线分化是开放问题。
+
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

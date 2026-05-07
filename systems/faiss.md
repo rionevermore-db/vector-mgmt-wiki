@@ -137,6 +137,7 @@ IndexShards / IndexReplicas ← 分片 / 复制
 |---|---|---|
 | [ScaNN](../concepts/scann.md)（Google） | Faiss 借鉴其 4-bit FastScan SIMD layout | 反向：ScaNN 是 IVFPQ + 自家 anisotropic loss |
 | [DiskANN](./diskann.md)（Microsoft） | 平行竞品 | 磁盘原生（[Vamana](../concepts/vamana.md) graph + SSD）；Faiss 主要内存。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md) |
+| [SPANN](./spann.md)（Microsoft / SPTAG） | 平行竞品 | 磁盘原生 IVF（centroids 内存 + posting list SSD）；Bing 几千亿规模生产。Faiss IVFPQ 的 SSD 化对应物 |
 | HNSWlib / nmslib | [HNSW](../concepts/hnsw.md) 参考实现 | Faiss `IndexHNSW` 从此分叉 |
 | Milvus | **依赖** Faiss 作为引擎之一 | Knowhere 库 wrap Faiss |
 | Pinecone | 早期依赖 Faiss，后改 Rust 重写 | |
@@ -155,3 +156,5 @@ IndexShards / IndexReplicas ← 分片 / 复制
 - **Out-of-distribution queries**：§5.2 提及 OOD-DiskANN、Filtered-DiskANN 是 frontier；Faiss 当前不直接支持。
 - **GPU graph 索引**：§A.3 末尾明示 CAGRA 是 emerging direction；Faiss-GPU 当前只有 IVF 类。
 - **库 vs 数据库的边界何时模糊**：Milvus / Vespa 已经把 Faiss 包成数据库；上下游融合到什么程度时 Faiss 应该收回部分功能？
+
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

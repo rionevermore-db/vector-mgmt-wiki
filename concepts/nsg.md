@@ -114,3 +114,5 @@ NSG 论文 §3.2 给出了关键证明：**MSNET 上 Algorithm 1 找到的就是
 - **MIPS 任务下未验证**：MRNG 的 monotonicity 证明依赖 L2 距离结构（lune 几何），MIPS 不是度量空间，理论是否成立未在论文中讨论。NSG 论文全部 benchmark 都是 L2 任务。详见 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
 - NSG 隐式 α=1；[Vamana](./vamana.md) 引入可调 α 后**在 SIFT1M / GIST1M / DEEP1M 上系统击败 NSG**（更小的 graph diameter，更少 hops）[subramanya-2019-diskann §4.1]。Vamana 是否完全取代 NSG？争议中。
 - NSG 也假设全内存；[DiskANN](../systems/diskann.md) 用 Vamana + SSD 给出"单机 + 大数据"组合，与 Taobao 32-shard 路线不同。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
+
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

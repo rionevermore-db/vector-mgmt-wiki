@@ -1,8 +1,8 @@
 ---
 title: Product Quantization（PQ / IVFADC）
 type: concept
-sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library, subramanya-2019-diskann]
-related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/diskann-sift1b.md]
+sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library, subramanya-2019-diskann, chen-2021-spann]
+related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -160,8 +160,24 @@ binary (1-bit scalar)
 
 这与 PQ 论文 [jegou-2011-pq §III] 设想的"PQ ADC 是最终距离"不同 —— 在 [DiskANN](../systems/diskann.md) 里 PQ **只做导航不做 ranking**。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
 
+## 反例：[SPANN](../systems/spann.md) 证明 IVF 不必绑 PQ
+
+[chen-2021-spann] 给出了 IVFADC 范式的另一个反思：**inverted file 路线在 SSD 上不需要 PQ**。
+
+PQ 论文的核心论证是"内存是瓶颈，必须量化压缩"。SPANN 证明：把 posting list 全精度放 **SSD**（不是 RAM），同时把内存预算用于多 centroids（~16% N），通过 query-aware pruning 控制 SSD 访问数 → 全程不用 PQ 也能 1B 单机 + ~1 ms latency。
+
+这意味着 **PQ 路径与 IVF 路径在 SSD 时代解耦了**：
+
+- **Faiss IVFPQ** [jegou-2011-pq + douze-2024-faiss-library]：IVF + PQ + 全内存
+- **DiskANN** [subramanya-2019-diskann]：graph + PQ + SSD 全精度 re-rank
+- **SPANN** [chen-2021-spann]：IVF（无 PQ）+ SSD 全精度 posting list
+
+PQ 仍是值得用的（节省内存），但**不再是 IVFADC 范式的不可分割部分**。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
+
 ## Open Questions
 
 - 如何让 PQ 量化器学到与查询分布对齐而非仅与 database 分布对齐？论文的 ADC 仍假设 query 与 database 同分布。**部分回答**：[ScaNN](./scann.md) 的 score-aware loss 显式建模 query 分布并按 inner product 加权 [guo-2019-scann §3] —— 但仅针对 MIPS，L2-NN 通用版仍开放。
 - 维度分组的自动化：论文提到 minimum sum-squared residue co-clustering [30 in jegou-2011-pq] 是潜在方向，但未实施。[jegou-2011-pq §V.C 末尾]
 - IVFADC 的 coarse quantizer 用更优结构（如 IMI、HNSW-as-coarse-quantizer）能否进一步降低 k'·D 的查询开销？论文 §V.E 末尾承认对大 k' 用 hierarchical quantizer，工业界已有 HNSW + PQ 混合方案。**部分工程化**：[Faiss-GPU](./warpselect.md) [johnson-2017-faiss-gpu] 把 IVFADC 整体迁移到 GPU 后，coarse quantizer 反而变成相对小的开销（GPU brute-force 算 k'×D 极快），实际工程更关注 fused kernel 与 PQ lookup 表布局。
+
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

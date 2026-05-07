@@ -88,3 +88,5 @@ updated: 2026-05-07
 - **多目标场景**：既要 MIPS 又要 L2-NN（推荐 + 去重在同一 service），是否能共享 index？
 - **磁盘 vs 内存边界正在移动**：DiskANN / SPANN 改变了 1B+ 必须 quantization 的旧定理；wiki 尚未 ingest
 - **filtered search 的最优策略**：vector-first vs metadata-first 的 cutoff 是 selection rate；Faiss 用经验阈值（约 3×10⁻⁴），但理论上可学习
+
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

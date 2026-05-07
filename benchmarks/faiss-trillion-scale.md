@@ -84,3 +84,5 @@ updated: 2026-05-07
 - **更新策略**：1.5T 索引如果数据分布漂移，rebuild 成本极高。论文未讨论 incremental update 方案
 - **网络瓶颈**：分散到 20 服务器后，跨机 fetch 倒排 list 是新瓶颈；论文未给具体网络栈优化
 - **召回率**：54 字节编码下 recall 数字未公开；这是"够用就好"还是"严格保证"？
+
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)
