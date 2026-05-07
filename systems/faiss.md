@@ -2,7 +2,7 @@
 title: Faiss（Library）
 type: system
 sources: [douze-2024-faiss-library, johnson-2017-faiss-gpu]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, diskann.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, diskann.md, spann.md, milvus.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -139,7 +139,7 @@ IndexShards / IndexReplicas ← 分片 / 复制
 | [DiskANN](./diskann.md)（Microsoft） | 平行竞品 | 磁盘原生（[Vamana](../concepts/vamana.md) graph + SSD）；Faiss 主要内存。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md) |
 | [SPANN](./spann.md)（Microsoft / SPTAG） | 平行竞品 | 磁盘原生 IVF（centroids 内存 + posting list SSD）；Bing 几千亿规模生产。Faiss IVFPQ 的 SSD 化对应物 |
 | HNSWlib / nmslib | [HNSW](../concepts/hnsw.md) 参考实现 | Faiss `IndexHNSW` 从此分叉 |
-| Milvus | **依赖** Faiss 作为引擎之一 | Knowhere 库 wrap Faiss |
+| **[Milvus](./milvus.md)** | **建在 Faiss 之上的 vector DBMS** | 内核 wrap Faiss IVF/PQ/HNSW，但补齐 Faiss 明确不做的功能：dynamic data (LSM)、distributed (shared-storage)、attribute filtering、multi-vector query、cache-aware/SIMD/SQ8H 工程改造。是 Faiss §1 "库 vs 数据库" 论点的工业 DBMS 对应物 [per wang-2021-milvus]。Knowhere 库 wrap Faiss 是 1.x 路线；Milvus 2.0+ 是 cloud-native 重写 |
 | Pinecone | 早期依赖 Faiss，后改 Rust 重写 | |
 | Weaviate | 复合检索引擎，含 Faiss 作为可选 | |
 
@@ -155,6 +155,6 @@ IndexShards / IndexReplicas ← 分片 / 复制
 - **真正的 graph 增量更新**：[HNSW](../concepts/hnsw.md) 支持 add 但不支持 suppression / mutation；[NSG](../concepts/nsg.md) 不支持任何增量。`FreshDiskANN` 是工程方向。
 - **Out-of-distribution queries**：§5.2 提及 OOD-DiskANN、Filtered-DiskANN 是 frontier；Faiss 当前不直接支持。
 - **GPU graph 索引**：§A.3 末尾明示 CAGRA 是 emerging direction；Faiss-GPU 当前只有 IVF 类。
-- **库 vs 数据库的边界何时模糊**：Milvus / Vespa 已经把 Faiss 包成数据库；上下游融合到什么程度时 Faiss 应该收回部分功能？
+- **库 vs 数据库的边界何时模糊**：[Milvus](./milvus.md) / Vespa 已经把 Faiss 包成数据库；上下游融合到什么程度时 Faiss 应该收回部分功能？[wang-2021-milvus] 给出 DBMS 一侧的具体回答：cache-aware partition、runtime SIMD hooking、SQ8H hybrid CPU/GPU、LSM segment、shared-storage 分布式、五策略 attribute filtering、multi-vector query 都属"Faiss 不做、上层补齐"
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

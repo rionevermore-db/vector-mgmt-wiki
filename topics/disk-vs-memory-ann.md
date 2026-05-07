@@ -2,7 +2,7 @@
 title: Disk vs Memory ANN（SSD 与 DRAM 的 ANN 路线）
 type: topic
 sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -83,7 +83,20 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 
 详见 [SPANN vs DiskANN benchmark](../benchmarks/spann-vs-diskann-billion.md)。
 
-## 关键洞见 4：内存层级与算法选择的强耦合
+## 关键洞见 4：DBMS 层的"内存 + 异步刷盘"模式（Milvus LSM segment）
+
+[Milvus](../systems/milvus.md) [wang-2021-milvus §2.3] 给出第三种"内存 + 磁盘"组合：
+
+- **Memory MemTable** 接受新写入
+- 阈值或每秒 → flush 为 **immutable segment**（默认 1 GB）持久化到 local FS / S3 / HDFS
+- 后台 **tiered merge** 合并相近大小 segment
+- Index 可在 segment 级别延迟构建（默认仅大 segment 自动建）
+
+**与 [DiskANN](../systems/diskann.md) / [SPANN](../systems/spann.md) 的根本差异**：DiskANN/SPANN 假设静态数据，索引一次构建后只读；Milvus 的 LSM 模型支持**持续写入 + 周期 flush + 后台 merge**——是 DBMS 视角而非 algorithm 视角。代价是 segment 多时查询要扫多 segment。
+
+> **wiki 解读**：DiskANN/SPANN/Faiss 都是"index = single global object"思路；Milvus 是"index = sharded over segments + LSM merge"思路。前者优化 query，后者同时优化 query + write。
+
+## 关键洞见 5：内存层级与算法选择的强耦合
 
 | 层级 | 算法偏好 |
 |---|---|

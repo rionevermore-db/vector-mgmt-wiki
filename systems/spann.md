@@ -2,7 +2,7 @@
 title: SPANN（System）
 type: system
 sources: [chen-2021-spann]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, diskann.md, faiss.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../benchmarks/spann-vs-diskann-billion.md]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, diskann.md, faiss.md, milvus.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../benchmarks/spann-vs-diskann-billion.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

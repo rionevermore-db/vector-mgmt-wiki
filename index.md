@@ -18,6 +18,7 @@
 - [Faiss](./systems/faiss.md) — Meta 开源的 ANN 算法工具箱，C++17 + Python；工业事实标准；不是数据库
 - [DiskANN](./systems/diskann.md) — Microsoft 开源的 SSD-resident ANN 系统，单机 64 GB RAM 跑 1B SIFT @ 98% recall；graph + SSD 路线
 - [SPANN](./systems/spann.md) — Microsoft 开源的 SSD-resident ANN 系统，centroids in DRAM + posting lists on SSD；inverted file 路线；Bing 几千亿规模生产
+- [Milvus](./systems/milvus.md) — Zilliz 开源的 vector DBMS（不是 library/算法系统）；建在 Faiss 之上 + LSM segment + shared-storage 分布式 + 五策略 attribute filtering + multi-vector query；SIGMOD 2021，LF AI 孵化
 
 ## Topics（跨概念主题）
 
@@ -25,6 +26,8 @@
 - [GPU vs CPU ANN](./topics/gpu-vs-cpu-ann.md) — CPU 偏好图遍历、GPU 偏好 brute-force + fused k-selection；同一算法在两种硬件上最优形态不同
 - [Index Selection](./topics/index-selection.md) — Faiss 决策树式索引选型：N + memory + 增量需求 + filtered search 的组合决定 index 类型
 - [Disk vs Memory ANN](./topics/disk-vs-memory-ann.md) — SSD vs DRAM 的 ANN 路线；DiskANN（graph）与 SPANN（inverted file）两条 SSD 路线对比
+- [Attribute Filtering](./topics/attribute-filtering.md) — 向量+属性混合查询的五策略框架（Faiss IDSelector / AnalyticDB-V cost-based / Milvus partition-based）；后者比前者快 13.7×
+- [Multi-Vector Queries](./topics/multi-vector-queries.md) — 多向量 entity 的 top-k 查询；vector fusion（仅适用内积）vs iterative merging（基于 Fagin NRA，通用）
 
 ## Benchmarks（测评）
 
@@ -36,6 +39,7 @@
 - [Faiss Trillion-scale Index](./benchmarks/faiss-trillion-scale.md) — Faiss 论文 §7.1：Meta 内部 1.5T × 144-d 索引，54 字节/向量，20 服务器 mmap 83 TiB
 - [DiskANN on SIFT1B](./benchmarks/diskann-sift1b.md) — DiskANN 论文 §4：1B SIFT 1-recall@1 = 98.68% @ <5ms（同等内存下 IVFOADC+G+P plateau 62.74%）
 - [SPANN vs DiskANN on Billion-scale](./benchmarks/spann-vs-diskann-billion.md) — SPANN 论文 §4：在三个 billion-scale 数据集上 SPANN 比 DiskANN 在 90% recall 时快 2×
+- [Milvus vs SPTAG / Vearch / 商业系统](./benchmarks/milvus-vs-prior-sift10m-deep10m.md) — Milvus 论文 §7：6.4×–73× faster than Vearch / SPTAG / 商业 ABC；SIFT1B 单节点 + 12 节点近线性扩展；cache-aware 2.7× / AVX512 1.5× / SQ8H 系统胜 pure CPU/GPU
 
 ## Queries（高价值 query 答案存档）
 

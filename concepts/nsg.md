@@ -2,7 +2,7 @@
 title: NSG（Navigating Spreading-out Graph）
 type: concept
 sources: [fu-2017-nsg, guo-2019-scann, subramanya-2019-diskann]
-related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md]
+related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, ../systems/diskann.md, ../systems/milvus.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -102,7 +102,7 @@ NSG 论文 §3.2 给出了关键证明：**MSNET 上 Algorithm 1 找到的就是
 
 - 作者实现：[`ZJULearning/nsg`](https://github.com/ZJULearning/nsg)（C++）
 - Faiss 已支持 NSG 索引（`IndexNSG`）
-- 主流向量数据库（Milvus 等）已集成
+- **[Milvus](../systems/milvus.md)** 在 graph-based 索引族里集成 "**RNSG**"（与 HNSW 并列）[wang-2021-milvus §2.2]。注：RNSG 命名歧义见下方 Open Q
 
 ## Open Questions
 
@@ -114,5 +114,6 @@ NSG 论文 §3.2 给出了关键证明：**MSNET 上 Algorithm 1 找到的就是
 - **MIPS 任务下未验证**：MRNG 的 monotonicity 证明依赖 L2 距离结构（lune 几何），MIPS 不是度量空间，理论是否成立未在论文中讨论。NSG 论文全部 benchmark 都是 L2 任务。详见 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
 - NSG 隐式 α=1；[Vamana](./vamana.md) 引入可调 α 后**在 SIFT1M / GIST1M / DEEP1M 上系统击败 NSG**（更小的 graph diameter，更少 hops）[subramanya-2019-diskann §4.1]。Vamana 是否完全取代 NSG？争议中。
 - NSG 也假设全内存；[DiskANN](../systems/diskann.md) 用 Vamana + SSD 给出"单机 + 大数据"组合，与 Taobao 32-shard 路线不同。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
+- **Milvus 的 "RNSG" 身份**：[wang-2021-milvus §2.2] 把 graph 索引列为 "HNSW + RNSG"，引用 ref [20] = Fu 2017 = 本 page 的 NSG。但生态里 "RNSG" 一名常被解读为 "Rand-NSG" = Subramanya 2019 早期名 = [Vamana](./vamana.md) / [DiskANN](../systems/diskann.md)（Milvus 论文 ref [61]）。**正文 ref vs 命名矛盾，论文未澄清**，是 NSG 还是 Vamana 的工程实现需查 Milvus 源码确认。
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)
