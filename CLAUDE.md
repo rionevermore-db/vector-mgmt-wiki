@@ -338,7 +338,7 @@ Talk 开场的 "promise" 段需要展示——同一个 query 在 ingest 数轮�
 ### 文件清单
 
 - `evolution/tracking-queries.md` — 1-3 个要追踪的 query（query-key + 完整问题文本）
-- `evolution/query-snapshots/<date>-<query-key>-<pre|post>.md` — 每次 ingest 前后各一份快照
+- `evolution/query-snapshots/<date>-<ingest-context>-<query-key>-<pre|post>.md` — 每次 ingest 前后各一份快照。文件名带 ingest-context 保证同一天多次 ingest 不撞车，例：`2026-05-07-fu-2017-nsg-hnsw-vs-nsg-pre.md`
 
 ### 快照文件格式
 
