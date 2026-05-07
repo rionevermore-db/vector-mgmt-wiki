@@ -1,8 +1,8 @@
 ---
 title: Proximity Graph（邻近图）
 type: concept
-sources: [malkov-2016-hnsw]
-related: [hnsw.md, nsw.md, product-quantization.md]
+sources: [malkov-2016-hnsw, fu-2017-nsg]
+related: [hnsw.md, nsw.md, product-quantization.md, nsg.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---
@@ -19,6 +19,8 @@ updated: 2026-05-07
 | **Delaunay graph** | a–b 之间存在边当且仅当存在某查询 q 使得"贪心从 a 走到 b"是最优路径 | 保证朴素贪心遍历总能到最近邻，但只能从空间结构构造、且高维下度数指数增长 [39 in malkov-2016-hnsw] |
 | **Relative Neighborhood Graph (RNG)** | a–b 有边当且仅当不存在第三点 c 同时满足 d(c,a)<d(a,b) 且 d(c,b)<d(a,b) | Delaunay 的最小子图；HNSW Alg 4 的启发式选择得到其近似 [46 in malkov-2016-hnsw] |
 | **Sparse neighborhood graph** | Arya & Mount 1993 [18 in malkov-2016-hnsw] | 与 RNG 思想类似，被 FANNG [47 in malkov-2016-hnsw] 使用 |
+| **MSNET (Monotonic Search Network)** | 任意两点 p, q 之间存在至少一条单调路径（朴素贪心无回溯即可到达）[Theorem 1 in fu-2017-nsg] | Delaunay 是 MSNET；最小 MSNET 构造 O(n²log n + n²c)，不可大规模实施 [13 in fu-2017-nsg] |
+| **MRNG (Monotonic RNG)** | RNG + 有向 + 按 index 排序的边选择，强制 NNG ⊂ MRNG [Definition 5 in fu-2017-nsg] | 最大出度独立于 n（Lemma 2）；期望搜索复杂度高维下 ≈ O(log N)；[NSG](./nsg.md) 是其工程化近似 |
 
 ## 为什么 ANN 用 proximity graph
 

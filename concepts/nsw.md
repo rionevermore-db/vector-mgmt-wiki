@@ -2,9 +2,9 @@
 title: NSW（可导航小世界图）
 type: concept
 sources: [malkov-2016-hnsw]
-related: [hnsw.md, proximity-graph.md]
+related: [hnsw.md, proximity-graph.md, nsg.md]
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-07
 ---
 
 # NSW

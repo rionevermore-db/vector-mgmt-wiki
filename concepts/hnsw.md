@@ -1,8 +1,8 @@
 ---
 title: HNSW（分层可导航小世界图）
 type: concept
-sources: [malkov-2016-hnsw]
-related: [nsw.md, proximity-graph.md, product-quantization.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md]
+sources: [malkov-2016-hnsw, fu-2017-nsg]
+related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---
@@ -58,16 +58,16 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 
 ## 与同类对比
 
-| | HNSW | NSW | [Faiss IVFPQ](./product-quantization.md) |
-|---|---|---|---|
-| 数据结构 | 多层 proximity graph | 单层 proximity graph | 倒排表 + PQ 量化 |
-| 搜索复杂度 | O(log N) | polylog | 近似 O(√N) 桶 |
-| 内存（200M SIFT） | 64 GB | 同级 | 23–30 GB |
-| 200M SIFT 速度 | 最快 | 不参评 | 慢 1+ 数量级 |
-| 支持删除 / 更新 | 否 | 否 | 是 |
-| 分布式 | 困难 | 天然 | 是 |
+| | HNSW | NSW | [NSG](./nsg.md) | [Faiss IVFPQ](./product-quantization.md) |
+|---|---|---|---|---|
+| 数据结构 | 多层 proximity graph | 单层 proximity graph | 单层 + MRNG 近似 | 倒排表 + PQ 量化 |
+| 搜索复杂度 | O(log N)（经验） | polylog | ≈ O(log N)（MRNG 理论） | 近似 O(√N) 桶 |
+| 内存 | 64 GB（200M SIFT） | 同级 HNSW | **153 MB（SIFT1M）** [fu-2017-nsg Table 2] | 23–30 GB（200M SIFT） |
+| Million-scale 速度 @ 高 precision | 次 | 弱 | **最强** [fu-2017-nsg Fig 6] | 弱 |
+| 支持删除 / 更新 | 否 | 否 | 否 | 是 |
+| 分布式 | 困难 | 天然 | 困难（Taobao 用分片） | 是 |
 
-[malkov-2016-hnsw §5.4 + Table 3 + Fig 15] 详见 [HNSW vs Faiss PQ on 200M SIFT](../benchmarks/hnsw-vs-faiss-200m-sift.md)。
+[malkov-2016-hnsw §5.4 + Table 3 + Fig 15]；NSG 一侧详见 [NSG vs Graph ANNs on Million-Scale](../benchmarks/nsg-vs-graph-anns-million.md)；HNSW vs Faiss 一侧详见 [HNSW vs Faiss PQ on 200M SIFT](../benchmarks/hnsw-vs-faiss-200m-sift.md)。
 
 ## 典型实现
 
@@ -81,3 +81,4 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 - M 参数能否通过启发式自动推断？作者说"潜在可以"但未实现。[malkov-2016-hnsw §6]
 - 如何支持元素删除 / 更新而不退化图质量？开放问题。
 - 如何让 HNSW 真正分布式？只能简单分片（每分片一个独立 HNSW），全系统吞吐 scale 差。[malkov-2016-hnsw §6]
+- [NSG](./nsg.md) 在 million-scale 上系统击败 HNSW（更小内存、更高 QPS）[fu-2017-nsg §4.1]；HNSW 的多层结构在数据能装内存的场景下是否仍是最优？开放争议。

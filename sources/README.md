@@ -8,6 +8,7 @@
 |---|---|---|---|---|---|---|
 | malkov-2016-hnsw | Efficient and Robust Approximate Nearest Neighbor Search using Hierarchical Navigable Small World Graphs | Yu. A. Malkov, D. A. Yashunin | 2016 (arXiv) / 2020 (IS) | paper | papers/malkov-2016-hnsw.pdf | 2026-04-30 |
 | jegou-2011-pq | Product Quantization for Nearest Neighbor Search | Hervé Jégou, Matthijs Douze, Cordelia Schmid | 2011 (TPAMI) | paper | papers/jegou-2011-pq.pdf | 2026-05-07 |
+| fu-2017-nsg | Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph | Cong Fu, Chao Xiang, Changxu Wang, Deng Cai | 2017 (arXiv) / 2019 (VLDB) | paper | papers/fu-2017-nsg.pdf | 2026-05-07 |
 
 ## 命名约定
 
