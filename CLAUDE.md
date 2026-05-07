@@ -264,6 +264,8 @@ ASCII 或链接到 sources/docs 中的图。
 
 #### 公共步骤（路径 A、B、C 汇合）
 
+> ⚠️ **临时 hook（仅 talk 准备期）**：若仓库根存在 `evolution/tracking-queries.md`，公共步骤开始前后各跑一次快照——详见**附录 A**。Talk 结束后这行连同附录一起删掉。
+
 5. 阅读 source，向用户口头报告 takeaway，等待用户补充
 6. 决定该 source 影响哪些 page type，候选包括：
    - 新建 1 个或多个 page（concepts / systems / topics / benchmarks）
@@ -321,3 +323,50 @@ ASCII 或链接到 sources/docs 中的图。
 - 用户提问任何技术问题 → 默认走 Query workflow（先用 wiki 找答案）
 - 用户说 **"lint"** → 执行 Lint workflow
 - 用户说 **"plan"** → 报告当前 wiki 状态：page 数、最近 ingest、可见的覆盖盲点
+
+---
+
+## 附录 A：Talk 演示快照工作流（临时，非核心）
+
+> ⚠️ **本附录是 2026 部门 AI 知识管理 talk 的临时演示脚手架，不是 LLM-wiki 模式本身的一部分。**
+> 用 LLM-wiki 模式的人不需要这个；本附录与对应文件在 talk 结束后应整体删除。
+
+### 用途
+
+Talk 开场的 "promise" 段需要展示——同一个 query 在 ingest 数轮前后，答案如何从单薄变厚实、citation 从 0-2 涨到 5+。仅靠口述不够，需要时间序列的真实快照作为视觉证据（开场 slide / 末段 slide）。
+
+### 文件清单
+
+- `evolution/tracking-queries.md` — 1-3 个要追踪的 query（query-key + 完整问题文本）
+- `evolution/query-snapshots/<date>-<query-key>-<pre|post>.md` — 每次 ingest 前后各一份快照
+
+### 快照文件格式
+
+```yaml
+---
+query-key: hnsw-vs-nsg-selection
+query: "HNSW 和 NSG 都是 proximity graph，工程上怎么选？"
+date: 2026-05-07
+phase: pre   # 或 post
+ingest-context: jegou-2011-pq   # 这次快照是为哪个 ingest 而拍
+wiki-pages-total: 5
+cited-pages: [concepts/hnsw.md, concepts/nsw.md]
+cited-count: 2
+---
+
+# 答案正文（query workflow 跑出来的内容）
+```
+
+### 触发逻辑
+
+**前提**：仓库根目录存在 `evolution/tracking-queries.md`，否则全部跳过——保证去掉这一个文件就能停用整个机制。
+
+- **Pre-snapshot**：ingest 公共步骤开始前——对 tracking-queries.md 中每个 query 走一次 query workflow，写入 `<date>-<key>-pre.md`
+- **Post-snapshot**：公共步骤完成后、步骤 13 git commit 之前——同样 query 再跑一次，写入 `<date>-<key>-post.md`
+- **Commit 范围**：步骤 13 stage 时把 `evolution/query-snapshots/` 下新文件一并 commit
+
+### Talk 结束后清理（一次性 checklist）
+
+1. 删除 `evolution/` 目录
+2. 删除本附录（## 附录 A 整段）
+3. 移除 ingest 公共步骤里 "⚠️ **临时 hook（仅 talk 准备期）**：..." 那行
