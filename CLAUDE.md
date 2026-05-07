@@ -220,14 +220,25 @@ ASCII 或链接到 sources/docs 中的图。
 #### 路径 A 步骤（自动获取）
 
 1. **解析标题** → WebSearch 找规范来源；优先级：arXiv > 作者主页/官方 PDF > 会议官网 > 其他镜像
-2. **向用户确认**："找到 `<full title>`，`<arxiv-or-source-url>`，下载并 ingest 吗？" → 等用户点头
+2. **决定确认方式**——检查下方"自动确认判据"：
+   - **全部满足** → 跳过用户确认，**单行可见汇报**后直接下载：`"→ 自动解析为 <authors> <year> <short-name> (<url>)，开始下载 + ingest"`
+   - **任一不满足** → 向用户确认："找到 `<full title>`，`<arxiv-or-source-url>`，下载并 ingest 吗？" → 等用户点头
 3. **下载到 sources/**：用 `Invoke-WebRequest` 下到 `sources/papers/<first-author-year-shortname>.pdf`，符合命名约定
 4. **进入步骤 5**（读 + ingest 流程）
+
+##### 自动确认判据（全部满足才跳过用户确认）
+
+1. 来源是 **arXiv / 官方会议站 / 作者主页**——**不接受** ResearchGate、镜像聚合站、其他二手站点
+2. **只有一个强候选**——无 arXiv 多版本歧义（v1/v2/v3 同时活跃且差异显著）、无同名/相近论文混淆
+3. **标题匹配度高**——解析到的 metadata title 与用户输入近乎完全对应（不是模糊命中）
+4. **作者 + 年份可从 metadata 可靠抓取**（命名约定 `<first-author-year-shortname>` 能稳定应用）
+
+> **安全网**：即使自动确认，下载前的单行可见汇报让用户随时能喊停。如果选错了 source，从 `sources/papers/` 删掉重新 ingest 即可（sources 不可修改但可删）。
 
 > **路径 A 的失败/降级**：
 > - WebSearch 找不到合法 URL → 报告用户、转路径 B
 > - PDF 是付费墙（DOI 跳转、需登录）→ 报告用户、转路径 B
-> - 找到的 URL 存在多个版本（preprint vs 期刊版、v1 vs v3）→ 列出选项让用户挑
+> - 找到的 URL 存在多个版本（preprint vs 期刊版、v1 vs v3）→ 自动确认判据失败，列出选项让用户挑
 
 #### 路径 B 步骤（手动）
 
