@@ -1,8 +1,8 @@
 ---
 title: HNSW（分层可导航小世界图）
 type: concept
-sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, douze-2024-faiss-library]
-related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md]
+sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, douze-2024-faiss-library, subramanya-2019-diskann]
+related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---
@@ -84,3 +84,5 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 - 如何让 HNSW 真正分布式？只能简单分片（每分片一个独立 HNSW），全系统吞吐 scale 差。[malkov-2016-hnsw §6]
 - [NSG](./nsg.md) 在 million-scale 上系统击败 HNSW（更小内存、更高 QPS）[fu-2017-nsg §4.1]；HNSW 的多层结构在数据能装内存的场景下是否仍是最优？开放争议。
 - MIPS 任务下 [ScaNN](./scann.md) 在 Glove1.2M 高 recall 区间击败 HNSW（包括 nmslib 与 faiss 实现）[guo-2019-scann §5.3 + Fig 4b]；HNSW 的 L2 中心设计是否适合 MIPS 主导的现代 embedding 检索场景？详见 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
+- HNSW 的边选择启发式（Alg 4）隐式使用 α=1；[Vamana](./vamana.md) 把 α 暴露为可调参数后击败 HNSW（million-scale）[subramanya-2019-diskann §2.4 + §4.1]。HNSW 的多层 hierarchy 是否仍是必要的？开放争议。
+- HNSW 假设 index 全在 DRAM；当数据规模超过单机 DRAM 时只能简单分片。[DiskANN](../systems/diskann.md) 给出 SSD-resident 替代路线（单机 64 GB RAM 跑 1B SIFT @ 98% recall）。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。

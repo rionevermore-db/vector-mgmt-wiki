@@ -1,8 +1,8 @@
 ---
 title: NSG（Navigating Spreading-out Graph）
 type: concept
-sources: [fu-2017-nsg, guo-2019-scann]
-related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, ../topics/mips-vs-l2-nn.md, ../benchmarks/nsg-vs-graph-anns-million.md]
+sources: [fu-2017-nsg, guo-2019-scann, subramanya-2019-diskann]
+related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -112,3 +112,5 @@ NSG 论文 §3.2 给出了关键证明：**MSNET 上 Algorithm 1 找到的就是
 - **Δr 项**的理论解释不完整——只有经验验证它"近似常数"。
 - **Navigating Node 选择**仅用 centroid 邻居；动态数据下 centroid 漂移如何处理未讨论。
 - **MIPS 任务下未验证**：MRNG 的 monotonicity 证明依赖 L2 距离结构（lune 几何），MIPS 不是度量空间，理论是否成立未在论文中讨论。NSG 论文全部 benchmark 都是 L2 任务。详见 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
+- NSG 隐式 α=1；[Vamana](./vamana.md) 引入可调 α 后**在 SIFT1M / GIST1M / DEEP1M 上系统击败 NSG**（更小的 graph diameter，更少 hops）[subramanya-2019-diskann §4.1]。Vamana 是否完全取代 NSG？争议中。
+- NSG 也假设全内存；[DiskANN](../systems/diskann.md) 用 Vamana + SSD 给出"单机 + 大数据"组合，与 Taobao 32-shard 路线不同。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。

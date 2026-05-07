@@ -1,8 +1,8 @@
 ---
 title: Product Quantization（PQ / IVFADC）
 type: concept
-sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library]
-related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
+sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library, subramanya-2019-diskann]
+related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/diskann-sift1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -147,6 +147,18 @@ binary (1-bit scalar)
 - 小 code（<32 byte）下 LSQ / RQ 优于 PQ；
 - 大 code（>64 byte）下 PRQ / PLSQ 接管；
 - [ScaNN](./scann.md) 的 anisotropic loss 与所有这些方法**正交**，可以叠加。
+
+## DRAM-PQ + SSD-FullPrecision 混合模式（[DiskANN](../systems/diskann.md)）
+
+[subramanya-2019-diskann §3] 提出新的 PQ 使用模式：
+
+- **PQ codes 仍放内存**做距离估计与图遍历导航
+- **全精度向量放 SSD**，与图节点同扇区，每次邻居读"顺手"取回（[subramanya-2019-diskann §3.5]）
+- 最终 ranking 用全精度向量，**不用 PQ ADC 距离**
+
+效果：把 PQ 的 recall 上限（量化失真天花板，~62% on SIFT1B + IVFOADC+G+P-32）打到 100%（DiskANN single 在 SIFT1B 上 98.68% [subramanya-2019-diskann §4.4]）。代价：每查询 SSD 访问数 = hop 数 ~10 个，总延迟 ~ms 级。
+
+这与 PQ 论文 [jegou-2011-pq §III] 设想的"PQ ADC 是最终距离"不同 —— 在 [DiskANN](../systems/diskann.md) 里 PQ **只做导航不做 ranking**。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
 
 ## Open Questions
 

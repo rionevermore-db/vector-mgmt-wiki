@@ -1,8 +1,8 @@
 ---
 title: Proximity Graph（邻近图）
 type: concept
-sources: [malkov-2016-hnsw, fu-2017-nsg, johnson-2017-faiss-gpu]
-related: [hnsw.md, nsw.md, product-quantization.md, nsg.md, ../topics/gpu-vs-cpu-ann.md]
+sources: [malkov-2016-hnsw, fu-2017-nsg, johnson-2017-faiss-gpu, subramanya-2019-diskann]
+related: [hnsw.md, nsw.md, product-quantization.md, nsg.md, vamana.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---
@@ -21,6 +21,8 @@ updated: 2026-05-07
 | **Sparse neighborhood graph** | Arya & Mount 1993 [18 in malkov-2016-hnsw] | 与 RNG 思想类似，被 FANNG [47 in malkov-2016-hnsw] 使用 |
 | **MSNET (Monotonic Search Network)** | 任意两点 p, q 之间存在至少一条单调路径（朴素贪心无回溯即可到达）[Theorem 1 in fu-2017-nsg] | Delaunay 是 MSNET；最小 MSNET 构造 O(n²log n + n²c)，不可大规模实施 [13 in fu-2017-nsg] |
 | **MRNG (Monotonic RNG)** | RNG + 有向 + 按 index 排序的边选择，强制 NNG ⊂ MRNG [Definition 5 in fu-2017-nsg] | 最大出度独立于 n（Lemma 2）；期望搜索复杂度高维下 ≈ O(log N)；[NSG](./nsg.md) 是其工程化近似 |
+| **SNG (Sparse Neighborhood Graph)** | Arya & Mount 1993 [5 in subramanya-2019-diskann]：N_out(p) 由"剩余候选中最近的 p* 主导其他候选"贪心生成 | 朴素构造 O(n²)；是 [Vamana](./vamana.md) RobustPrune α=1 的特例 |
+| **Vamana (α-controlled graph)** | RobustPrune 加 α≥1 系数：删除候选 p' 当 α·d(p*,p') ≤ d(p,p') [Algorithm 2 in subramanya-2019-diskann] | α=1 退化为 SNG；α>1 → 稀疏 + 长程边 → 小 diameter；[DiskANN](../systems/diskann.md) 的内存层算法 |
 
 ## 为什么 ANN 用 proximity graph
 

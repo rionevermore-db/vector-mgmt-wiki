@@ -2,7 +2,7 @@
 title: Faiss（Library）
 type: system
 sources: [douze-2024-faiss-library, johnson-2017-faiss-gpu]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, diskann.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -136,7 +136,7 @@ IndexShards / IndexReplicas ← 分片 / 复制
 | 库 | 关系 | 备注 |
 |---|---|---|
 | [ScaNN](../concepts/scann.md)（Google） | Faiss 借鉴其 4-bit FastScan SIMD layout | 反向：ScaNN 是 IVFPQ + 自家 anisotropic loss |
-| DiskANN（Microsoft） | 平行竞品 | 磁盘原生；Faiss 主要内存 |
+| [DiskANN](./diskann.md)（Microsoft） | 平行竞品 | 磁盘原生（[Vamana](../concepts/vamana.md) graph + SSD）；Faiss 主要内存。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md) |
 | HNSWlib / nmslib | [HNSW](../concepts/hnsw.md) 参考实现 | Faiss `IndexHNSW` 从此分叉 |
 | Milvus | **依赖** Faiss 作为引擎之一 | Knowhere 库 wrap Faiss |
 | Pinecone | 早期依赖 Faiss，后改 Rust 重写 | |
