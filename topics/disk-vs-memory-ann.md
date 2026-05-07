@@ -2,7 +2,7 @@
 title: Disk vs Memory ANN（SSD 与 DRAM 的 ANN 路线）
 type: topic
 sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -95,6 +95,22 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 **与 [DiskANN](../systems/diskann.md) / [SPANN](../systems/spann.md) 的根本差异**：DiskANN/SPANN 假设静态数据，索引一次构建后只读；Milvus 的 LSM 模型支持**持续写入 + 周期 flush + 后台 merge**——是 DBMS 视角而非 algorithm 视角。代价是 segment 多时查询要扫多 segment。
 
 > **wiki 解读**：DiskANN/SPANN/Faiss 都是"index = single global object"思路；Milvus 是"index = sharded over segments + LSM merge"思路。前者优化 query，后者同时优化 query + write。
+
+### 进一步：v2.6.x 把 WAL 也搬到 object storage（[Woodpecker](../concepts/woodpecker.md)）
+
+[per sources/docs/milvus/site/en/reference/architecture/woodpecker_architecture.md] Milvus 2.6 自研 [Woodpecker](../concepts/woodpecker.md) 取代 1.x 用的 Pulsar/Kafka 外部 broker，**zero-disk** 设计——WAL 直接写到 S3 / GCS / MinIO，metadata 在 etcd。
+
+**意义对 disk-vs-memory 主题**：
+- 不仅 vector index 数据下放 SSD/object storage（DiskANN/SPANN/Milvus segment）
+- **WAL 自身也下放 object storage**——彻底无本地磁盘
+- S3 backend 实测吞吐 750 MB/s（Kafka 130 MB/s, Pulsar 107 MB/s），延迟 166 ms
+
+这是**第三种"磁盘 vs 内存"层级的反转**：
+1. 第一种（DiskANN/SPANN）：vector data 从 DRAM 下放 SSD
+2. 第二种（Milvus LSM）：write path 从 in-memory MemTable 周期 flush 到 segment（local FS / S3）
+3. **第三种（Woodpecker）：WAL 从 broker local disk 下放 cloud object storage**
+
+每一层都是"用更慢但更便宜/更可靠的存储介质替代更快的"——背后是 cloud-native "stateless compute + 共享存储" 设计哲学的彻底落实。
 
 ## 关键洞见 5：内存层级与算法选择的强耦合
 

@@ -12,6 +12,7 @@
 - [ScaNN (Anisotropic VQ)](./concepts/scann.md) — Google 2020 提出的 score-aware quantization loss，把 PQ 改造为 MIPS 原生算法
 - [WarpSelect](./concepts/warpselect.md) — Faiss-GPU 的 k-selection 算法，状态全在寄存器、单次扫描，55% 峰值带宽
 - [Vamana](./concepts/vamana.md) — 单层 graph + α-controlled RobustPrune + 两遍构建，DiskANN 的内存层算法
+- [Woodpecker](./concepts/woodpecker.md) — Milvus 2.6 自研 zero-disk WAL；S3 上 750 MB/s 吞吐（5.8× over Kafka）；MemoryBuffer / QuorumBuffer 双部署模式
 
 ## Systems（产品 / 工程系统）
 

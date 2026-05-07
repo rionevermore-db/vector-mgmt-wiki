@@ -1,15 +1,17 @@
 ---
 title: Milvus（Vector DBMS）
 type: system
-sources: [wang-2021-milvus, douze-2024-faiss-library]
-related: [faiss.md, diskann.md, spann.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md]
+sources: [wang-2021-milvus, milvus-docs, douze-2024-faiss-library]
+related: [faiss.md, diskann.md, spann.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
 
 # Milvus
 
-**TL;DR**: Zilliz 开源的 **vector DBMS**——不是 ANN library（[Faiss](./faiss.md)）也不是 SSD-resident 算法系统（[DiskANN](./diskann.md) / [SPANN](./spann.md)），而是真正"vector 作为一等公民"的数据库管理系统。建在 Faiss 之上但补齐了 Faiss 缺的六件事：dynamic data（LSM）、distributed query、heterogeneous CPU/GPU 调度、attribute filtering、multi-vector query、easy-to-use API。SIGMOD 2021 论文给出 6.4×–73× faster than Vearch / SPTAG / 三个商业系统。LF AI 孵化项目，已被数百组织生产部署。[wang-2021-milvus §1-2]
+**TL;DR**: Zilliz 开源的 **vector DBMS**——不是 ANN library（[Faiss](./faiss.md)）也不是 SSD-resident 算法系统（[DiskANN](./diskann.md) / [SPANN](./spann.md)），而是真正"vector 作为一等公民"的数据库管理系统。**两个时期**：1.x（[SIGMOD 2021 论文](../sources/papers/wang-2021-milvus.pdf)）建在 Faiss 之上 + 单 writer / 多 reader shared-storage；**2.x（v2.6.x，cloud-native 重写）**：四层 disaggregated 架构 + Streaming Node + 自研 [Woodpecker](../concepts/woodpecker.md) zero-disk WAL + DiskANN/SCANN/GPU CAGRA 等纳入索引族。被 300+ 大企业部署（Salesforce / PayPal / Shopee / NVIDIA / IBM / Airbnb / eBay 等）。LF AI 孵化项目。[wang-2021-milvus §1-2; per sources/docs/milvus/site/en/about/overview.md]
+
+> **本 page 区分两个时期**：SIGMOD 2021 论文描述 1.x；后续小节标 "**v2.6.x:**" 的内容来自 [milvus-docs] 反映 cloud-native 重写。两份 source 描述的是同一产品的不同代际。
 
 ## 与现有 wiki 系统的定位差异
 
@@ -28,6 +30,8 @@ updated: 2026-05-07
 唯一全 ✓。**核心论点**：现有方案要么 library（不管数据生命周期），要么"传统 DB + vector column"（不能为 vector 做深度优化，如 query optimizer、storage engine、CPU/GPU 协同），要么单维度 vector engine（不支持 dynamic / distributed / 多模态查询）。Milvus 把 vector 当 first-class 重新设计完整 stack。[wang-2021-milvus §1, §8]
 
 ## 架构图
+
+### 1.x: 三引擎 (SIGMOD 2021)
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -52,6 +56,39 @@ updated: 2026-05-07
 ```
 
 [wang-2021-milvus Fig 1]
+
+### v2.6.x: 四层 cloud-native disaggregated
+
+```
+┌────────────────────────────────────────────────┐
+│ Layer 1: Access Layer (stateless proxy)        │
+│ ├─ load balancing (Nginx / K8s Ingress / LVS)  │
+│ └─ MPP aggregation + post-processing           │
+├────────────────────────────────────────────────┤
+│ Layer 2: Coordinator (single active, master-   │
+│   slave HA)                                    │
+│ ├─ DDL / DCL / TSO management                  │
+│ ├─ Streaming service binding                   │
+│ ├─ Query topology / load balancing             │
+│ └─ Compaction / index-build dispatch           │
+├────────────────────────────────────────────────┤
+│ Layer 3: Worker Nodes (stateless executors)    │
+│ ├─ Streaming Node ─── shard-level "mini-brain" │
+│ │   ├─ WAL append + state recovery             │
+│ │   ├─ growing data query                      │
+│ │   ├─ Query Delegator (forwards to QN)        │
+│ │   └─ growing → sealed handoff                │
+│ ├─ Query Node ─── load sealed segments         │
+│ └─ Data Node  ─── compaction + index build     │
+├────────────────────────────────────────────────┤
+│ Layer 4: Storage                               │
+│ ├─ Meta storage (etcd)                         │
+│ ├─ Object storage (MinIO / S3 / Azure Blob)    │
+│ └─ WAL storage (Woodpecker / Kafka / Pulsar)   │
+└────────────────────────────────────────────────┘
+```
+
+[per sources/docs/milvus/site/en/reference/architecture/architecture_overview.md, four_layers.md]
 
 ## 数据模型与 segment
 
@@ -152,16 +189,64 @@ updated: 2026-05-07
 **Vector fusion**——仅适用于可分解相似度（内积）：拼接所有 vector + 加权聚合，单次 ANN 解决，3.4-5.8× faster than iterative。
 **Iterative merging**——通用，基于 Fagin's NRA + doubling k'。
 
-### 5. 索引家族选择（§2.2）
+### 5. 索引家族选择（§2.2 + v2.6.x 扩展）
 
-支持的索引：
+**1.x（SIGMOD 论文）支持的索引**：
 - **Quantization-based**：IVF_FLAT、IVF_SQ8、IVF_PQ（来自 Faiss）
 - **Graph-based**：HNSW（Faiss 实现）、**RNSG**（[NSG](../concepts/nsg.md) 变体）
 - **Tree-based**：ANNOY（footnote 3 提及）
 
 **显式排除 LSH**——理由："on billion-scale data, LSH approaches have lower accuracy than quantization" [wang-2021-milvus §2.2]。
 
-> **Open**：RNSG 究竟是 [NSG](../concepts/nsg.md)（论文 ref [20] = Fu 2017）还是 Rand-NSG（论文 ref [61] = Subramanya 2019 = [Vamana](../concepts/vamana.md)/[DiskANN](./diskann.md) 早期名）？正文 §2.2 引用 [20]，但生态里 "RNSG" 一名常被解读为 Rand-NSG。论文未澄清。
+**v2.6.x 索引家族扩展** [per sources/docs/milvus/site/en/about/limitations.md, about/overview.md]：
+
+| 类别 | 索引 | 备注 |
+|---|---|---|
+| Brute-force | FLAT | 全表 |
+| Quantization-based | IVF_FLAT / IVF_SQ8 / IVF_PQ | 来自 Faiss（同 1.x） |
+| Graph-based | HNSW | 仍是默认 |
+| **Disk-resident** | **DISKANN** | NEW，集成 [DiskANN](./diskann.md) Vamana + SSD |
+| **MIPS / score-aware** | **SCANN** | NEW，集成 Google [ScaNN](../concepts/scann.md) anisotropic loss |
+| **GPU** | **GPU_IVF_FLAT / GPU_IVF_PQ / GPU_CAGRA / GPU_BRUTE_FORCE** | NEW，集成 NVIDIA RAPIDS RAFT (CAGRA) |
+| **Sparse** | **SPARSE_INVERTED_INDEX** | NEW，BM25 + SPLADE / BGE-M3 学习稀疏 embedding |
+| Binary | BIN_FLAT / BIN_IVF_FLAT | Hamming / Jaccard 距离 |
+
+> **2.x 与 1.x 索引家族的根本变化**：1.x 自家最大亮点是 **SQ8H** hybrid CPU/GPU 索引；v2.6.x 文档**未列 SQ8H**——可能被 GPU_CAGRA / GPU_IVF_FLAT 取代。Cloud-native 重写后 GPU 路线全面让位 NVIDIA RAFT 生态。
+
+> **Open**：RNSG 究竟是 [NSG](../concepts/nsg.md)（论文 ref [20] = Fu 2017）还是 Rand-NSG（论文 ref [61] = Subramanya 2019 = [Vamana](../concepts/vamana.md)/[DiskANN](./diskann.md) 早期名）？正文 §2.2 引用 [20]，但生态里 "RNSG" 一名常被解读为 Rand-NSG。论文未澄清。**v2.6.x 文档把 DISKANN 作为独立索引列出**，暗示 RNSG 与 DISKANN 是两个不同实现——这反向支持 RNSG 是 NSG 而非 Rand-NSG。
+
+### 6. v2.6.x: 关键架构改变（cloud-native 重写）
+
+[per sources/docs/milvus/site/en/reference/architecture/*.md]
+
+**a) Streaming Node** —— 新概念，1.x 没有：
+- shard-level "mini-brain"，每 shard（vchannel → pchannel）绑定 exactly-one streaming node
+- 承担 WAL append + growing data 查询 + growing → sealed handoff
+- Query Delegator 在每 streaming node 上运行，负责把单 shard 查询 fan-out 到 query nodes
+
+**b) [Woodpecker](../concepts/woodpecker.md) WAL** —— 新组件：
+- 取代 1.x 用的 Pulsar / Kafka 外部 broker
+- **Zero-disk** 设计：WAL 直接落 S3 / GCS / MinIO，metadata 走 etcd
+- S3 上 750 MB/s 吞吐（Kafka 130 MB/s）
+- 两种部署：MemoryBuffer（200-500ms 延迟）/ QuorumBuffer（single-digit ms）
+
+**c) Worker 三角色分离** —— 1.x 是 reader/writer 二角色，2.x 三角色：
+- Streaming Node：实时（growing data + WAL）
+- Query Node：历史数据（sealed segments from object storage）
+- Data Node：离线计算（compaction + index build）
+
+**d) Coordinator 单点 + master-slave HA** —— 1.x 是 3 实例 HA + Zookeeper；2.x 改为单 Coordinator 有 master-slave HA，简化 metadata 一致性
+
+**e) 多租户 4 层隔离**：database / collection / partition / partition-key——1.x 主要在 collection 级隔离
+
+**f) Hot/Cold storage** —— 频繁访问数据放 memory/SSD，冷数据放更便宜存储；tiered storage cache pool
+
+**g) 三种部署模式**：
+- **Milvus Lite**：Python lib，edge / Jupyter
+- **Standalone**：单 Docker 镜像，所有组件一进程
+- **Distributed**：K8s 集群，billion-scale+
+
+**h) 稀疏向量 + 全文 + Hybrid Search**：BM25 native + SPLADE / BGE-M3 学习稀疏 embedding；同 collection 内 dense + sparse 双 vector field + reranker
 
 ## Scale 边界
 
@@ -190,14 +275,18 @@ updated: 2026-05-07
 
 ## 生产案例
 
-[wang-2021-milvus §6, GitHub bootcamp]：
+[wang-2021-milvus §6, GitHub bootcamp]（1.x 时期）：
 
 - **Qichacha**：100M+ 公司商标搜索（图片相似性）
 - **Beike Zhaofang**：房屋户型图相似性检索
 - **Apptech**：化学结构搜索（Tanimoto 距离），从小时级降到分钟级
 - **十大示范应用**：image / video search、化学结构、COVID-19 dataset、生物多因素认证、QA、cross-modal 行人检索、recipe-food
 
-LF AI & Data Foundation 孵化项目（2020-01）。
+**v2.6.x 时期** [per sources/docs/milvus/site/en/about/overview.md]：300+ 大企业生产部署，已知名单包括 **Salesforce / PayPal / Shopee / Airbnb / eBay / NVIDIA / IBM / AT&T / LINE / ROBLOX / Inflection**。2022 支持 billion-scale；2023 扩展到 tens of billions。
+
+**Zilliz Cloud**：Milvus 的全托管 SaaS 版本，与开源版同代码 base。
+
+LF AI & Data Foundation 孵化项目（2020-01），Apache 2.0 License。核心贡献者包括 Zilliz、ARM、NVIDIA、AMD、Intel、Meta、IBM、Salesforce、Alibaba、Microsoft 工程师。
 
 ## Open Questions
 
@@ -208,4 +297,7 @@ LF AI & Data Foundation 孵化项目（2020-01）。
 - **GPU FPGA hybrid**：§9 提"已经在 FPGA 上实现 IVF_PQ"，但论文没给 FPGA detail
 - **Cloud-native 重新架构**：§9 末尾说"正在 architect Milvus as cloud-native"——本论文之后的 Milvus 2.0+ 是**重写**，本论文描述的是 1.x 架构
 - **Embedding model 升级处理**：所有动态数据假设向量空间稳定。模型升级（BERT→SBERT）下的 schema migration / re-embedding pipeline 论文未讨论
-- **OPQ / RaBitQ / 现代 quantizer**：本论文 quantization 仅 IVF_FLAT / SQ8 / PQ 三种；Faiss 后续加的 OPQ / 4-bit FastScan / [ScaNN](../concepts/scann.md) 借鉴等是否纳入？wiki 未覆盖
+- **OPQ / RaBitQ / 现代 quantizer**：1.x 论文 quantization 仅 IVF_FLAT / SQ8 / PQ 三种；v2.6.x 加 SCANN（Google ScaNN）但仍未集成 OPQ / RaBitQ 独立索引。wiki 未覆盖
+- **Streaming Node 与 SIGMOD 1.x writer 的语义差异**：v2.6.x 文档说 streaming node 是 "shard-level mini-brain"——一个 collection 多 shard 时多 streaming node；1.x 论文是 "single writer + multi reader" 单点 writer。**写入吞吐扩展性根本不同**——但文档未给具体对比数字
+- **Woodpecker QuorumBuffer 与 etcd 元数据的故障域耦合**：[per concepts/woodpecker.md] Open Q
+- **2.6.x 实测 benchmark**：所有 wiki 现有数字（SIFT10M HNSW 15000 q/s 等）来自 [SIGMOD 2021 论文](../benchmarks/milvus-vs-prior-sift10m-deep10m.md) = 1.x；2.x cloud-native 重写后实测数字 wiki 未覆盖（Zilliz VectorDBBench 是公开 benchmark 但 wiki 未 ingest）
