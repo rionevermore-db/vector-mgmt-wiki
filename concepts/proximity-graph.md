@@ -1,8 +1,8 @@
 ---
 title: Proximity Graph（邻近图）
 type: concept
-sources: [malkov-2016-hnsw, fu-2017-nsg]
-related: [hnsw.md, nsw.md, product-quantization.md, nsg.md]
+sources: [malkov-2016-hnsw, fu-2017-nsg, johnson-2017-faiss-gpu]
+related: [hnsw.md, nsw.md, product-quantization.md, nsg.md, ../topics/gpu-vs-cpu-ann.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---
@@ -41,7 +41,7 @@ updated: 2026-05-07
 
 ## 关键挑战
 
-- **构造复杂度**——精确 Delaunay 不可达，k-NN graph 也是 O(N²) 朴素构造。NSW / HNSW 用增量插入 + 贪心搜索把构造摊到 O(N log N)。
+- **构造复杂度**——精确 Delaunay 不可达，k-NN graph 也是 O(N²) 朴素构造。NSW / HNSW 用增量插入 + 贪心搜索把构造摊到 O(N log N)。**GPU 路径反例**：[johnson-2017-faiss-gpu §6.5] 在 4 Titan X 上 35 分钟构造 95M 图的 k-NN graph（质量 0.8+）；NN-Descent 在 128-CPU 集群上 36.5M × 384-d 报告 108.7 小时 —— GPU brute-force + IVFADC 反而比图构造算法更快。详见 [topics/gpu-vs-cpu-ann.md](../topics/gpu-vs-cpu-ann.md)。
 - **聚类 / 簇间连通**——朴素 k-NN 在簇内打满，簇间几乎无边，搜索卡在簇边界。RNG 风格选择（HNSW Alg 4）显式保留跨簇边。[malkov-2016-hnsw Fig 2]
 - **路径上节点度数随 N 增长**——纯 NSW 因此是 polylog 而非 log；HNSW 通过分层固定每层度数解决。
 

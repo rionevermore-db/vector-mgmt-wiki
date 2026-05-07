@@ -1,8 +1,8 @@
 ---
 title: Product Quantization（PQ / IVFADC）
 type: concept
-sources: [jegou-2011-pq, guo-2019-scann]
-related: [hnsw.md, proximity-graph.md, scann.md, ../topics/mips-vs-l2-nn.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md]
+sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu]
+related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -105,8 +105,22 @@ PQ 论文优化 reconstruction error `||x − x̃||²`，隐含假设所有 (q, 
 
 效果：Glove1.2M 上 200 bit code Recall1@10 从 0.83 提升到 0.91。[guo-2019-scann Fig 3a] 详见 [ScaNN](./scann.md) 与 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
 
+## GPU 实现要点（Faiss-GPU IVFADC）
+
+[johnson-2017-faiss-gpu] 给出 IVFADC 在 GPU 上的具体 layout，把 SIFT1B 的 ANN 时间压到 17.7 μs/query（单 Titan X，比前作 8.5× 快）。关键技术：
+
+- **PQ lookup 表放 shared memory**：每 query 一次性预算 b 个 256-元素表 T₁..T_b（每个 ~1KB）；扫倒排表时用 lookup-add 而非 multiply-add（bandwidth-bound）。[johnson-2017-faiss-gpu §5.2]
+- **距离计算 + k-selection 融合 kernel**：扫倒排表的同一 kernel 直接调 [WarpSelect](./warpselect.md)，避免中间矩阵 D' 写回，节省 25% 时间。[johnson-2017-faiss-gpu §5.1, §5.3]
+- **三项分解**：`||x − q(y)||² = ||q₂(...)||² + 2<q₁, q₂(...)> + ||x − q₁||² − 2<x, q₂(...)>`，前两项 query-independent 可预算，第三项 q₁-only，只有第四项需逐 list 算。[johnson-2017-faiss-gpu Eq 11]
+- **multi-GPU**：
+  - **Replication**（每 GPU 一份完整 index）→ 吞吐近线性扩展；
+  - **Sharding**（index 切到多 GPU）→ 内存换吞吐，但末端 k-select 合并降低效率；
+  - 二者可组合（S × R GPUs）。[johnson-2017-faiss-gpu §5.4]
+
+详见 [Faiss-GPU on SIFT1B / DEEP1B / YFCC100M](../benchmarks/faiss-gpu-sift1b-deep1b.md) 与 [topics/gpu-vs-cpu-ann.md](../topics/gpu-vs-cpu-ann.md)。
+
 ## Open Questions
 
 - 如何让 PQ 量化器学到与查询分布对齐而非仅与 database 分布对齐？论文的 ADC 仍假设 query 与 database 同分布。**部分回答**：[ScaNN](./scann.md) 的 score-aware loss 显式建模 query 分布并按 inner product 加权 [guo-2019-scann §3] —— 但仅针对 MIPS，L2-NN 通用版仍开放。
 - 维度分组的自动化：论文提到 minimum sum-squared residue co-clustering [30 in jegou-2011-pq] 是潜在方向，但未实施。[jegou-2011-pq §V.C 末尾]
-- IVFADC 的 coarse quantizer 用更优结构（如 IMI、HNSW-as-coarse-quantizer）能否进一步降低 k'·D 的查询开销？论文 §V.E 末尾承认对大 k' 用 hierarchical quantizer，工业界已有 HNSW + PQ 混合方案。
+- IVFADC 的 coarse quantizer 用更优结构（如 IMI、HNSW-as-coarse-quantizer）能否进一步降低 k'·D 的查询开销？论文 §V.E 末尾承认对大 k' 用 hierarchical quantizer，工业界已有 HNSW + PQ 混合方案。**部分工程化**：[Faiss-GPU](./warpselect.md) [johnson-2017-faiss-gpu] 把 IVFADC 整体迁移到 GPU 后，coarse quantizer 反而变成相对小的开销（GPU brute-force 算 k'×D 极快），实际工程更关注 fused kernel 与 PQ lookup 表布局。
