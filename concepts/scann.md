@@ -2,7 +2,7 @@
 title: ScaNN（Anisotropic Vector Quantization）
 type: concept
 sources: [guo-2019-scann, douze-2024-faiss-library]
-related: [product-quantization.md, hnsw.md, nsg.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../benchmarks/scann-glove1.2m-mips.md]
+related: [product-quantization.md, hnsw.md, nsg.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/scann-glove1.2m-mips.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

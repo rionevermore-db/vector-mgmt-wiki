@@ -2,7 +2,7 @@
 title: Index Selection（如何在 Faiss 索引家族里选）
 type: topic
 sources: [douze-2024-faiss-library, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann]
-related: [../systems/faiss.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md]
+related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ./disk-vs-memory-ann.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -86,7 +86,7 @@ updated: 2026-05-07
 
 - **决策树是 N 优先；现实里 query latency budget 优先**：100M 向量但要 P99 < 5ms 是另一组约束，论文决策树未直接覆盖
 - **多目标场景**：既要 MIPS 又要 L2-NN（推荐 + 去重在同一 service），是否能共享 index？
-- **磁盘 vs 内存边界正在移动**：DiskANN / SPANN 改变了 1B+ 必须 quantization 的旧定理；wiki 尚未 ingest
+- **磁盘 vs 内存边界正在移动**：[DiskANN](../systems/diskann.md) / [SPANN](../systems/spann.md) 改变了 1B+ 必须 quantization 的旧定理（两者已 ingest 2026-05-07）；Faiss 决策树仍是"内存中心"语境，未把 SSD-resident 路线纳入选型。详见 [topics/disk-vs-memory-ann.md](./disk-vs-memory-ann.md)
 - **filtered search 的最优策略**：vector-first vs metadata-first 的 cutoff 是 selection rate；Faiss 用经验阈值（约 3×10⁻⁴），但理论上可学习
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

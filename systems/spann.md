@@ -137,6 +137,6 @@ SPANN 可看作"Faiss IVF 的 SSD 化版本"，但把"内存里 PQ codes"的预�
 
 - **数据漂移下的退化**：closure clustering 训练好后簇分配冻结；新加点需要重 cluster
 - **小 latency budget 下的边界**：<1 ms 内 SPANN 是否还能保 recall？论文 Fig 6 边界不清晰
-- **现代高维 embedding（768-d / 1024-d）**：12 KB posting list 装得下的向量数从 ~93（128-d byte）降到 ~3（768-d float）—— posting list 退化为单向量
+- **现代高维 embedding（768-d / 1024-d）**：posting list 上限对 byte 向量是 12 KB、float 向量是 48 KB（论文 §3.1）。128-d byte → 12 KB / 128 ≈ 96 vec；768-d float → 48 KB / 3072 ≈ 16 vec；1024-d float → 48 KB / 4096 ≈ 12 vec。绝对数字仍然急剧收缩，足以让 closure replicas 与 query-aware pruning 的成本结构改变 —— 论文未在此区间评估
 - **Closure replicas = 8 是经验值**：与 DiskANN 的 W=4-8 一样是工程调参，无理论指导
 - **HBC 树深度的尾部分布**：簇大小不均匀的极端情况未量化分析

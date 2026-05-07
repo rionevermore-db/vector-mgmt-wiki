@@ -2,7 +2,7 @@
 title: GPU vs CPU ANN（实现差异与算法设计偏好）
 type: topic
 sources: [johnson-2017-faiss-gpu, malkov-2016-hnsw, fu-2017-nsg, jegou-2011-pq, guo-2019-scann]
-related: [../concepts/warpselect.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md]
+related: [../concepts/warpselect.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

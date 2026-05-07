@@ -2,7 +2,7 @@
 title: DiskANN on SIFT1B（vs IVFOADC+G+P, vs HNSW/NSG in-memory）
 type: benchmark
 sources: [subramanya-2019-diskann]
-related: [../concepts/vamana.md, ../systems/diskann.md, ../concepts/product-quantization.md, ../topics/disk-vs-memory-ann.md]
+related: [../concepts/vamana.md, ../systems/diskann.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../topics/disk-vs-memory-ann.md, ./spann-vs-diskann-billion.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

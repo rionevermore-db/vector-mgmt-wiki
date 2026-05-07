@@ -2,7 +2,7 @@
 title: HNSW（分层可导航小世界图）
 type: concept
 sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, douze-2024-faiss-library, subramanya-2019-diskann]
-related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md]
+related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---

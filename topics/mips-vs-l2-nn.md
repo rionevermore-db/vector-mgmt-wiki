@@ -2,7 +2,7 @@
 title: MIPS vs L2-NN（最大内积搜索 vs 最近邻搜索）
 type: topic
 sources: [guo-2019-scann, malkov-2016-hnsw, jegou-2011-pq, fu-2017-nsg]
-related: [../concepts/scann.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/proximity-graph.md]
+related: [../concepts/scann.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/proximity-graph.md, ../benchmarks/scann-glove1.2m-mips.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

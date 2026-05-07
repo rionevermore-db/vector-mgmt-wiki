@@ -2,7 +2,7 @@
 title: NSG（Navigating Spreading-out Graph）
 type: concept
 sources: [fu-2017-nsg, guo-2019-scann, subramanya-2019-diskann]
-related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md]
+related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, ../systems/diskann.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
