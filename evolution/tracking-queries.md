@@ -63,6 +63,21 @@ PQ、OPQ、Scalar Quantization、RaBitQ 这几种向量压缩方法各自的精�
 
 ---
 
+## 6. scale-tier-shifts
+
+**Question**:
+向量规模从 10 亿 → 百亿 → 千亿 → 万亿，在**索引选择、存储介质、并行能力**这三个维度上，**哪些决策在哪一档发生"质变"**？这里"质变"指必须换方案（如 HNSW → IVF+量化、内存 → SSD），而不是同方案下的参数微调。
+
+**Why track**: 强迫答案以"迁移点"呈现，而不是 4×3 静态表格——更能体现 wiki 累积知识的判断力。
+- Pre 阶段（wiki 薄）：可能只能粗略指出"内存 → 磁盘"一档质变，且无具体阈值
+- Post 阶段（多轮 ingest）：能定位具体阈值（如 SPANN 主张的 ≥ 百亿、DiskANN 的 SSD 切换点）和具体替代算法
+
+**与 #1 的分工**：本 query 是**全景质变图**（10亿 → 万亿 跨档的迁移点）；#1 (`giga-scale-sharding`) 是其中千亿/万亿一档的**具体工程落地**（节点数、内存、维度、P99）。两者形成"概览 → 深挖"递进。
+
+**Cover area**: scale-driven design transitions, capacity planning, regime shifts
+
+---
+
 ## 使用说明
 
 - **新增 query**：直接在本文件追加一节，确保 `query-key` 唯一
