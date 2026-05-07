@@ -1,8 +1,8 @@
 ---
 title: Product Quantization（PQ / IVFADC）
 type: concept
-sources: [jegou-2011-pq]
-related: [hnsw.md, proximity-graph.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md]
+sources: [jegou-2011-pq, guo-2019-scann]
+related: [hnsw.md, proximity-graph.md, scann.md, ../topics/mips-vs-l2-nn.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -89,10 +89,24 @@ ADC 的核心：query 不丢精度，只有 database 端被量化。这是 PQ �
 
 - 论文随附 C 实现：[INRIA texmex group](http://www.irisa.fr/texmex/people/jegou/ann.php)。
 - **Faiss `IndexIVFPQ`**（Facebook Research）—— 工业事实标准，论文方案的直接工程化版本，加了 SIMD 距离表查询、GPU 实现、OPQ 预处理等。
-- 后续重要变体（未在本论文）：OPQ（Optimized PQ）、LOPQ、IMI（Inverted Multi-Index）、PQFastScan。
+- 后续重要变体（未在本论文）：OPQ（Optimized PQ）、LOPQ、IMI（Inverted Multi-Index）、PQFastScan、[ScaNN（Anisotropic VQ）](./scann.md)。
+
+## 后续演化：Score-aware loss（[ScaNN](./scann.md)）
+
+PQ 论文优化 reconstruction error `||x − x̃||²`，隐含假设所有 (q, x) 对等权重。2019 年 Guo et al.（Google）指出对 MIPS 任务这是次优的：
+
+- 高 `<q,x>` 对更可能成为 top-k，对它们的量化误差应被加重；
+- 残差中"平行于 x 的分量"对 MIPS 排序影响更大（相比正交分量）。
+
+[ScaNN](./scann.md) 把 PQ 的 loss 改为：
+`ℓ = h_∥·||r_∥||² + h_⊥·||r_⊥||²`，其中 h_∥ ≥ h_⊥（[guo-2019-scann Theorem 3.3]）。
+
+工程改造成本极低：assignment 与 update 步骤替换为 anisotropic 版本，闭式解 [guo-2019-scann Theorem 4.2]；当 h_∥ = h_⊥ 时退化回 k-means update（即原始 PQ）。
+
+效果：Glove1.2M 上 200 bit code Recall1@10 从 0.83 提升到 0.91。[guo-2019-scann Fig 3a] 详见 [ScaNN](./scann.md) 与 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
 
 ## Open Questions
 
-- 如何让 PQ 量化器学到与查询分布对齐而非仅与 database 分布对齐？论文的 ADC 仍假设 query 与 database 同分布。
+- 如何让 PQ 量化器学到与查询分布对齐而非仅与 database 分布对齐？论文的 ADC 仍假设 query 与 database 同分布。**部分回答**：[ScaNN](./scann.md) 的 score-aware loss 显式建模 query 分布并按 inner product 加权 [guo-2019-scann §3] —— 但仅针对 MIPS，L2-NN 通用版仍开放。
 - 维度分组的自动化：论文提到 minimum sum-squared residue co-clustering [30 in jegou-2011-pq] 是潜在方向，但未实施。[jegou-2011-pq §V.C 末尾]
 - IVFADC 的 coarse quantizer 用更优结构（如 IMI、HNSW-as-coarse-quantizer）能否进一步降低 k'·D 的查询开销？论文 §V.E 末尾承认对大 k' 用 hierarchical quantizer，工业界已有 HNSW + PQ 混合方案。

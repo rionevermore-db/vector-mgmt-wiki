@@ -1,8 +1,8 @@
 ---
 title: NSG（Navigating Spreading-out Graph）
 type: concept
-sources: [fu-2017-nsg]
-related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, ../benchmarks/nsg-vs-graph-anns-million.md]
+sources: [fu-2017-nsg, guo-2019-scann]
+related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, ../topics/mips-vs-l2-nn.md, ../benchmarks/nsg-vs-graph-anns-million.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -111,3 +111,4 @@ NSG 论文 §3.2 给出了关键证明：**MSNET 上 Algorithm 1 找到的就是
 - **2B 单机不可能**——必须依赖 PQ 路径或多机分片。
 - **Δr 项**的理论解释不完整——只有经验验证它"近似常数"。
 - **Navigating Node 选择**仅用 centroid 邻居；动态数据下 centroid 漂移如何处理未讨论。
+- **MIPS 任务下未验证**：MRNG 的 monotonicity 证明依赖 L2 距离结构（lune 几何），MIPS 不是度量空间，理论是否成立未在论文中讨论。NSG 论文全部 benchmark 都是 L2 任务。详见 [topics/mips-vs-l2-nn.md](../topics/mips-vs-l2-nn.md)。
