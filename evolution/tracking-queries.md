@@ -78,6 +78,28 @@ PQ、OPQ、Scalar Quantization、RaBitQ 这几种向量压缩方法各自的精�
 
 ---
 
+## 7. index-architecture-global-vs-routed
+
+**Question**:
+在千亿/万亿规模下，索引架构应选：
+(a) **全局单一索引**——所有向量进同一个索引（如单个 HNSW），无路由层
+(c) **层次路由结构**——粗粒度聚类先定位到少数分区，再走那些分区的局部索引（IVF / SPANN / Milvus segment 模型为代表）
+
+两者在查询延迟、构建成本、召回率、增量更新、运维复杂度上各有什么 trade-off？工业上千亿/万亿规模主流选哪种、为什么？
+
+**Why track**:
+- Pre 阶段：wiki 单薄时大概率只能给"全局太大装不下，所以分"这种笼统理由，无法展开 (c) 的具体机制
+- Post 阶段（SPANN / DiskANN / Milvus / Pinecone scaling 之后）：能展开 (c) 的具体路由算法、构建成本量级、recall floor、增量更新策略
+
+**与 #1、#6 的分工**：
+- #1 锁定 16 节点的**物理排布**（hardware allocation）
+- 本 query 锁定**逻辑架构选型**——"单一图 vs 路由+局部"（topology choice）
+- #6 跨规模看质变点；本 query 锁定 giga/tera 一档的架构二选一
+
+**Cover area**: index topology, routing layer, hierarchical clustering, partitioned ANN
+
+---
+
 ## 使用说明
 
 - **新增 query**：直接在本文件追加一节，确保 `query-key` 唯一
