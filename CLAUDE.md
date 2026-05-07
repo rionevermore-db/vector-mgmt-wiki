@@ -274,6 +274,10 @@ ASCII 或链接到 sources/docs 中的图。
 10. 在 `sources/README.md` 表格追加该 source（key、标题、作者、年份、文件、ingest 日期）
 11. 在 `log.md` 末尾追加一条 ingest 记录
 12. 报告"本次 ingest 影响 N 个文件，新增 X 个、更新 Y 个"
+13. **Git commit**：把本次 ingest 涉及的全部改动（新增 source 文件、新建 page、修改的 page、`index.md`、`log.md`、`sources/README.md`）stage 并提交。
+    - 论文（路径 A/B）格式：`ingest: <first-author-year-shortname> — <一句话总结>`，例：`ingest: jegou-2011-pq — concept + cross-links to ivf, hnsw`
+    - 产品文档（路径 C）格式：`ingest: <vendor>-docs — <一句话总结>`，例：`ingest: pinecone-docs — systems/pinecone.md + concept on pod-based sharding`
+    - **不自动 push**——push 时机由用户决定（避免远端被 WIP 噪音淹没；多 session 并发 ingest 时 push 会触发 merge，留给用户裁决）
 
 > **目标**：一篇有信息量的论文应该触发 5-15 个文件改动。如果只触发 1-2 个，要么 source 信息密度低，要么 wiki 结构不够细——后者是 lint 的事。
 
