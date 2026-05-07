@@ -361,12 +361,21 @@ date: 2026-05-07
 phase: pre   # 或 post
 ingest-context: jegou-2011-pq   # 这次快照是为哪个 ingest 而拍
 wiki-pages-total: 5
+wiki-open-questions-total: 23           # 全 wiki 里 "## Open Questions" 段下的 bullet 总数；resolve 量 = pre.total - post.total
 cited-pages: [concepts/hnsw.md, concepts/nsw.md]
 cited-count: 2
+anchored-number-count: 5                # 答案中来自 source 的具体数字（如 "1.5T"、"54 字节"、"98.68%"），手动数或 regex 抽
 ---
 
 # 答案正文（query workflow 跑出来的内容）
 ```
+
+**三个 talk 用增长指标**（每次 ingest 后画图用）：
+1. `cited-count` — 答案引用了几个 page；弱 proxy 但单调易抽
+2. `anchored-number-count` — 来自 source 的具体数字密度；**专家感的真实来源**
+3. `wiki-open-questions-total` 的下降量 — 旧 page Open Question 被新 source 关闭了几条；"知识沉淀"的直接证据
+
+> 为什么不直接记 "OQ-resolved count"：OQ resolve 是 wiki 状态变化、不是答案属性。每个查询的 pre/post 看到的 wiki OQ 总数是相同的（同一时刻的 wiki 状态）。Resolve 由 `pre.wiki-open-questions-total - post.wiki-open-questions-total` 派生。
 
 ### 触发逻辑
 
