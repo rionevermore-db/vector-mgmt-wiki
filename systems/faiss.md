@@ -2,7 +2,7 @@
 title: Faiss（Library）
 type: system
 sources: [douze-2024-faiss-library, johnson-2017-faiss-gpu]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, diskann.md, spann.md, milvus.md, spfresh.md, pinecone.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, ../concepts/vgpq.md, diskann.md, spann.md, milvus.md, spfresh.md, pinecone.md, analyticdb-v.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

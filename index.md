@@ -18,6 +18,7 @@
 - [Pinecone Serverless Slabs](./concepts/pinecone-serverless-slabs.md) — Pinecone 第二代核心：slab on object storage + memtable LSM-style + **adaptive indexing**（小 slab fast / 大 slab sophisticated，wiki 内首次"索引随生命周期演化"）
 - [Delta Consistency](./concepts/delta-consistency.md) — Manu (Milvus 2.x) 形式化的 tunable bounded staleness 一致性模型；strong / eventual 是 τ=0/∞ 的特例；wiki 内首个 vector DBMS 一致性形式化
 - [Manu SSD-Aware Indexing](./concepts/manu-ssd-hierarchical-kmeans.md) — Manu §4.4 hierarchical k-means + LSH-style 多次复制（4-8×）+ 4KB SSD-aligned blocks；NeurIPS 2021 BigANN 冠军方案，比 baseline same QPS recall +60%
+- [VGPQ](./concepts/vgpq.md) — AnalyticDB-V 的 IVFPQ successor；Voronoi diagram 上用 neighbor midpoints 切 subcells 几何剪枝；same index size + -10% build time + 全程优于 IVFPQ on SIFT1B/Deep1B/AliCommodity
 
 ## Systems（产品 / 工程系统）
 
@@ -27,6 +28,7 @@
 - [Milvus](./systems/milvus.md) — Zilliz 开源的 vector DBMS（不是 library/算法系统）；建在 Faiss 之上 + LSM segment + shared-storage 分布式 + 五策略 attribute filtering + multi-vector query；SIGMOD 2021，LF AI 孵化
 - [SPFresh](./systems/spfresh.md) — Microsoft 在 SPANN 之上加 LIRE 协议，**首个 billion-scale in-place 增量更新**系统；100 days × 1% daily update 持续 10 GB + 2 cores（DiskANN rebuild 需 1100 GB + 32 cores × 2 天）；SOSP 2023
 - [Pinecone](./systems/pinecone.md) — wiki 内**唯一**商业闭源 SaaS；两代架构（pod-based legacy + serverless slabs）；On-demand vs Dedicated Read Nodes；index_type 不暴露给用户（adaptive 自动选）
+- [AnalyticDB-V](./systems/analyticdb-v.md) — Alibaba 的 OLAP-extended-vector 系统（不是 vector-first）；SQL native hybrid query + lambda streaming/batching + 4 plan CBO + VGPQ；13B records / 30 TB Smart City production
 
 ## Topics（跨概念主题）
 
@@ -51,6 +53,7 @@
 - [Milvus vs SPTAG / Vearch / 商业系统](./benchmarks/milvus-vs-prior-sift10m-deep10m.md) — Milvus 论文 §7：6.4×–73× faster than Vearch / SPTAG / 商业 ABC；SIFT1B 单节点 + 12 节点近线性扩展；cache-aware 2.7× / AVX512 1.5× / SQ8H 系统胜 pure CPU/GPU
 - [SPFresh vs DiskANN / SPANN+ on 100-Day Update](./benchmarks/spfresh-vs-diskann-spann-update.md) — SPFresh 论文 §5：100 days × 1% daily update 模拟，SPFresh P99.9 平均 2.41× lower than DiskANN，5.30× lower memory；1B stress test 饱和 NVMe 400K IOPS
 - [Manu vs Elasticsearch / Vearch / Vald / Vespa](./benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md) — Manu (Milvus 2.x) VLDB 2022 §5：HNSW + IVF-FLAT 在 SIFT10M / DEEP10M 上系统击败四个开源 vector engine baseline；vs Milvus 1.x 在 4k QPS insertion 下 search latency 不抖动（dedicated index node 设计的关键收益）
+- [AnalyticDB-V vs Two-step + VGPQ vs IVFPQ](./benchmarks/analyticdb-v-vs-twostep.md) — ADBV 论文 §6：vs "AnalyticDB + 独立 ANN engine" 两步式方案 3-13× 快；VGPQ 在 SIFT1B/Deep1B/AliCommodity 全程优于 IVFPQ；4 plan CBO 自动选最优；13B records production scale
 
 ## Queries（高价值 query 答案存档）
 

@@ -19,6 +19,7 @@
 | xu-2023-spfresh | SPFresh: Incremental In-Place Update for Billion-Scale Vector Search | Yuming Xu, Hengyu Liang, Jin Li, Shuotao Xu, Qi Chen, Qianxi Zhang, Cheng Li, Ziyue Yang, Fan Yang, Yuqing Yang, Peng Cheng, Mao Yang | 2023 (SOSP) | paper | papers/xu-2023-spfresh.pdf | 2026-05-07 |
 | pinecone-docs | Pinecone 官方文档（llms-full.txt, API 2025-10） | Pinecone Systems | 2026-05-08 fetch | docs | docs/pinecone/llms-full.txt | 2026-05-08 |
 | guo-2022-manu | Manu: A Cloud Native Vector Database Management System | Rentong Guo, Xiaofan Luan, Long Xiang, Xiao Yan, Xiaomeng Yi, Jigao Luo, Qianya Cheng, Weizhi Xu, Jiarui Luo, Frank Liu, Zhenshan Cao, Yanliang Qiao, Ting Wang, Bo Tang, Charles Xie | 2022 (VLDB) | paper | papers/guo-2022-manu.pdf | 2026-05-08 |
+| wei-2020-analyticdb-v | AnalyticDB-V: A Hybrid Analytical Engine Towards Query Fusion for Structured and Unstructured Data | Chuangxian Wei, Bin Wu, Sheng Wang, Renjie Lou, Chaoqun Zhan, Feifei Li, Yuanzhe Cai | 2020 (VLDB) | paper | papers/wei-2020-analyticdb-v.pdf | 2026-05-08 |
 
 ## 命名约定
 

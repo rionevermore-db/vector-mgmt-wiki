@@ -2,7 +2,7 @@
 title: Milvus（Vector DBMS）
 type: system
 sources: [wang-2021-milvus, milvus-docs, guo-2022-manu, douze-2024-faiss-library]
-related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md]
+related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, analyticdb-v.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md]
 created: 2026-05-07
 updated: 2026-05-08
 ---

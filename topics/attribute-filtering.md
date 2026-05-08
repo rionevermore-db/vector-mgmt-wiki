@@ -2,7 +2,7 @@
 title: Attribute Filtering（向量+属性混合查询）
 type: topic
 sources: [wang-2021-milvus, douze-2024-faiss-library]
-related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../concepts/product-quantization.md, ./index-selection.md]
+related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ./index-selection.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -28,7 +28,7 @@ updated: 2026-05-07
 | **A: attr-first-vector-full-scan** | 先按 C_A 用 B-tree 索引 / 跳表 / 二分查 → 全扫候选向量 | C_A **极选择性**（候选数 << N） | 候选多时退化为线扫 |
 | **B: attr-first-vector-search-bitmap** | 先按 C_A 拿候选 entity ID → bitmap → 跑 ANN 时 bitmap 检查每个候选向量是否满足 | C_A 或 C_V 都 **moderate selectivity** | bitmap 上的 ANN 扫描可能跳过 partial match |
 | **C: vector-first-attr-full-scan** | 先跑 ANN 拿 θ·k 个候选（θ>1）→ 全扫验证 C_A | C_V **极选择性** | C_A 不严时退化为大量无效 vector search |
-| **D: cost-based** | 基于代价估计在 A/B/C 中选——AnalyticDB-V 方案 [wang-2021-milvus ref 65] | 通用 | 最优策略选对，但**单 query 内仍受 A/B/C 自身限制** |
+| **D: cost-based** | 基于代价估计在 A/B/C 中选——[AnalyticDB-V](../systems/analyticdb-v.md) 方案 [per wei-2020-analyticdb-v §5] | 通用 | 最优策略选对，但**单 query 内仍受 A/B/C 自身限制** |
 | **E: partition-based**（Milvus 新提） | 按高频被 filter 的属性预分区；query 时只扫 range 重叠的分区，**range 完全 cover 时跳过 C_A check** | 高频固定属性、能预知 filter 维度 | 需预分区设计；新加属性需重组 |
 
 [wang-2021-milvus Fig 14-15]：strategy E 比 strategy D 快 **up to 13.7×**；selectivity 越细，partition-based 优势越大。
@@ -62,6 +62,7 @@ Query `C_A = [50, 250]`：
 | **[Faiss](../systems/faiss.md)** | `IDSelector` callback / `bow_id_selector` bit-signature [per systems/faiss.md] | **基础**——library 级别，需用户手写 selector |
 | **[Milvus](../systems/milvus.md)** | 5 策略 + cost-based 自动选 + partition-based [wang-2021-milvus] | **DBMS 级别原生支持** |
 | **[Pinecone](../systems/pinecone.md)** | metadata filtering + namespace 隔离 + filterable schema fields [per pinecone-docs] | **SaaS 级别原生支持**；具体实现算法不公开 |
+| **[AnalyticDB-V](../systems/analyticdb-v.md)** | 4 plan CBO（Plan A brute-force / B PQ Knn Bitmap Scan / C VGPQ Knn Bitmap Scan / D VGPQ Knn Scan + filter）+ accuracy-aware 超参 grid search [per wei-2020-analyticdb-v §5] | **OLAP DB 级别**——SQL 接口；与 Milvus 5 plan / Pinecone metadata 同代但路径不同（OLAP-extended vs vector-first）|
 | **[DiskANN](../systems/diskann.md)** | 不直接支持；**Filtered-DiskANN** 是后继扩展 [per douze-2024-faiss-library §2 ref] | 弱（research 方向） |
 | **[SPANN](../systems/spann.md)** | 论文未涉及 | 弱 |
 | Faiss-IDSelector vs Milvus | Faiss IDSelector 走 strategy B (bitmap)；Milvus 把它泛化为 5 策略 + 自动选择 | Milvus 完整覆盖 Faiss 思路 |

@@ -2,7 +2,7 @@
 title: Product Quantization（PQ / IVFADC）
 type: concept
 sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library, subramanya-2019-diskann, chen-2021-spann]
-related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, vamana.md, lire.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md]
+related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, vamana.md, lire.md, vgpq.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/analyticdb-v-vs-twostep.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -90,6 +90,16 @@ ADC 的核心：query 不丢精度，只有 database 端被量化。这是 PQ �
 - 论文随附 C 实现：[INRIA texmex group](http://www.irisa.fr/texmex/people/jegou/ann.php)。
 - **Faiss `IndexIVFPQ`**（Facebook Research）—— 工业事实标准，论文方案的直接工程化版本，加了 SIMD 距离表查询、GPU 实现、OPQ 预处理等。
 - 后续重要变体（未在本论文）：OPQ（Optimized PQ）、LOPQ、IMI（Inverted Multi-Index）、PQFastScan、[ScaNN（Anisotropic VQ）](./scann.md)。
+
+## 后续演化：Voronoi Subcell Pruning（[VGPQ](./vgpq.md)）
+
+[wei-2020-analyticdb-v §4.2] 在 IVFPQ 之上加几何剪枝：
+- 用 IVFPQ centroids + neighbor centroids 的 midpoints 把每 Voronoi cell 切成 subcells
+- query 时仅扫覆盖 query 邻域的 subcells（而非整个 cell）
+- 同 IVFPQ index size，构造时间 -10%，recall vs response time 全程优于 IVFPQ
+- 集成于 [AnalyticDB-V](../systems/analyticdb-v.md) batching layer
+
+[VGPQ](./vgpq.md) 与 [ScaNN](./scann.md) 是**正交的 IVFPQ 改进**：ScaNN 改 quantization loss，VGPQ 改 partition geometry。理论可叠加未试。
 
 ## 后续演化：Score-aware loss（[ScaNN](./scann.md)）
 

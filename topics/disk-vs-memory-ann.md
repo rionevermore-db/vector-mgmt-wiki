@@ -2,7 +2,7 @@
 title: Disk vs Memory ANN（SSD 与 DRAM 的 ANN 路线）
 type: topic
 sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../concepts/lire.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ./in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../concepts/lire.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ./in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/analyticdb-v-vs-twostep.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -38,6 +38,7 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 | **磁盘 + IVF + 全精度 + In-place 增量** | **[SPFresh](../systems/spfresh.md)** | DRAM (centroids + version map) + raw NVMe (SPDK) | >0.86 @ ~5 ms（1B stress test） | **持续 ~10 GB**（无 rebuild peak） |
 | **SaaS + slab on object storage + adaptive indexing** | **[Pinecone Serverless](../systems/pinecone.md)** | Memtable + cache (memory + local SSD) + slab on object storage | docs 未公开数字 | docs 未公开（auto elastic） |
 | **DBMS + SSD-aware hierarchical k-means + LSH replication** | **[Manu (Milvus 2.x)](../systems/milvus.md)** [per concepts/manu-ssd-hierarchical-kmeans.md] | DRAM (centers) + SSD (4KB block, vectors 复制 4-8×) | NeurIPS 2021 winner（baseline +60% recall same QPS） | DBMS 全套 + delta consistency τ |
+| **OLAP DB + Pangu 分布式存储 + VGPQ batching** | **[AnalyticDB-V](../systems/analyticdb-v.md)** [per concepts/vgpq.md] | DRAM (HNSW streaming) + Pangu (VGPQ batching, distributed) | 13B records / 30 TB production | SQL 接口 + 4 plan CBO + lambda async merge |
 
 [subramanya-2019-diskann §1, §4.4]; [douze-2024-faiss-library §5.5 Fig 8]; [chen-2021-spann §4.2]
 
