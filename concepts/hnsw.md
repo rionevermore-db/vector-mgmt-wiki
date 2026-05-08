@@ -2,7 +2,7 @@
 title: HNSW（分层可导航小世界图）
 type: concept
 sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, douze-2024-faiss-library, subramanya-2019-diskann]
-related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/milvus.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md]
+related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, vamana.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/pase.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/pase-vs-cube-freddy.md]
 created: 2026-04-30
 updated: 2026-05-07
 ---
@@ -74,6 +74,7 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 - 作者实现：[`nmslib/hnsw`](https://github.com/nmslib/hnsw)，C++ header-only，支持增量构建。
 - **HNSWlib** 后来成为 HNSW 的事实参考实现，被 Faiss、[Milvus](../systems/milvus.md) 等主流库引用 [55 in douze-2024-faiss-library]。
 - **[Milvus](../systems/milvus.md)** 在 graph-based 索引里直接集成 HNSW 与 RNSG（[NSG](./nsg.md) 变体），与 quantization-based 索引（IVF_FLAT / IVF_SQ8 / IVF_PQ）并列 [wang-2021-milvus §2.2]。Milvus_HNSW 在 SIFT10M / Deep10M 上比 Vearch / 商业系统 A/C 快 7×-73× [per benchmarks/milvus-vs-prior-sift10m-deep10m.md]。
+- **[PASE](../systems/pase.md)** 在 PostgreSQL 内核中集成 HNSW 作为 PG 的 first-class index type [yang-2020-pase §2.2]。8KB page-aligned 实现：meta-page + data-page + neighbor-page 三类。但 build 时间显著比 IVFFlat 慢 (SIFT 1M 19×, GIST 1M 56×) ——PG 内核单线程约束。
 - [Faiss `IndexHNSW`](../systems/faiss.md)（Facebook Research）自 2018 年起内置 HNSW 实现，支持与 IVF（`IndexHNSWFlat`）、ScalarQuantizer（`IndexHNSWScalarQuantizer`）等组合。在 IVF 索引中也常被用作 **HNSW-as-coarse-quantizer**（`IVF_HNSW`）。[douze-2024-faiss-library §5.1, §A.7]
 - 工程要点：避免使用通用 BLAS 距离函数；C 风格手动内存管理 + prefetch，比 nmslib 通用框架显著更快。[malkov-2016-hnsw §5]
 

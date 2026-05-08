@@ -2,7 +2,7 @@
 title: Attribute Filtering（向量+属性混合查询）
 type: topic
 sources: [wang-2021-milvus, douze-2024-faiss-library]
-related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ./index-selection.md]
+related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ./index-selection.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -63,6 +63,7 @@ Query `C_A = [50, 250]`：
 | **[Milvus](../systems/milvus.md)** | 5 策略 + cost-based 自动选 + partition-based [wang-2021-milvus] | **DBMS 级别原生支持** |
 | **[Pinecone](../systems/pinecone.md)** | metadata filtering + namespace 隔离 + filterable schema fields [per pinecone-docs] | **SaaS 级别原生支持**；具体实现算法不公开 |
 | **[AnalyticDB-V](../systems/analyticdb-v.md)** | 4 plan CBO（Plan A brute-force / B PQ Knn Bitmap Scan / C VGPQ Knn Bitmap Scan / D VGPQ Knn Scan + filter）+ accuracy-aware 超参 grid search [per wei-2020-analyticdb-v §5] | **OLAP DB 级别**——SQL 接口；与 Milvus 5 plan / Pinecone metadata 同代但路径不同（OLAP-extended vs vector-first）|
+| **[PASE](../systems/pase.md)** | iterative search via PG `amgettuple` interface——增量 fetch top-K from vector index + check WHERE 子句，自然 short-circuit [per yang-2020-pase §2.6] | **OLTP RDBMS 级别**——PG 内核扩展；与 ADBV 4-plan CBO 是 compound query 的两种工程哲学（前置 cost model vs 增量 iterative）|
 | **[DiskANN](../systems/diskann.md)** | 不直接支持；**Filtered-DiskANN** 是后继扩展 [per douze-2024-faiss-library §2 ref] | 弱（research 方向） |
 | **[SPANN](../systems/spann.md)** | 论文未涉及 | 弱 |
 | Faiss-IDSelector vs Milvus | Faiss IDSelector 走 strategy B (bitmap)；Milvus 把它泛化为 5 策略 + 自动选择 | Milvus 完整覆盖 Faiss 思路 |

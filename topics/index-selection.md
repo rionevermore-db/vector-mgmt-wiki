@@ -2,7 +2,7 @@
 title: Index Selection（如何在 Faiss 索引家族里选）
 type: topic
 sources: [douze-2024-faiss-library, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann]
-related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md]
+related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -87,6 +87,7 @@ updated: 2026-05-07
 - **DBMS-level 选择粒度**：Faiss 决策树是 single-index 视角；[Milvus](../systems/milvus.md) 在 segment 级别（默认 1 GB）独立选 index，每 segment 可不同——决策维度多了一轴 "segment-by-segment"。[wang-2021-milvus §2.3] 表明这是 vector DBMS vs library 的关键差异
 - **Milvus v2.6.x 索引族扩张**：[per sources/docs/milvus/site/en/about/overview.md] 把 [DiskANN](../systems/diskann.md)、[ScaNN](../concepts/scann.md)（SCANN）、NVIDIA CAGRA（GPU_CAGRA）、SPARSE_INVERTED_INDEX 都纳入选项——决策树需要新增"是否磁盘资源"、"是否 MIPS 任务"、"是否 GPU"、"是否稀疏向量" 多个分支。Faiss 论文决策树（仅 quantization + HNSW + IVF）已不足以覆盖 Milvus DBMS 选择空间
 - **Pinecone 哲学：index_type 不暴露给用户**：[per systems/pinecone.md, concepts/pinecone-serverless-slabs.md] Pinecone serverless 用户无法选 HNSW vs IVF；Pinecone 自动 adaptive 选择（小 slab fast index / 大 slab sophisticated method）。这是 Faiss / Milvus "用户控制 index" 哲学的对立——简化 vs 调优能力 trade-off
+- **DB-extended-vector 路径中的 RDBMS 类型分化**：[per systems/analyticdb-v.md, systems/pase.md] 同样是"非 vector-first 系统加 vector"——但 host DB 类型决定能力上限：[ADBV](../systems/analyticdb-v.md) 是 OLAP MPP 路径（13B production，distributed ✓），[PASE](../systems/pase.md) 是 OLTP RDBMS (PG) 路径（million-scale only，distributed ✗）。OLAP-extended 适合大规模 read-heavy；OLTP-extended 适合 transaction-heavy 但 scale 受 host DB 单实例限制
 - **决策树是 N 优先；现实里 query latency budget 优先**：100M 向量但要 P99 < 5ms 是另一组约束，论文决策树未直接覆盖
 - **多目标场景**：既要 MIPS 又要 L2-NN（推荐 + 去重在同一 service），是否能共享 index？
 - **磁盘 vs 内存边界正在移动**：[DiskANN](../systems/diskann.md) / [SPANN](../systems/spann.md) 改变了 1B+ 必须 quantization 的旧定理（两者已 ingest 2026-05-07）；Faiss 决策树仍是"内存中心"语境，未把 SSD-resident 路线纳入选型。详见 [topics/disk-vs-memory-ann.md](./disk-vs-memory-ann.md)

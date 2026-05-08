@@ -2,7 +2,7 @@
 title: In-Place vs Out-of-Place Updates（向量索引更新策略）
 type: topic
 sources: [xu-2023-spfresh, chen-2021-spann, subramanya-2019-diskann, wang-2021-milvus, douze-2024-faiss-library]
-related: [../systems/spfresh.md, ../systems/spann.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/faiss.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../concepts/lire.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/delta-consistency.md, ../concepts/vgpq.md]
+related: [../systems/spfresh.md, ../systems/spann.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/faiss.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../concepts/lire.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/delta-consistency.md, ../concepts/vgpq.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -38,6 +38,7 @@ ANN 索引的两类 update 模型：
 | **[Pinecone Serverless slab](../systems/pinecone.md)** | **LSM-style + adaptive indexing** | Slab in object storage | 单向量 → memtable → flush → slab merge | **slab merge** 中（非全 rebuild） | docs 未公开数字（auto） | **adaptive**：merge 时自动从 fast indexing 升级到 sophisticated indexing |
 | **[Manu (Milvus 2.x)](../systems/milvus.md)** | **Stream indexing + delta consistency τ** | Segment（512 MB default） + slice（10K vec temp IVF-FLAT） | growing segment 临时 index → sealed segment 完整 index | 周期 stream indexing（非全 rebuild） | NeurIPS 2021 winner SSD index | **delta consistency τ** 让 user 调"过期容忍度"——支持 strong / eventual / 中间任意点 |
 | **[AnalyticDB-V (ADBV)](../systems/analyticdb-v.md)** | **Lambda streaming + batching 双索引** | Streaming HNSW (in-memory) + Batching VGPQ (Pangu) | 新数据进 streaming HNSW；周期 async merge 到 batching VGPQ + 重建 VGPQ | **Async merge** 中（不阻塞 query） | OLAP DB 路径 + 4 plan CBO | 与 Milvus LSM / Manu stream indexing 同代思路；但 streaming/batching 用**两种不同算法** (HNSW vs VGPQ) |
+| **[PASE](../systems/pase.md)** | **PG 自身 OLTP transaction + WAL** | IVFFlat / HNSW page chain in PG | 直接走 PG INSERT/UPDATE/DELETE；index 与表数据用同一 PG transaction 原子；ACID 保证 | **PG 自身 vacuum + WAL replay** | OLTP RDBMS 路径 | 不需要自定 update strategy——**PG 内核自带的 MVCC 处理**；缺点是受限于 PG 单实例能力（million-scale）|
 
 ## 三种"In-Place"的差别
 
