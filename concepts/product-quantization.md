@@ -1,10 +1,10 @@
 ---
 title: Product Quantization（PQ / IVFADC）
 type: concept
-sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library, subramanya-2019-diskann, chen-2021-spann]
-related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, vamana.md, lire.md, vgpq.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/pase-vs-cube-freddy.md]
+sources: [jegou-2011-pq, guo-2019-scann, johnson-2017-faiss-gpu, douze-2024-faiss-library, subramanya-2019-diskann, chen-2021-spann, gao-2024-rabitq]
+related: [hnsw.md, proximity-graph.md, scann.md, warpselect.md, vamana.md, lire.md, vgpq.md, rabitq.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../topics/mips-vs-l2-nn.md, ../topics/gpu-vs-cpu-ann.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/pq-sift-recall.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # Product Quantization
@@ -170,6 +170,26 @@ binary (1-bit scalar)
 
 这与 PQ 论文 [jegou-2011-pq §III] 设想的"PQ ADC 是最终距离"不同 —— 在 [DiskANN](../systems/diskann.md) 里 PQ **只做导航不做 ranking**。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
 
+## 后续演化：理论 error bound 取代 heuristic codebook（[RaBitQ](./rabitq.md)）
+
+[gao-2024-rabitq] SIGMOD 2024 提出 **RaBitQ** —— wiki 内**首个 unbiased + sharp probabilistic error bound** 的 quantizer。**不是 PQ variant 而是 PQ replacement**：
+
+| 维度 | PQ + variants (含 OPQ / RQ / LSQ / [ScaNN](./scann.md) / [VGPQ](./vgpq.md)) | **RaBitQ** |
+|---|---|---|
+| Codebook 构造 | KMeans / 学习式（Cartesian product of sub-codebooks） | **几何**（hypercube vertices + 随机正交矩阵旋转） |
+| 是否需 KMeans 训练 | ✓ | **✗** |
+| Code 表示 | M 个 sub-code × k bits（默认 2D bits） | **D-bit string（默认 D bits, 一半 code length）** |
+| Distance estimator | **biased**, 无 error bound | **unbiased**, sharp O(1/√D) error bound w.h.p. |
+| Single distance impl | LUT lookup | **bitwise AND + popcount** (3× 快) |
+| Re-ranking 调参 | exhaustive K' (500/1000/2500 跨数据集 tune) | **完全无调参**（drop by lower-bound） |
+| 工业失败案例 | MSong / Word2Vec **avg rel error >100%** | 6/6 dataset works |
+
+**关键工程后果**：error bound 让 IVF + RaBitQ 的 re-ranking **drop-by-bound 替代 keep-top-K'**——这是对 [TopK 接口 K' 预测问题](../topics/topk-vs-iterator-model.md) 在 quantizer 层的攻击（[VBASE](../systems/vbase.md) 在 query engine 层用 RM iterator 攻击同一问题）。两条路径**正交可叠加**。
+
+**理论意义**：[Alon-Klartag 2017] 证明 D-bit 短码无法理论上 bound 紧于 O(1/√D)（failure prob 视为 constant）；RaBitQ 实测 sharp bound = **asymptotically optimal**。
+
+详见 [concepts/rabitq.md](./rabitq.md) 与 [benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md](../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md)。
+
 ## 反例：[SPANN](../systems/spann.md) 证明 IVF 不必绑 PQ
 
 [chen-2021-spann] 给出了 IVFADC 范式的另一个反思：**inverted file 路线在 SSD 上不需要 PQ**。
@@ -189,5 +209,6 @@ PQ 仍是值得用的（节省内存），但**不再是 IVFADC 范式的不可�
 - 如何让 PQ 量化器学到与查询分布对齐而非仅与 database 分布对齐？论文的 ADC 仍假设 query 与 database 同分布。**部分回答**：[ScaNN](./scann.md) 的 score-aware loss 显式建模 query 分布并按 inner product 加权 [guo-2019-scann §3] —— 但仅针对 MIPS，L2-NN 通用版仍开放。
 - 维度分组的自动化：论文提到 minimum sum-squared residue co-clustering [30 in jegou-2011-pq] 是潜在方向，但未实施。[jegou-2011-pq §V.C 末尾]
 - IVFADC 的 coarse quantizer 用更优结构（如 IMI、HNSW-as-coarse-quantizer）能否进一步降低 k'·D 的查询开销？论文 §V.E 末尾承认对大 k' 用 hierarchical quantizer，工业界已有 HNSW + PQ 混合方案。**部分工程化**：[Faiss-GPU](./warpselect.md) [johnson-2017-faiss-gpu] 把 IVFADC 整体迁移到 GPU 后，coarse quantizer 反而变成相对小的开销（GPU brute-force 算 k'×D 极快），实际工程更关注 fused kernel 与 PQ lookup 表布局。
+- ~~RaBitQ / 现代 quantizer landscape 演化~~ **2026-05-08 ingest [gao-2024-rabitq] 已部分回答**：[RaBitQ](./rabitq.md) 走出 PQ "Cartesian product of sub-codebooks" 框架，提供 unbiased estimator + sharp error bound + 一半 code length。但 PQ 是否仍优于 RaBitQ 在某些场景？已知 (a) graph-based 索引集成 RaBitQ 仍开放，(b) 极高 D > 1000 (LLM embedding) 上 RaBitQ codebook 实证未做，(c) RaBitQ 与 [ScaNN anisotropic loss](./scann.md) 是否可 hybrid 未探索
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

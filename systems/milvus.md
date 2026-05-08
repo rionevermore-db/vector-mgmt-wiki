@@ -1,10 +1,10 @@
 ---
 title: Milvus（Vector DBMS）
 type: system
-sources: [wang-2021-milvus, milvus-docs, guo-2022-manu, douze-2024-faiss-library]
-related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, analyticdb-v.md, pase.md, vbase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/relaxed-monotonicity.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md]
+sources: [wang-2021-milvus, milvus-docs, guo-2022-manu, douze-2024-faiss-library, gao-2024-rabitq]
+related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, analyticdb-v.md, pase.md, vbase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-07
-updated: 2026-05-08 (VBASE)
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # Milvus
@@ -349,10 +349,11 @@ LF AI & Data Foundation 孵化项目（2020-01），Apache 2.0 License。核心�
 - **GPU FPGA hybrid**：§9 提"已经在 FPGA 上实现 IVF_PQ"，但论文没给 FPGA detail
 - **Cloud-native 重新架构**：§9 末尾说"正在 architect Milvus as cloud-native"——本论文之后的 Milvus 2.0+ 是**重写**，本论文描述的是 1.x 架构
 - **Embedding model 升级处理**：所有动态数据假设向量空间稳定。模型升级（BERT→SBERT）下的 schema migration / re-embedding pipeline 论文未讨论
-- **OPQ / RaBitQ / 现代 quantizer**：1.x 论文 quantization 仅 IVF_FLAT / SQ8 / PQ 三种；v2.6.x 加 SCANN（Google ScaNN）但仍未集成 OPQ / RaBitQ 独立索引。wiki 未覆盖
+- **OPQ / RaBitQ / 现代 quantizer**：1.x 论文 quantization 仅 IVF_FLAT / SQ8 / PQ 三种；v2.6.x 加 SCANN（Google ScaNN）但仍未集成 OPQ / RaBitQ 独立索引。**RaBitQ [gao-2024] 已 ingest** ([concepts/rabitq.md](../concepts/rabitq.md))，为 Milvus 提供 quantizer 升级方向（unbiased + sharp error bound + 一半 code length）；OPQ 仍是 wiki 间接覆盖（through Faiss [douze-2024-faiss-library §4]），未单独 ingest
 - **Streaming Node 与 SIGMOD 1.x writer 的语义差异**：v2.6.x 文档说 streaming node 是 "shard-level mini-brain"——一个 collection 多 shard 时多 streaming node；1.x 论文是 "single writer + multi reader" 单点 writer。**写入吞吐扩展性根本不同**——但文档未给具体对比数字
 - **Woodpecker QuorumBuffer 与 etcd 元数据的故障域耦合**：[per concepts/woodpecker.md] Open Q
 - **2.6.x 实测 benchmark**：[SIGMOD 2021 论文](../benchmarks/milvus-vs-prior-sift10m-deep10m.md) 是 1.x；[VLDB 2022 Manu 论文](../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md) 实测到 100M scale；**v2.6.x cloud-native 进一步演化后实测数字** wiki 未覆盖（Zilliz VectorDBBench 是公开 benchmark 但 wiki 未 ingest）
 - **Manu paper 数字 vs v2.6.x 数字**：Manu 实验是 2022 年；v2.6.x 是 2026 年版本，性能数字应该更高，但 paper 数字仍是当前 wiki 最新公开实测
 - **Manu SSD index 在 v2.6.x 中的状态**：Manu §4.4 hierarchical k-means + LSH replication 在 v2.6.x 文档中未明确列为可选 index——可能被 DiskANN 集成取代或仍在内核但未对外暴露
 - **TopK 接口的根本限制 vs VBASE Iterator 范式**：[per topics/topk-vs-iterator-model.md]——Milvus 5 strategies + iterative merging + partition-based 都是 TopK 框架内的工程优化；VBASE [zhang-2023-vbase] 表明在 multi-column / range / Join 上 Iterator + [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md) 比 TopK 快 100-7900×。Milvus 是否能后续集成 RM iterator 接口（理论可行——HNSW/IVFFlat 都满足 RM）是开放
+- **Milvus quantizer 升级到 [RaBitQ](../concepts/rabitq.md)**：[per gao-2024-rabitq] Milvus v2.6.x docs 列出的 IVF_PQ / IVF_SQ8 / SCANN 都属于 PQ 家族（biased，无 error bound）；RaBitQ 提供 unbiased + sharp error bound + 一半 code length + 3× 单距离速度——理论上替代 IVF_PQ。**Milvus 集成 RaBitQ 的工程门槛**：(a) RaBitQ 的 D-bit string 与 Milvus segment columnar layout 兼容性，(b) RaBitQ + Milvus partition-based attribute filter 联合（5 strategy 中的 E 是否仍最优）。社区 PR 是 logical next step

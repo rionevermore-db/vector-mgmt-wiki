@@ -22,6 +22,7 @@
 - [FilteredVamana / StitchedVamana](./concepts/filtered-vamana.md) — Filtered-DiskANN 的 filter-aware graph 算法；首次把 label 信息 baked-in 到 graph 构造本身（不只 search 步骤过滤）；Microsoft 广告 A/B test +35-49% production gain
 - [ACORN](./concepts/acorn.md) — Stanford 2024 SIGMOD predicate-agnostic HNSW 改造（ACORN-γ + ACORN-1）；首个支持 unbounded predicate set + 任意 operator（regex/contains/between/OR）；25M LAION >1000× over baselines
 - [Relaxed Monotonicity](./concepts/relaxed-monotonicity.md) — VBASE OSDI 2023 形式化的 vector + relational 索引共享性质；两阶段遍历模式（Phase 1 接近 → Phase 2 离开）；让 vector index 与 B-tree 用同一套 Volcano iterator engine——绕开 TopK speculation 的理论基础
+- [RaBitQ](./concepts/rabitq.md) — NTU Singapore SIGMOD 2024 首个 unbiased + sharp error bound 的 quantization；D-bit string + 随机正交矩阵旋转 hypercube vertices codebook；O(1/√D) 渐近最优；error-bound rerank 无需 K' 调参——quantizer 层对 K' 预测问题的 dual 攻击（与 VBASE iterator 范式正交可叠加）；3× 快于 PQ LUT
 
 ## Systems（产品 / 工程系统）
 
@@ -65,6 +66,7 @@
 - [Filtered-DiskANN vs Milvus / Faiss / NHQ](./benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md) — WWW 2023 §5-6：FilteredVamana / StitchedVamana 比 Milvus / Faiss-IVF / NHQ 快 5-10× QPS @ 90% recall on Microsoft 真实数据；广告 A/B test +34.61% clicks / +48.95% revenue (P=0.009-0.03)
 - [ACORN vs Filtered-DiskANN / NHQ / Milvus](./benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md) — SIGMOD 2024 §7：4 datasets (LCPS + HCPS) + 25M LAION scale；ACORN-γ LCPS 上 2-10× over FilteredVamana / NHQ；HCPS 30-1000× over baselines；25M LAION >1000× over next best
 - [VBASE 8-query on Recipe1M](./benchmarks/vbase-8queries-recipe1m.md) — OSDI 2023 §5：Recipe1M 330K + Tag 10K extension，8 query 类型（Q1-Q8）；VBASE Q4-Q6 multi-column TopK 比 Milvus 快 200-300×，Q7 range filter 唯一原生，Q8 vector Join 比 PG 快 7900×；selectivity sampling rate 0.001 q-error <1.1
+- [RaBitQ vs PQ/OPQ/LSQ on 6 Datasets](./benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md) — SIGMOD 2024 §5：6 dataset (MSong/SIFT/DEEP/GIST/Word2Vec/Image)；RaBitQ 用一半 code length 仍 dominate PQ/OPQ/LSQ time-accuracy 曲线；MSong/Word2Vec PQ avg rel error >100% RaBitQ <40%；ε₀=1.9 + B_q=4 cross all datasets 无调参；6/6 dominate HNSW
 
 ## Queries（高价值 query 答案存档）
 

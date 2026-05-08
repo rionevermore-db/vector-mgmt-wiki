@@ -24,6 +24,7 @@
 | gollapudi-2023-filtered-diskann | Filtered-DiskANN: Graph Algorithms for Approximate Nearest Neighbor Search with Filters | Siddharth Gollapudi, Neel Karia, Varun Sivashankar, Ravishankar Krishnaswamy, Nikit Begwani, Swapnil Raz, Yiyong Lin, Yin Zhang, Neelam Mahapatro, Premukumar Srinivasan, Amit Singh, Harsha Vardhan Simhadri | 2023 (WWW) | paper | papers/gollapudi-2023-filtered-diskann.pdf | 2026-05-08 |
 | patel-2024-acorn | ACORN: Performant and Predicate-Agnostic Search Over Vector Embeddings and Structured Data | Liana Patel, Peter Kraft, Carlos Guestrin, Matei Zaharia | 2024 (SIGMOD) | paper | papers/patel-2024-acorn.pdf | 2026-05-08 |
 | zhang-2023-vbase | VBASE: Unifying Online Vector Similarity Search and Relational Queries via Relaxed Monotonicity | Qianxi Zhang, Shuotao Xu, Qi Chen, Guoxin Sui, Jiadong Xie, Zhizhen Cheng, Yaoqi Chen, Chunyang Li, Mao Yang, Lidong Zhou, Yidong Lyu, Mingji Zhang, Cheng Li, Fan Yang | 2023 (OSDI) | paper | papers/zhang-2023-vbase.pdf | 2026-05-08 |
+| gao-2024-rabitq | RaBitQ: Quantizing High-Dimensional Vectors with a Theoretical Error Bound for Approximate Nearest Neighbor Search | Jianyang Gao, Cheng Long | 2024 (SIGMOD / PACMMOD) | paper | papers/gao-2024-rabitq.pdf | 2026-05-08 |
 
 ## 命名约定
 

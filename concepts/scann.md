@@ -1,10 +1,10 @@
 ---
 title: ScaNN（Anisotropic Vector Quantization）
 type: concept
-sources: [guo-2019-scann, douze-2024-faiss-library]
-related: [product-quantization.md, hnsw.md, nsg.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/scann-glove1.2m-mips.md]
+sources: [guo-2019-scann, douze-2024-faiss-library, gao-2024-rabitq]
+related: [product-quantization.md, hnsw.md, nsg.md, rabitq.md, ../systems/faiss.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/scann-glove1.2m-mips.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # ScaNN
@@ -118,3 +118,4 @@ ScaNN 的 4-bit interleaved SIMD layout 后被 [Faiss](../systems/faiss.md) 借�
 - **低维下的 η 计算**：Theorem 3.4 的极限解析式只在 d→∞ 时成立。低维（d<100）需要数值积分 h_∥ / h_⊥，论文未明示工程细节。
 - **多目标任务**：ScaNN 优化 MIPS。如果应用同时需要 L2-NN（比如混合检索）怎么办？切换 codebook 还是另建索引？
 - **与 graph 方法融合**：ScaNN 自家也用了 vector quantization tree（IVF 类）做粗量化，但未尝试 [HNSW](./hnsw.md)-as-coarse-quantizer。HNSW + 各向异性 PQ 的混合栈是开放方向。
+- **vs [RaBitQ](./rabitq.md) 的范式差异**：[gao-2024-rabitq §5.1 footnote 6] 实测把 ScaNN 排除在 baseline 外——论证 ScaNN 在 in-memory ANN 的优势主要源自 PQ4xfs FastScan SIMD impl ([4, 5] = André et al.)，**当 PQ 用同样 SIMD 时 ScaNN 优势消失**。两条 PQ 后续路线对"PQ 系误差"的不同应对：ScaNN 用 score-aware loss 优化 codebook（仍 biased，无 error bound）；RaBitQ 用随机正交矩阵 + bi-valued hypercube codebook（unbiased + sharp error bound）。理论上是否可以 hybrid（RaBitQ codebook + score-aware loss）？未探索

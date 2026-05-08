@@ -1,10 +1,10 @@
 ---
 title: VGPQ（Voronoi Graph Product Quantization）
 type: concept
-sources: [wei-2020-analyticdb-v]
-related: [./product-quantization.md, ./scann.md, ../systems/analyticdb-v.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md]
+sources: [wei-2020-analyticdb-v, gao-2024-rabitq]
+related: [./product-quantization.md, ./scann.md, ./rabitq.md, ../systems/analyticdb-v.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # VGPQ
@@ -153,5 +153,6 @@ ADBV 的 4-plan CBO 中：
 - **VGPQ + ScaNN anisotropic loss 叠加**：理论可行未试
 - **Update under VGPQ**：增量插入需重建 Voronoi（centroid 变 → midpoints 变 → subcell 边界变）；ADBV 用 lambda 框架避开（streaming HNSW 处理增量），但纯 VGPQ in-place update 未解
 - **VGPQ vs HNSW 实测比较**：论文 §6 主要 vs IVFPQ；VGPQ vs HNSW 的 recall / latency / build / memory 全 trade-off 未独立比较
+- **VGPQ vs [RaBitQ](./rabitq.md)**：两个 PQ-family 后续都声称优于 IVFPQ，但走对立路径——VGPQ 改 partition geometry 仍用 PQ codebook（无 error bound）；RaBitQ 完全跳出 PQ 框架（hypercube codebook + theoretical bound）。理论上 RaBitQ 的 unbiased estimator + sharp bound 对 ADBV lambda framework 的 plan CBO 是潜在替代 quantizer——但 ADBV 论文 [wei-2020] 早于 RaBitQ [gao-2024]，未实证。VGPQ + RaBitQ 几何剪枝叠加（保留 Voronoi cell 切分但用 RaBitQ codebook）理论可行未试
 
 Cited by: 待 query 引用

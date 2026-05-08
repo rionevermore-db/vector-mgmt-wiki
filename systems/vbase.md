@@ -2,9 +2,9 @@
 title: VBASE（PostgreSQL 上的统一 vector + relational 查询引擎）
 type: system
 sources: [zhang-2023-vbase]
-related: [milvus.md, pase.md, analyticdb-v.md, spann.md, faiss.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../topics/topk-vs-iterator-model.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/vector-range-query.md, ../topics/index-selection.md, ../benchmarks/vbase-8queries-recipe1m.md]
+related: [milvus.md, pase.md, analyticdb-v.md, spann.md, faiss.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/rabitq.md, ../topics/topk-vs-iterator-model.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/vector-range-query.md, ../topics/index-selection.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # VBASE
@@ -285,6 +285,7 @@ VBASE 是 **Microsoft Research 学术原型**——GitHub `microsoft/MSVBASE`，
 - **Billion-scale 实测**：论文止步于 Recipe1M（330K-1M）；RM 在更大数据集（10B+）上 Phase 边界检测的稳定性？
 - **Distributed PG (Citus / Greenplum / PolarDB) 集成**：VBASE 是单实例 PG；分布式扩展时 RM iterator 跨 shard 的 progress aggregation 如何形式化？论文未涉及
 - **PQ-based 索引（IVFPQ / [VGPQ](../concepts/vgpq.md)）的 RM 集成**：lossy distance 下 RM Phase 边界的精度损失？论文 §4 未深入
+- **VBASE iterator + [RaBitQ](../concepts/rabitq.md) quantizer 叠加**：RaBitQ 在 quantizer 层用 error-bound 攻击 K' 预测问题；VBASE 在 query engine 层用 RM iterator 攻击同一问题——**正交可叠加**。理论上 VBASE engine + IVF + RaBitQ rerank 应保持 RM Phase 检测正确性（RaBitQ unbiased estimator + sharp bound 满足 RM 假设）；但 VBASE 论文 [zhang-2023] 早于 RaBitQ [gao-2024]，未实证。详见 [topics/topk-vs-iterator-model.md "K' 消除：双层路径"](../topics/topk-vs-iterator-model.md)
 - **GPU 索引（Faiss-GPU / CAGRA）的 iterator 化**：[WarpSelect](../concepts/warpselect.md) 内 batch 优化与 single-step iterator 的接口冲突——论文未触及
 - **Filter-aware 索引（[FilteredVamana](../concepts/filtered-vamana.md) / [ACORN](../concepts/acorn.md)）的 RM 适用性**：filter-aware build 后 RM 仍 hold？理论上 yes，未实测
 - **Streaming insertion 下 RM 的稳定性**：[ADBV](./analyticdb-v.md) lambda / [Milvus](./milvus.md) growing segment / [SPFresh](./spfresh.md) LIRE 中 cluster 边界变化时 RM Phase 漂移？

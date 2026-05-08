@@ -1,10 +1,10 @@
 ---
 title: SPANN（System）
 type: system
-sources: [chen-2021-spann]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, ../concepts/relaxed-monotonicity.md, diskann.md, faiss.md, milvus.md, spfresh.md, pinecone.md, vbase.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/vbase-8queries-recipe1m.md]
+sources: [chen-2021-spann, gao-2024-rabitq]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, diskann.md, faiss.md, milvus.md, spfresh.md, pinecone.md, vbase.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-07
-updated: 2026-05-08 (VBASE)
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # SPANN
@@ -141,3 +141,4 @@ SPANN 可看作"Faiss IVF 的 SSD 化版本"，但把"内存里 PQ codes"的预�
 - **Closure replicas = 8 是经验值**：与 DiskANN 的 W=4-8 一样是工程调参，无理论指导
 - **HBC 树深度的尾部分布**：簇大小不均匀的极端情况未量化分析
 - **VBASE+SPANN 集成实证**：[per zhang-2023-vbase §5.4 + benchmarks/vbase-8queries-recipe1m.md Table 8] VBASE 在 Azure Standard_L16s_v3 NVMe 上集成 SPANN，全部 8 query 类型可行；Q1 9.4 ms / 11.6 ms 99p, recall 0.9911；Q5 99p 519.7 ms（SSD 随机 IO 放大）。证明 SPANN 满足 [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md)——partition-based + SSD 索引可以走 VBASE iterator 范式。这是 wiki 内首次"in-memory graph (HNSW) + on-disk partition (SPANN)"用同一 query engine 的实证
+- **SPANN posting list 引入 [RaBitQ](../concepts/rabitq.md)**：[chen-2021] §3 SPANN 论文明确反对量化（"避免 PQ 失真天花板"）；但 [gao-2024-rabitq] 提供的 unbiased + sharp error bound 量化器可能改变这个 trade-off——理论上 SPANN posting list 用 RaBitQ 编码后 (a) SSD 占用从 32D bits → D bits（4× 节省），(b) error bound 仍允许 100% recall （rerank 全精度从 SSD 读）。开放问题：SPANN 的 closure clustering 与 RaBitQ 的 normalization 假设是否兼容？(SPANN closure 把边界向量复制到多 cluster；RaBitQ normalize 基于 cluster centroid。复制边界向量 → 不同 normalize 基准 → 同 vector 多 quantization codes，是否影响 unbiasedness？理论分析未做)

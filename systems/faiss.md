@@ -1,10 +1,10 @@
 ---
 title: Faiss（Library）
 type: system
-sources: [douze-2024-faiss-library, johnson-2017-faiss-gpu]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, diskann.md, spann.md, milvus.md, spfresh.md, pinecone.md, analyticdb-v.md, pase.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+sources: [douze-2024-faiss-library, johnson-2017-faiss-gpu, gao-2024-rabitq]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/rabitq.md, diskann.md, spann.md, milvus.md, spfresh.md, pinecone.md, analyticdb-v.md, pase.md, vbase.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # Faiss
@@ -156,5 +156,6 @@ IndexShards / IndexReplicas ← 分片 / 复制
 - **Out-of-distribution queries**：§5.2 提及 OOD-DiskANN、Filtered-DiskANN 是 frontier。**Filtered-DiskANN [gollapudi-2023-filtered-diskann] WWW 2023 已 ingest**——首个 filter-aware **build** 算法（[FilteredVamana / StitchedVamana](../concepts/filtered-vamana.md)），比 Faiss-IDSelector / Milvus partition-based / Pinecone hybrid 等 search-time 方法快 5-10× QPS @ 90% recall on Microsoft real data。Faiss 当前仍不直接集成。
 - **GPU graph 索引**：§A.3 末尾明示 CAGRA 是 emerging direction；Faiss-GPU 当前只有 IVF 类。
 - **库 vs 数据库的边界何时模糊**：[Milvus](./milvus.md) / Vespa 已经把 Faiss 包成数据库；上下游融合到什么程度时 Faiss 应该收回部分功能？[wang-2021-milvus] 给出 DBMS 一侧的具体回答：cache-aware partition、runtime SIMD hooking、SQ8H hybrid CPU/GPU、LSM segment、shared-storage 分布式、五策略 attribute filtering、multi-vector query 都属"Faiss 不做、上层补齐"
+- **Quantizer 库的演化跟进 [RaBitQ](../concepts/rabitq.md)**：[douze-2024-faiss-library §4.4] 列举的 quantizer landscape（PQ / OPQ / RQ / LSQ / PRQ / PLSQ / [ScaNN](../concepts/scann.md)）全部 biased 无 error bound；[gao-2024-rabitq] SIGMOD 2024 提出 unbiased + sharp error bound + 一半 code length + 3× 单距离速度的 RaBitQ——在 6/6 dataset dominate Faiss IVF_OPQ4xfs。Faiss 论文 2024 年发表与 RaBitQ 同年，当前 release 不集成；社区提交 PR 加入是 logical next step。RaBitQ 与 Faiss 现有 SIMD impl（PQ4xfs）seamless 兼容（同一 SIMD shuffle 流程）→ 集成成本应较低
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

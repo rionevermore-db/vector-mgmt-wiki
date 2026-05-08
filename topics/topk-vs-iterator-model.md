@@ -1,10 +1,10 @@
 ---
 title: TopK 接口 vs Iterator Model（向量索引集成范式之争）
 type: topic
-sources: [zhang-2023-vbase, wang-2021-milvus, yang-2020-pase, wei-2020-analyticdb-v]
-related: [../systems/vbase.md, ../systems/milvus.md, ../systems/pase.md, ../systems/analyticdb-v.md, ../systems/pinecone.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ./attribute-filtering.md, ./multi-vector-queries.md, ./vector-range-query.md, ./index-selection.md, ../benchmarks/vbase-8queries-recipe1m.md]
+sources: [zhang-2023-vbase, wang-2021-milvus, yang-2020-pase, wei-2020-analyticdb-v, gao-2024-rabitq]
+related: [../systems/vbase.md, ../systems/milvus.md, ../systems/pase.md, ../systems/analyticdb-v.md, ../systems/pinecone.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ./attribute-filtering.md, ./multi-vector-queries.md, ./vector-range-query.md, ./index-selection.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-08 (RaBitQ)
 ---
 
 # TopK 接口 vs Iterator Model
@@ -233,6 +233,57 @@ Vector Join Recipe 330K × Tag 10K = 3.3B 距离对：
 
 → TopK-based 系统**结构性无法处理 vector Join**（除非应用层重写）；VBASE 用 iterator + range search 自然支持。
 
+## K' 消除：双层路径（NEW）
+
+[zhang-2023-vbase + gao-2024-rabitq] 揭示 K' 预测问题有**两个独立攻击层**：
+
+### Layer A: Query Engine（VBASE 路径）
+
+VBASE [§4]：query engine 用 RM iterator 接口 + Phase 2 自动停——绕开 K' 选择，让 vector index 内部状态决定何时停止。
+
+```
+Query (TopK + filter):
+loop:
+  v = vec_iter.amgetnext();
+  if v.passes_filter(): result.add(v)
+  if vec_iter.amisrm() and result.size >= K: break
+return result
+```
+
+### Layer B: Distance Estimator（RaBitQ 路径）
+
+RaBitQ [§4]：quantizer 给出 unbiased estimator + sharp probabilistic error bound——drop candidate if lower_bound > current threshold。
+
+```
+ANN with IVF + RaBitQ rerank:
+candidates = []
+for cluster in nprobe clusters:
+  for v in cluster:
+    est = RaBitQ_estimate(v, query)
+    lower = est - error_bound  // from Theorem 3.2
+    if lower > current_kth_NN_distance: drop  // rigorous w.h.p.
+    else: compute exact distance, add to result
+```
+
+### 双层正交性
+
+| 层 | 解决机制 | 工程接口 | 是否需 selectivity 估计 | 是否替代 quantizer |
+|---|---|---|---|---|
+| **Query Engine (VBASE)** | RM iterator + Phase 2 | Open/Next/Close + amisrm | sampling 0.001 (optional) | ✗（与所有 quantizer 兼容） |
+| **Distance Estimator (RaBitQ)** | Per-vec lower bound + drop | IVF + RaBitQ + error-bound rerank | ✗（不需要） | ✓（取代 PQ） |
+
+**关键**：两层互不干扰——VBASE 的 RM iterator 不关心 vector index 内部用什么 quantizer；RaBitQ 的 error bound 不关心 query engine 怎么调用。**理论上叠加可行**：VBASE engine 用 RM iterator 自适应 K̃ + 每 IVF cluster 内用 RaBitQ 的 error bound 做 quantization-level rerank。
+
+### 三层完整 K' 消除路径
+
+| 层 | 代表方法 | 攻击点 |
+|---|---|---|
+| **Data layout** | [Milvus partition-based](../systems/milvus.md) E（按高频 filter 属性预分区） | filter selectivity 前置到 storage |
+| **Query engine** | [VBASE Iterator + RM](../systems/vbase.md) | filter selectivity → RM Phase 2 自动停 |
+| **Distance estimator** | [RaBitQ error-bound](../concepts/rabitq.md) | rerank 候选 → drop by per-vec bound |
+
+→ 三层都未单独解决 K' 问题：data layout 仅适用高频固定 filter；query engine 不解决 quantizer 误差；distance estimator 不解决 multi-column / Join。**理论上三层叠加才完整**——但 wiki 内 zero coverage（VBASE + RaBitQ + Milvus partition-based 三方集成实证不存在）。
+
 ## 历史脉络
 
 | 年份 | 事件 | 范式 |
@@ -242,7 +293,8 @@ Vector Join Recipe 330K × Tag 10K = 3.3B 距离对：
 | 2020 | [PASE](../systems/pase.md) [yang-2020] amgettuple 走 iterative pop——RM 雏形 | TopK 单 column iterative |
 | 2021 | [Milvus](../systems/milvus.md) 1.x [wang-2021] 提出 partition-based filter 缓解 K' selectivity | TopK + 数据布局优化 |
 | 2022 | [Milvus](../systems/milvus.md) 2.x (Manu) [guo-2022] iterative merging for multi-vector | TopK + Fagin doubling K' |
-| **2023** | **VBASE [zhang-2023]** 形式化 RM + iterator model | **范式转换** |
+| **2023** | **VBASE [zhang-2023]** 形式化 RM + iterator model | **Engine 层范式转换** |
+| **2024** | **[RaBitQ](../concepts/rabitq.md) [gao-2024]** sharp error bound + drop-by-bound rerank | **Estimator 层范式转换** |
 
 → TopK 范式经过 5 年的工程优化（CBO / partition / iterative merging）仍无法根本解决 K' 问题；VBASE 直接换范式。
 
