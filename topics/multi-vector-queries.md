@@ -2,7 +2,7 @@
 title: Multi-Vector Queries（多向量查询）
 type: topic
 sources: [wang-2021-milvus]
-related: [../systems/milvus.md, ../concepts/product-quantization.md, ./mips-vs-l2-nn.md]
+related: [../systems/milvus.md, ../systems/pinecone.md, ../concepts/product-quantization.md, ./mips-vs-l2-nn.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---

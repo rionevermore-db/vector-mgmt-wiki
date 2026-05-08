@@ -2,7 +2,7 @@
 title: Attribute Filtering（向量+属性混合查询）
 type: topic
 sources: [wang-2021-milvus, douze-2024-faiss-library]
-related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../concepts/product-quantization.md, ./index-selection.md]
+related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../concepts/product-quantization.md, ./index-selection.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -61,6 +61,7 @@ Query `C_A = [50, 250]`：
 |---|---|---|
 | **[Faiss](../systems/faiss.md)** | `IDSelector` callback / `bow_id_selector` bit-signature [per systems/faiss.md] | **基础**——library 级别，需用户手写 selector |
 | **[Milvus](../systems/milvus.md)** | 5 策略 + cost-based 自动选 + partition-based [wang-2021-milvus] | **DBMS 级别原生支持** |
+| **[Pinecone](../systems/pinecone.md)** | metadata filtering + namespace 隔离 + filterable schema fields [per pinecone-docs] | **SaaS 级别原生支持**；具体实现算法不公开 |
 | **[DiskANN](../systems/diskann.md)** | 不直接支持；**Filtered-DiskANN** 是后继扩展 [per douze-2024-faiss-library §2 ref] | 弱（research 方向） |
 | **[SPANN](../systems/spann.md)** | 论文未涉及 | 弱 |
 | Faiss-IDSelector vs Milvus | Faiss IDSelector 走 strategy B (bitmap)；Milvus 把它泛化为 5 策略 + 自动选择 | Milvus 完整覆盖 Faiss 思路 |

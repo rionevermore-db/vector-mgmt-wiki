@@ -14,6 +14,8 @@
 - [Vamana](./concepts/vamana.md) — 单层 graph + α-controlled RobustPrune + 两遍构建，DiskANN 的内存层算法
 - [Woodpecker](./concepts/woodpecker.md) — Milvus 2.6 自研 zero-disk WAL；S3 上 750 MB/s 吞吐（5.8× over Kafka）；MemoryBuffer / QuorumBuffer 双部署模式
 - [LIRE](./concepts/lire.md) — SPFresh 的 Lightweight Incremental REbalancing 协议；2 必要条件 + 5 操作 + cascading 收敛证明；仅 0.4% 插入触发 rebalance
+- [Pinecone Pod-Based Sharding](./concepts/pinecone-pod-based.md) — Pinecone 第一代（legacy 2025-08 关闭）：p1/p2/s1 pod 类型 + x1/x2/x4/x8 size + replica 线性 QPS
+- [Pinecone Serverless Slabs](./concepts/pinecone-serverless-slabs.md) — Pinecone 第二代核心：slab on object storage + memtable LSM-style + **adaptive indexing**（小 slab fast / 大 slab sophisticated，wiki 内首次"索引随生命周期演化"）
 
 ## Systems（产品 / 工程系统）
 
@@ -22,6 +24,7 @@
 - [SPANN](./systems/spann.md) — Microsoft 开源的 SSD-resident ANN 系统，centroids in DRAM + posting lists on SSD；inverted file 路线；Bing 几千亿规模生产
 - [Milvus](./systems/milvus.md) — Zilliz 开源的 vector DBMS（不是 library/算法系统）；建在 Faiss 之上 + LSM segment + shared-storage 分布式 + 五策略 attribute filtering + multi-vector query；SIGMOD 2021，LF AI 孵化
 - [SPFresh](./systems/spfresh.md) — Microsoft 在 SPANN 之上加 LIRE 协议，**首个 billion-scale in-place 增量更新**系统；100 days × 1% daily update 持续 10 GB + 2 cores（DiskANN rebuild 需 1100 GB + 32 cores × 2 天）；SOSP 2023
+- [Pinecone](./systems/pinecone.md) — wiki 内**唯一**商业闭源 SaaS；两代架构（pod-based legacy + serverless slabs）；On-demand vs Dedicated Read Nodes；index_type 不暴露给用户（adaptive 自动选）
 
 ## Topics（跨概念主题）
 

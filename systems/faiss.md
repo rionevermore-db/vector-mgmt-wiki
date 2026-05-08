@@ -2,7 +2,7 @@
 title: Faiss（Library）
 type: system
 sources: [douze-2024-faiss-library, johnson-2017-faiss-gpu]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, diskann.md, spann.md, milvus.md, spfresh.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/vamana.md, diskann.md, spann.md, milvus.md, spfresh.md, pinecone.md, ../topics/index-selection.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -140,7 +140,7 @@ IndexShards / IndexReplicas ← 分片 / 复制
 | [SPANN](./spann.md)（Microsoft / SPTAG） | 平行竞品 | 磁盘原生 IVF（centroids 内存 + posting list SSD）；Bing 几千亿规模生产。Faiss IVFPQ 的 SSD 化对应物 |
 | HNSWlib / nmslib | [HNSW](../concepts/hnsw.md) 参考实现 | Faiss `IndexHNSW` 从此分叉 |
 | **[Milvus](./milvus.md)** | **建在 Faiss 之上的 vector DBMS** | 内核 wrap Faiss IVF/PQ/HNSW，但补齐 Faiss 明确不做的功能：dynamic data (LSM)、distributed (shared-storage)、attribute filtering、multi-vector query、cache-aware/SIMD/SQ8H 工程改造。是 Faiss §1 "库 vs 数据库" 论点的工业 DBMS 对应物 [per wang-2021-milvus]。Knowhere 库 wrap Faiss 是 1.x 路线；Milvus 2.0+ 是 cloud-native 重写 |
-| Pinecone | 早期依赖 Faiss，后改 Rust 重写 | |
+| **[Pinecone](./pinecone.md)** | **早期依赖 Faiss，后改 Rust 重写** | 闭源 SaaS（详见 systems/pinecone.md）；当前内部具体算法不公开，但商业上是 Faiss / Milvus 的 SaaS 路线对手。Pinecone 同时有 [pod-based legacy 架构](../concepts/pinecone-pod-based.md) 和 [serverless slab + adaptive indexing](../concepts/pinecone-serverless-slabs.md) 两代形态 |
 | Weaviate | 复合检索引擎，含 Faiss 作为可选 | |
 
 ## 生产案例
