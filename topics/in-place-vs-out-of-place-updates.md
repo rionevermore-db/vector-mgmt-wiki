@@ -2,7 +2,7 @@
 title: In-Place vs Out-of-Place Updates（向量索引更新策略）
 type: topic
 sources: [xu-2023-spfresh, chen-2021-spann, subramanya-2019-diskann, wang-2021-milvus, douze-2024-faiss-library]
-related: [../systems/spfresh.md, ../systems/spann.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/faiss.md, ../systems/pinecone.md, ../concepts/lire.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/pinecone-serverless-slabs.md]
+related: [../systems/spfresh.md, ../systems/spann.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/faiss.md, ../systems/pinecone.md, ../concepts/lire.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/delta-consistency.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -36,6 +36,7 @@ ANN 索引的两类 update 模型：
 | Milvus v2.x LSM | **Out-of-place + LSM** | Segment-based | 单向量 → segment | 后台 tiered merge | 中 | merge 仅按 size，不按数据分布 |
 | **[SPFresh](../systems/spfresh.md) LIRE** | **In-place + 主动 rebalance** | IVF（[SPANN](../systems/spann.md) base） | 单向量 + 邻近触发 | **完全不需要** | **持续 10 GB + 2 cores**（1B SIFT） | **NPA 主动维持**，P99.9 ~4ms 稳定 100 天 |
 | **[Pinecone Serverless slab](../systems/pinecone.md)** | **LSM-style + adaptive indexing** | Slab in object storage | 单向量 → memtable → flush → slab merge | **slab merge** 中（非全 rebuild） | docs 未公开数字（auto） | **adaptive**：merge 时自动从 fast indexing 升级到 sophisticated indexing |
+| **[Manu (Milvus 2.x)](../systems/milvus.md)** | **Stream indexing + delta consistency τ** | Segment（512 MB default） + slice（10K vec temp IVF-FLAT） | growing segment 临时 index → sealed segment 完整 index | 周期 stream indexing（非全 rebuild） | NeurIPS 2021 winner SSD index | **delta consistency τ** 让 user 调"过期容忍度"——支持 strong / eventual / 中间任意点 |
 
 ## 三种"In-Place"的差别
 

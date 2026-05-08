@@ -1,17 +1,22 @@
 ---
 title: Milvus（Vector DBMS）
 type: system
-sources: [wang-2021-milvus, milvus-docs, douze-2024-faiss-library]
-related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md]
+sources: [wang-2021-milvus, milvus-docs, guo-2022-manu, douze-2024-faiss-library]
+related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-08
 ---
 
 # Milvus
 
-**TL;DR**: Zilliz 开源的 **vector DBMS**——不是 ANN library（[Faiss](./faiss.md)）也不是 SSD-resident 算法系统（[DiskANN](./diskann.md) / [SPANN](./spann.md)），而是真正"vector 作为一等公民"的数据库管理系统。**两个时期**：1.x（[SIGMOD 2021 论文](../sources/papers/wang-2021-milvus.pdf)）建在 Faiss 之上 + 单 writer / 多 reader shared-storage；**2.x（v2.6.x，cloud-native 重写）**：四层 disaggregated 架构 + Streaming Node + 自研 [Woodpecker](../concepts/woodpecker.md) zero-disk WAL + DiskANN/SCANN/GPU CAGRA 等纳入索引族。被 300+ 大企业部署（Salesforce / PayPal / Shopee / NVIDIA / IBM / Airbnb / eBay 等）。LF AI 孵化项目。[wang-2021-milvus §1-2; per sources/docs/milvus/site/en/about/overview.md]
+**TL;DR**: Zilliz 开源的 **vector DBMS**——不是 ANN library（[Faiss](./faiss.md)）也不是 SSD-resident 算法系统（[DiskANN](./diskann.md) / [SPANN](./spann.md)），而是真正"vector 作为一等公民"的数据库管理系统。**两个时期**：1.x（[SIGMOD 2021 论文](../sources/papers/wang-2021-milvus.pdf)）建在 Faiss 之上 + 单 writer / 多 reader shared-storage；**2.x（VLDB 2022 论文 "Manu" + v2.6.x docs，cloud-native 重写）**：四层 disaggregated 架构 + Streaming Node + 自研 [Woodpecker](../concepts/woodpecker.md) zero-disk WAL + DiskANN/SCANN/GPU CAGRA 索引族 + [delta consistency](../concepts/delta-consistency.md) 形式化模型 + [SSD-aware hierarchical k-means](../concepts/manu-ssd-hierarchical-kmeans.md)（NeurIPS 2021 BigANN 冠军）。被 300+ 大企业部署。LF AI 孵化项目。[wang-2021-milvus §1-2; guo-2022-manu §1; per sources/docs/milvus/site/en/about/overview.md]
 
-> **本 page 区分两个时期**：SIGMOD 2021 论文描述 1.x；后续小节标 "**v2.6.x:**" 的内容来自 [milvus-docs] 反映 cloud-native 重写。两份 source 描述的是同一产品的不同代际。
+> **本 page 整合三份 source**：
+> - [wang-2021-milvus] = Milvus **1.x** SIGMOD 2021 论文
+> - [guo-2022-manu] = Milvus **2.x** VLDB 2022 学术论文（项目代号 "Manu"，源码在 `milvus-io/milvus/tree/2.0`）
+> - [milvus-docs] = Milvus **v2.6.x** 官方文档（2.x 演化最新形态）
+>
+> 三份 source 描述同一产品的不同代际 + 不同视角（论文给学术深度 / docs 给操作细节）。本 page 标记 "**1.x:**" / "**Manu (2.x):**" / "**v2.6.x:**" 区分代际。
 
 ## 与现有 wiki 系统的定位差异
 
@@ -248,6 +253,51 @@ updated: 2026-05-07
 
 **h) 稀疏向量 + 全文 + Hybrid Search**：BM25 native + SPLADE / BGE-M3 学习稀疏 embedding；同 collection 内 dense + sparse 双 vector field + reranker
 
+### 7. Manu (2.x) 学术深度（VLDB 2022 论文细节）
+
+[guo-2022-manu] 给出 v2.6.x docs 没显式形式化的几个 architectural 创新：
+
+#### a) "Log as data" 范式（§3）
+
+不是把 log 当临时 buffer，而是当 **first-class durable backbone service**。WAL + binlog 都是暴露给 subscribers 的 stream。Read components（query / index / data nodes）作 **independent log subscribers**——这把 read-from-write 解耦从 system layer 实现到 data layer。
+
+**与 Apache Flink / Kafka 设计哲学同源**：log → 通用 messaging fabric。
+
+#### b) [Delta consistency](../concepts/delta-consistency.md) 形式化模型（§3.4）
+
+User 指定 `τ`（tolerable staleness virtual time），query 满足 `L_r - L_s < τ` 才执行——否则等下一个 time-tick。**Strong / eventual consistency 是特例**（τ=0 / ∞）。**论文称"first to support delta consistency in a vector database"**。
+
+#### c) Time-tick 机制（§3.4）
+
+类 Apache Flink watermarks。TSO（Time Service Oracle）发布 hybrid logical clock 时间戳（physical + logical）；time-tick 周期插入 log channel 标识进度。Subscriber 用 time-tick 实现 delta consistency 检查。
+
+#### d) Stream indexing（§3.5）
+
+新插入向量进入 growing segment 时，**每 10K vector slice 临时建轻量 IVF-FLAT** → search 直接用临时 index 而非 brute force。**对 growing segment search 速度 10× 提升**。Sealed segment 时再用 index node 建完整索引。
+
+#### e) [SSD-aware hierarchical k-means](../concepts/manu-ssd-hierarchical-kmeans.md)（§4.4）
+
+**NeurIPS 2021 BigANN challenge Track 2 (search with SSD) winner**：
+- 4KB SSD-aligned blocks 存压缩向量（SQ）
+- DRAM 中保留所有 hierarchical k-means cluster centers
+- **多次 LSH-style 复制**（向量在 SSD 中复制 4-8 次，多棵独立 k-means 树）—— solve boundary recall
+- 比 baseline same QPS 高 **60% recall**
+
+#### f) BOHB auto-configuration（§4.2）
+
+Bayesian Optimization with Hyperband 自动搜索 index 参数。User 给 utility function（如 `recall × QPS / cost`），系统在参数空间中搜索。BOHB 平衡探索（Bayesian）与早停（Hyperband）。
+
+#### g) Time travel（§4.3）
+
+Periodic checkpoint + WAL replay；用户指定物理时间 T 恢复数据库状态。Per-segment progress 减少 replay overhead。
+
+#### h) 实验对比（§5）
+
+[详见 benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md](../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md)：
+- Manu HNSW + IVF-FLAT 在 SIFT10M / DEEP10M 上系统击败 Elasticsearch / Vearch / Vald / Vespa
+- vs Milvus 1.x：4k QPS insertion 下 Manu search latency 稳定，Milvus 1.x violently fluctuates → **dedicated index node 设计的关键收益**
+- 24h elasticity 实测 + 2-10 query node scalability + 20M-100M dataset scaling
+
 ## Scale 边界
 
 | 配置 | 数据 | 性能 |
@@ -300,4 +350,6 @@ LF AI & Data Foundation 孵化项目（2020-01），Apache 2.0 License。核心�
 - **OPQ / RaBitQ / 现代 quantizer**：1.x 论文 quantization 仅 IVF_FLAT / SQ8 / PQ 三种；v2.6.x 加 SCANN（Google ScaNN）但仍未集成 OPQ / RaBitQ 独立索引。wiki 未覆盖
 - **Streaming Node 与 SIGMOD 1.x writer 的语义差异**：v2.6.x 文档说 streaming node 是 "shard-level mini-brain"——一个 collection 多 shard 时多 streaming node；1.x 论文是 "single writer + multi reader" 单点 writer。**写入吞吐扩展性根本不同**——但文档未给具体对比数字
 - **Woodpecker QuorumBuffer 与 etcd 元数据的故障域耦合**：[per concepts/woodpecker.md] Open Q
-- **2.6.x 实测 benchmark**：所有 wiki 现有数字（SIFT10M HNSW 15000 q/s 等）来自 [SIGMOD 2021 论文](../benchmarks/milvus-vs-prior-sift10m-deep10m.md) = 1.x；2.x cloud-native 重写后实测数字 wiki 未覆盖（Zilliz VectorDBBench 是公开 benchmark 但 wiki 未 ingest）
+- **2.6.x 实测 benchmark**：[SIGMOD 2021 论文](../benchmarks/milvus-vs-prior-sift10m-deep10m.md) 是 1.x；[VLDB 2022 Manu 论文](../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md) 实测到 100M scale；**v2.6.x cloud-native 进一步演化后实测数字** wiki 未覆盖（Zilliz VectorDBBench 是公开 benchmark 但 wiki 未 ingest）
+- **Manu paper 数字 vs v2.6.x 数字**：Manu 实验是 2022 年；v2.6.x 是 2026 年版本，性能数字应该更高，但 paper 数字仍是当前 wiki 最新公开实测
+- **Manu SSD index 在 v2.6.x 中的状态**：Manu §4.4 hierarchical k-means + LSH replication 在 v2.6.x 文档中未明确列为可选 index——可能被 DiskANN 集成取代或仍在内核但未对外暴露

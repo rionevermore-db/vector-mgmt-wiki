@@ -16,6 +16,8 @@
 - [LIRE](./concepts/lire.md) — SPFresh 的 Lightweight Incremental REbalancing 协议；2 必要条件 + 5 操作 + cascading 收敛证明；仅 0.4% 插入触发 rebalance
 - [Pinecone Pod-Based Sharding](./concepts/pinecone-pod-based.md) — Pinecone 第一代（legacy 2025-08 关闭）：p1/p2/s1 pod 类型 + x1/x2/x4/x8 size + replica 线性 QPS
 - [Pinecone Serverless Slabs](./concepts/pinecone-serverless-slabs.md) — Pinecone 第二代核心：slab on object storage + memtable LSM-style + **adaptive indexing**（小 slab fast / 大 slab sophisticated，wiki 内首次"索引随生命周期演化"）
+- [Delta Consistency](./concepts/delta-consistency.md) — Manu (Milvus 2.x) 形式化的 tunable bounded staleness 一致性模型；strong / eventual 是 τ=0/∞ 的特例；wiki 内首个 vector DBMS 一致性形式化
+- [Manu SSD-Aware Indexing](./concepts/manu-ssd-hierarchical-kmeans.md) — Manu §4.4 hierarchical k-means + LSH-style 多次复制（4-8×）+ 4KB SSD-aligned blocks；NeurIPS 2021 BigANN 冠军方案，比 baseline same QPS recall +60%
 
 ## Systems（产品 / 工程系统）
 
@@ -48,6 +50,7 @@
 - [SPANN vs DiskANN on Billion-scale](./benchmarks/spann-vs-diskann-billion.md) — SPANN 论文 §4：在三个 billion-scale 数据集上 SPANN 比 DiskANN 在 90% recall 时快 2×
 - [Milvus vs SPTAG / Vearch / 商业系统](./benchmarks/milvus-vs-prior-sift10m-deep10m.md) — Milvus 论文 §7：6.4×–73× faster than Vearch / SPTAG / 商业 ABC；SIFT1B 单节点 + 12 节点近线性扩展；cache-aware 2.7× / AVX512 1.5× / SQ8H 系统胜 pure CPU/GPU
 - [SPFresh vs DiskANN / SPANN+ on 100-Day Update](./benchmarks/spfresh-vs-diskann-spann-update.md) — SPFresh 论文 §5：100 days × 1% daily update 模拟，SPFresh P99.9 平均 2.41× lower than DiskANN，5.30× lower memory；1B stress test 饱和 NVMe 400K IOPS
+- [Manu vs Elasticsearch / Vearch / Vald / Vespa](./benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md) — Manu (Milvus 2.x) VLDB 2022 §5：HNSW + IVF-FLAT 在 SIFT10M / DEEP10M 上系统击败四个开源 vector engine baseline；vs Milvus 1.x 在 4k QPS insertion 下 search latency 不抖动（dedicated index node 设计的关键收益）
 
 ## Queries（高价值 query 答案存档）
 

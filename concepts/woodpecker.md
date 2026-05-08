@@ -2,7 +2,7 @@
 title: Woodpecker（Milvus 2.6 zero-disk WAL）
 type: concept
 sources: [milvus-docs]
-related: [../systems/milvus.md, ../topics/disk-vs-memory-ann.md]
+related: [../systems/milvus.md, ./delta-consistency.md, ../topics/disk-vs-memory-ann.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -13,13 +13,13 @@ updated: 2026-05-07
 
 ## 提出背景
 
-Milvus 1.x（[SIGMOD 2021 论文](../sources/papers/wang-2021-milvus.pdf)）用 Kafka/Pulsar 作 log broker——典型分布式系统设计，但带来三个问题：
+Milvus 1.x（[SIGMOD 2021 论文](../sources/papers/wang-2021-milvus.pdf)）用 Kafka/Pulsar 作 log broker；Manu (2.x) [VLDB 2022](../sources/papers/guo-2022-manu.pdf) §3.3 把 "log as data" 形式化为 backbone service，但仍依赖 Kafka/Pulsar 作消息队列——典型分布式系统设计，但带来三个问题：
 
 1. **运维成本**：Kafka / Pulsar 自身是分布式 broker，需独立管理 disk volume / RAID / broker 故障转移
 2. **本地磁盘依赖**：broker 节点需要 local disk，违背 cloud-native "stateless compute" 原则
 3. **吞吐瓶颈**：Kafka/Pulsar 单 broker 节点上限 ~100 MB/s；S3 单 EC2 上限 ~1.1 GB/s——broker 成 cloud 部署的瓶颈
 
-Milvus 2.6 用 Woodpecker 重新设计 WAL 层，**直接利用 cloud object storage 作为持久层**，broker 退化为 stateless 缓冲层。
+Milvus 2.6 用 Woodpecker 重新设计 WAL 层，**直接利用 cloud object storage 作为持久层**，broker 退化为 stateless 缓冲层。这是 Manu (2.x) "log as data" 哲学的更彻底实现——把 [Manu 2022](../systems/milvus.md) 时代的 Kafka/Pulsar 外部依赖也消除。
 
 ## 核心设计：Zero-Disk
 
