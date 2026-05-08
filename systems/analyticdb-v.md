@@ -2,7 +2,7 @@
 title: AnalyticDB-V（OLAP 扩展向量的 Hybrid Analytical Engine）
 type: system
 sources: [wei-2020-analyticdb-v, wang-2021-milvus]
-related: [milvus.md, faiss.md, pase.md, ../concepts/vgpq.md, ../concepts/product-quantization.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/analyticdb-v-vs-twostep.md]
+related: [milvus.md, faiss.md, pase.md, ../concepts/vgpq.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]
 created: 2026-05-08
 updated: 2026-05-08
 ---

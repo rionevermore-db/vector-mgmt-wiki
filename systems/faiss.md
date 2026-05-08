@@ -153,7 +153,7 @@ IndexShards / IndexReplicas ← 分片 / 复制
 
 - **数据分布漂移下的退化**：§6.1 引用 Baranchuk 2023 提出 explicit updates，但 Faiss 当前 IVF / PQ 的 codebook 一旦 train 就冻结，long-running 索引如何 graceful 重新训练？**[SPFresh](./spfresh.md) [xu-2023-spfresh] 给出 cluster-based 一侧的成功答案**：在 [SPANN](./spann.md) 上加 [LIRE](../concepts/lire.md) 协议持续维持 NPA 性质，1B 索引 100 天 1% daily update 持续仅 10 GB memory + 2 cores。该思路理论上可以迁移到 Faiss IVFPQ（centroid 同样可 incremental rebalance），但 Faiss 当前不集成。详见 [topics/in-place-vs-out-of-place-updates.md](../topics/in-place-vs-out-of-place-updates.md)
 - **真正的 graph 增量更新**：[HNSW](../concepts/hnsw.md) 支持 add 但不支持 suppression / mutation；[NSG](../concepts/nsg.md) 不支持任何增量。`FreshDiskANN` 是工程方向。
-- **Out-of-distribution queries**：§5.2 提及 OOD-DiskANN、Filtered-DiskANN 是 frontier；Faiss 当前不直接支持。
+- **Out-of-distribution queries**：§5.2 提及 OOD-DiskANN、Filtered-DiskANN 是 frontier。**Filtered-DiskANN [gollapudi-2023-filtered-diskann] WWW 2023 已 ingest**——首个 filter-aware **build** 算法（[FilteredVamana / StitchedVamana](../concepts/filtered-vamana.md)），比 Faiss-IDSelector / Milvus partition-based / Pinecone hybrid 等 search-time 方法快 5-10× QPS @ 90% recall on Microsoft real data。Faiss 当前仍不直接集成。
 - **GPU graph 索引**：§A.3 末尾明示 CAGRA 是 emerging direction；Faiss-GPU 当前只有 IVF 类。
 - **库 vs 数据库的边界何时模糊**：[Milvus](./milvus.md) / Vespa 已经把 Faiss 包成数据库；上下游融合到什么程度时 Faiss 应该收回部分功能？[wang-2021-milvus] 给出 DBMS 一侧的具体回答：cache-aware partition、runtime SIMD hooking、SQ8H hybrid CPU/GPU、LSM segment、shared-storage 分布式、五策略 attribute filtering、multi-vector query 都属"Faiss 不做、上层补齐"
 

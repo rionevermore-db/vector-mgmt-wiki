@@ -21,6 +21,7 @@
 | guo-2022-manu | Manu: A Cloud Native Vector Database Management System | Rentong Guo, Xiaofan Luan, Long Xiang, Xiao Yan, Xiaomeng Yi, Jigao Luo, Qianya Cheng, Weizhi Xu, Jiarui Luo, Frank Liu, Zhenshan Cao, Yanliang Qiao, Ting Wang, Bo Tang, Charles Xie | 2022 (VLDB) | paper | papers/guo-2022-manu.pdf | 2026-05-08 |
 | wei-2020-analyticdb-v | AnalyticDB-V: A Hybrid Analytical Engine Towards Query Fusion for Structured and Unstructured Data | Chuangxian Wei, Bin Wu, Sheng Wang, Renjie Lou, Chaoqun Zhan, Feifei Li, Yuanzhe Cai | 2020 (VLDB) | paper | papers/wei-2020-analyticdb-v.pdf | 2026-05-08 |
 | yang-2020-pase | PASE: PostgreSQL Ultra-High-Dimensional Approximate Nearest Neighbor Search Extension | Wen Yang, Tao Li, Gai Fang, Hong Wei | 2020 (SIGMOD Industry) | paper | papers/yang-2020-pase.pdf | 2026-05-08 (path B - manual download via institutional access) |
+| gollapudi-2023-filtered-diskann | Filtered-DiskANN: Graph Algorithms for Approximate Nearest Neighbor Search with Filters | Siddharth Gollapudi, Neel Karia, Varun Sivashankar, Ravishankar Krishnaswamy, Nikit Begwani, Swapnil Raz, Yiyong Lin, Yin Zhang, Neelam Mahapatro, Premukumar Srinivasan, Amit Singh, Harsha Vardhan Simhadri | 2023 (WWW) | paper | papers/gollapudi-2023-filtered-diskann.pdf | 2026-05-08 |
 
 ## 命名约定
 

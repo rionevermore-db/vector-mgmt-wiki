@@ -2,7 +2,7 @@
 title: PASE（PostgreSQL ANN Search Extension）
 type: system
 sources: [yang-2020-pase, wang-2021-milvus]
-related: [analyticdb-v.md, milvus.md, faiss.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../benchmarks/pase-vs-cube-freddy.md]
+related: [analyticdb-v.md, milvus.md, faiss.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../benchmarks/pase-vs-cube-freddy.md]
 created: 2026-05-08
 updated: 2026-05-08
 ---

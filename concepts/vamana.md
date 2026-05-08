@@ -2,7 +2,7 @@
 title: Vamana（α-controlled graph）
 type: concept
 sources: [subramanya-2019-diskann]
-related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, ../systems/diskann.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/diskann-sift1b.md]
+related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, filtered-vamana.md, ../systems/diskann.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]
 created: 2026-05-07
 updated: 2026-05-07
 ---
@@ -101,6 +101,10 @@ Vamana 本身是 in-memory 算法，但**它的小 diameter 是 [DiskANN 系统]
 
 - 作者实现：[`microsoft/DiskANN`](https://github.com/microsoft/DiskANN)（C++，含 Vamana in-memory + DiskANN SSD 双模式）
 - [Faiss](../systems/faiss.md) 通过 `IndexNSG` 提供 NSG 但**不直接支持 Vamana**；DiskANN 是独立生态
+
+## 后续演化：Filter-aware（[FilteredVamana](./filtered-vamana.md)）
+
+[gollapudi-2023-filtered-diskann §3] 把 Vamana 的 RobustPrune α 系数加 **label intersection 检查**：FilteredVamana / StitchedVamana 两算法**首次把 label 信息 baked-in 到 graph 构造本身**——RobustPrune 时检查 `F_p* ⊃ F_p'` 来决定是否 prune。Microsoft sponsored ads A/B test +34.61% clicks / +48.95% revenue（[per benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]）。这是 [Vamana](#) 在 attribute filtering 维度的最大延伸。详见 [filtered-vamana.md](./filtered-vamana.md)。
 
 ## Open Questions
 

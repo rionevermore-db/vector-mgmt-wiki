@@ -19,6 +19,7 @@
 - [Delta Consistency](./concepts/delta-consistency.md) — Manu (Milvus 2.x) 形式化的 tunable bounded staleness 一致性模型；strong / eventual 是 τ=0/∞ 的特例；wiki 内首个 vector DBMS 一致性形式化
 - [Manu SSD-Aware Indexing](./concepts/manu-ssd-hierarchical-kmeans.md) — Manu §4.4 hierarchical k-means + LSH-style 多次复制（4-8×）+ 4KB SSD-aligned blocks；NeurIPS 2021 BigANN 冠军方案，比 baseline same QPS recall +60%
 - [VGPQ](./concepts/vgpq.md) — AnalyticDB-V 的 IVFPQ successor；Voronoi diagram 上用 neighbor midpoints 切 subcells 几何剪枝；same index size + -10% build time + 全程优于 IVFPQ on SIFT1B/Deep1B/AliCommodity
+- [FilteredVamana / StitchedVamana](./concepts/filtered-vamana.md) — Filtered-DiskANN 的 filter-aware graph 算法；首次把 label 信息 baked-in 到 graph 构造本身（不只 search 步骤过滤）；Microsoft 广告 A/B test +35-49% production gain
 
 ## Systems（产品 / 工程系统）
 
@@ -56,6 +57,7 @@
 - [Manu vs Elasticsearch / Vearch / Vald / Vespa](./benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md) — Manu (Milvus 2.x) VLDB 2022 §5：HNSW + IVF-FLAT 在 SIFT10M / DEEP10M 上系统击败四个开源 vector engine baseline；vs Milvus 1.x 在 4k QPS insertion 下 search latency 不抖动（dedicated index node 设计的关键收益）
 - [AnalyticDB-V vs Two-step + VGPQ vs IVFPQ](./benchmarks/analyticdb-v-vs-twostep.md) — ADBV 论文 §6：vs "AnalyticDB + 独立 ANN engine" 两步式方案 3-13× 快；VGPQ 在 SIFT1B/Deep1B/AliCommodity 全程优于 IVFPQ；4 plan CBO 自动选最优；13B records production scale
 - [PASE vs Cube / Freddy](./benchmarks/pase-vs-cube-freddy.md) — PASE 论文 §4：SIFT1M / GIST1M 上 PASE IVFFlat build 比 Freddy 4-12× 快；PASE HNSW marginal over IVFFlat（recall 高但 build 慢 20×）；Cube 在 dim>100 不可用
+- [Filtered-DiskANN vs Milvus / Faiss / NHQ](./benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md) — WWW 2023 §5-6：FilteredVamana / StitchedVamana 比 Milvus / Faiss-IVF / NHQ 快 5-10× QPS @ 90% recall on Microsoft 真实数据；广告 A/B test +34.61% clicks / +48.95% revenue (P=0.009-0.03)
 
 ## Queries（高价值 query 答案存档）
 
