@@ -2,7 +2,7 @@
 title: DiskANN（System）
 type: system
 sources: [subramanya-2019-diskann, chen-2021-spann, gollapudi-2023-filtered-diskann]
-related: [../concepts/vamana.md, ../concepts/filtered-vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, faiss.md, spann.md, milvus.md, spfresh.md, pinecone.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]
+related: [../concepts/vamana.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, faiss.md, spann.md, milvus.md, spfresh.md, pinecone.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-07
 updated: 2026-05-08
 ---
@@ -126,7 +126,7 @@ PQ 失真大 → 图遍历可能走偏路径，需要更多 hops；但终点全�
 ## 生产案例
 
 - **Microsoft 内部**：Bing search、Microsoft 365 嵌入检索（Microsoft Research 输出）
-- **后继 Filtered-DiskANN**（[gollapudi-2023-filtered-diskann] WWW 2023）：把 [FilteredVamana / StitchedVamana](../concepts/filtered-vamana.md) 算法（filter-aware graph）放进 DiskANN 框架。**首次将 label 信息 baked-in 到 graph 构造本身**——比 search-time filter（Milvus / Pinecone / Faiss IDSelector）快 5-10× QPS @ 90% recall on Microsoft 真实数据。Microsoft 赞助广告搜索 A/B test +34.61% clicks / +48.95% revenue。28M DANN dataset SSD 部署 thousands QPS @ 90%+ recall。详见 [benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md](../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md)
+- **后继 Filtered-DiskANN**（[gollapudi-2023-filtered-diskann] WWW 2023）：把 [FilteredVamana / StitchedVamana](../concepts/filtered-vamana.md) 算法（filter-aware graph）放进 DiskANN 框架。**首次将 label 信息 baked-in 到 graph 构造本身**——比 search-time filter（Milvus / Pinecone / Faiss IDSelector）快 5-10× QPS @ 90% recall on Microsoft 真实数据。Microsoft 赞助广告搜索 A/B test +34.61% clicks / +48.95% revenue。28M DANN dataset SSD 部署 thousands QPS @ 90%+ recall。详见 [benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md](../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md)。**注：FilteredVamana 限 ≤1000 equality filters**——大型 ad-hoc filter set + 任意 operator 场景下被 [ACORN](../concepts/acorn.md) [patel-2024-acorn] 显著超越（HCPS 10^8-10^11 predicates 实测，FilteredVamana 直接 fail）。
 - **OOD-DiskANN**：处理 out-of-distribution queries（同上）
 - **FreshDiskANN**：支持 streaming updates（同上）
 

@@ -2,7 +2,7 @@
 title: FilteredVamana / StitchedVamana（Filter-aware Graph ANNS）
 type: concept
 sources: [gollapudi-2023-filtered-diskann]
-related: [./vamana.md, ./hnsw.md, ./proximity-graph.md, ../systems/diskann.md, ../topics/attribute-filtering.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]
+related: [./vamana.md, ./hnsw.md, ./proximity-graph.md, ./acorn.md, ../systems/diskann.md, ../topics/attribute-filtering.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-08
 updated: 2026-05-08
 ---
@@ -164,6 +164,28 @@ for i in [n]:
 - 24 threads, beam width 4, search list L 40-100
 
 → "Filtered-DiskANN" 名字来源。
+
+## 与 [ACORN](./acorn.md) 的对比（NEW）
+
+[patel-2024-acorn] 2024 SIGMOD 论文 attack FilteredVamana 的 **filter cardinality 限制**：
+- FilteredVamana / StitchedVamana 限 ≤1000 equality filters + single equality operator
+- ACORN 支持 **>10^11 predicates + 任意 operator (regex/contains/between/OR)**
+
+| | FilteredVamana / StitchedVamana | ACORN-γ / ACORN-1 |
+|---|---|---|
+| Base index | Vamana | HNSW |
+| Filter cardinality | **≤1000 equality** | **unbounded** |
+| Predicate operator | equality only | equality, regex, contains, between, OR... |
+| Filter set 已知? | construction 时已知 | **predicate-agnostic** |
+| LCPS 性能 | baseline | **2-10× faster than FilteredVamana** |
+| HCPS 性能（10^8+） | **fail** | **support**（30-1000× over baseline） |
+| Production A/B 实证 | **Microsoft 广告 +35-49%** | 学术 only |
+
+**互补关系**：
+- FilteredVamana 适合 **少量已知 filter + production deployment**（如 Microsoft 47 region filter）
+- ACORN 适合 **大量 ad-hoc query + 复杂 operator + 真实 web search**
+
+→ 两者**不是替代**，而是**针对不同 workload pattern**。详见 [benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md](../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md)。
 
 ## Open Questions
 

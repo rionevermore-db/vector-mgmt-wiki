@@ -2,7 +2,7 @@
 title: Pinecone（Commercial SaaS Vector Database）
 type: system
 sources: [pinecone-docs, douze-2024-faiss-library, wang-2021-milvus]
-related: [faiss.md, milvus.md, diskann.md, spann.md, spfresh.md, ../concepts/pinecone-pod-based.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]
+related: [faiss.md, milvus.md, diskann.md, spann.md, spfresh.md, ../concepts/pinecone-pod-based.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-08
 updated: 2026-05-08
 ---
