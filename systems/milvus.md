@@ -2,9 +2,9 @@
 title: Milvus（Vector DBMS）
 type: system
 sources: [wang-2021-milvus, milvus-docs, guo-2022-manu, douze-2024-faiss-library]
-related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, analyticdb-v.md, pase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, analyticdb-v.md, pase.md, vbase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/relaxed-monotonicity.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-07
-updated: 2026-05-08
+updated: 2026-05-08 (VBASE)
 ---
 
 # Milvus
@@ -194,6 +194,8 @@ updated: 2026-05-08
 **Vector fusion**——仅适用于可分解相似度（内积）：拼接所有 vector + 加权聚合，单次 ANN 解决，3.4-5.8× faster than iterative。
 **Iterative merging**——通用，基于 Fagin's NRA + doubling k'。
 
+> **2023 VBASE 反例** [per zhang-2023-vbase §5.3 Q4-6 + benchmarks/vbase-8queries-recipe1m.md]：在 Recipe1M 330K × 1024-d × 双 vector column 实测，**Iterative Merging 多列 TopK 比 VBASE 慢 200-300×**（Milvus Q4 99p 9300 ms vs VBASE 5.3 ms）。论文明示原因——doubling K' "**accumulates a large number of random reads**"。Iterative Merging 在 single Manu paper 中是论文宣称的 fix，但 Microsoft 团队的 VBASE 实测显示其在 multi-column 场景下系统性失败。这暴露了 [TopK 接口本身的根本限制](../topics/topk-vs-iterator-model.md)——doubling K' 是 TopK 框架内的最优 strategy，但**不及 Iterator Model + RM 的范式转换**。
+
 ### 5. 索引家族选择（§2.2 + v2.6.x 扩展）
 
 **1.x（SIGMOD 论文）支持的索引**：
@@ -353,3 +355,4 @@ LF AI & Data Foundation 孵化项目（2020-01），Apache 2.0 License。核心�
 - **2.6.x 实测 benchmark**：[SIGMOD 2021 论文](../benchmarks/milvus-vs-prior-sift10m-deep10m.md) 是 1.x；[VLDB 2022 Manu 论文](../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md) 实测到 100M scale；**v2.6.x cloud-native 进一步演化后实测数字** wiki 未覆盖（Zilliz VectorDBBench 是公开 benchmark 但 wiki 未 ingest）
 - **Manu paper 数字 vs v2.6.x 数字**：Manu 实验是 2022 年；v2.6.x 是 2026 年版本，性能数字应该更高，但 paper 数字仍是当前 wiki 最新公开实测
 - **Manu SSD index 在 v2.6.x 中的状态**：Manu §4.4 hierarchical k-means + LSH replication 在 v2.6.x 文档中未明确列为可选 index——可能被 DiskANN 集成取代或仍在内核但未对外暴露
+- **TopK 接口的根本限制 vs VBASE Iterator 范式**：[per topics/topk-vs-iterator-model.md]——Milvus 5 strategies + iterative merging + partition-based 都是 TopK 框架内的工程优化；VBASE [zhang-2023-vbase] 表明在 multi-column / range / Join 上 Iterator + [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md) 比 TopK 快 100-7900×。Milvus 是否能后续集成 RM iterator 接口（理论可行——HNSW/IVFFlat 都满足 RM）是开放

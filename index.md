@@ -21,6 +21,7 @@
 - [VGPQ](./concepts/vgpq.md) — AnalyticDB-V 的 IVFPQ successor；Voronoi diagram 上用 neighbor midpoints 切 subcells 几何剪枝；same index size + -10% build time + 全程优于 IVFPQ on SIFT1B/Deep1B/AliCommodity
 - [FilteredVamana / StitchedVamana](./concepts/filtered-vamana.md) — Filtered-DiskANN 的 filter-aware graph 算法；首次把 label 信息 baked-in 到 graph 构造本身（不只 search 步骤过滤）；Microsoft 广告 A/B test +35-49% production gain
 - [ACORN](./concepts/acorn.md) — Stanford 2024 SIGMOD predicate-agnostic HNSW 改造（ACORN-γ + ACORN-1）；首个支持 unbounded predicate set + 任意 operator（regex/contains/between/OR）；25M LAION >1000× over baselines
+- [Relaxed Monotonicity](./concepts/relaxed-monotonicity.md) — VBASE OSDI 2023 形式化的 vector + relational 索引共享性质；两阶段遍历模式（Phase 1 接近 → Phase 2 离开）；让 vector index 与 B-tree 用同一套 Volcano iterator engine——绕开 TopK speculation 的理论基础
 
 ## Systems（产品 / 工程系统）
 
@@ -32,6 +33,7 @@
 - [Pinecone](./systems/pinecone.md) — wiki 内**唯一**商业闭源 SaaS；两代架构（pod-based legacy + serverless slabs）；On-demand vs Dedicated Read Nodes；index_type 不暴露给用户（adaptive 自动选）
 - [AnalyticDB-V](./systems/analyticdb-v.md) — Alibaba 的 OLAP-extended-vector 系统（不是 vector-first）；SQL native hybrid query + lambda streaming/batching + 4 plan CBO + VGPQ；13B records / 30 TB Smart City production
 - [PASE](./systems/pase.md) — Ant Financial 的 PostgreSQL ANN extension；首个直接在 PG kernel 注册 ANN index type 的方案（IVFFlat + HNSW）；OLTP RDBMS-extended-vector 路径；与 ADBV 同 ecosystem 但 host DB 是 OLTP；million-scale per instance（Ant Financial / Alipay 生产）
+- [VBASE](./systems/vbase.md) — Microsoft Research OSDI 2023 PG 扩展；**首个 iterator-model 路径**（vs 其他全部 TopK-based）；基于 [Relaxed Monotonicity](./concepts/relaxed-monotonicity.md) 绕开 K' 预测；Q4-Q6 multi-column TopK 比 Milvus 快 200-300×，Q8 vector Join 比 PG 快 7900×；学术原型，~2000 LOC + <200 LOC per index
 
 ## Topics（跨概念主题）
 
@@ -42,6 +44,8 @@
 - [Attribute Filtering](./topics/attribute-filtering.md) — 向量+属性混合查询的五策略框架（Faiss IDSelector / AnalyticDB-V cost-based / Milvus partition-based）；后者比前者快 13.7×
 - [Multi-Vector Queries](./topics/multi-vector-queries.md) — 多向量 entity 的 top-k 查询；vector fusion（仅适用内积）vs iterative merging（基于 Fagin NRA，通用）
 - [In-Place vs Out-of-Place Updates](./topics/in-place-vs-out-of-place-updates.md) — 向量索引更新策略；周期 rebuild（DiskANN/Faiss/Milvus）vs in-place 增量（SPFresh LIRE）；graph-based 在 in-place 仍开放
+- [TopK 接口 vs Iterator Model](./topics/topk-vs-iterator-model.md) — vector index 集成范式之争；TopK + K' 预测（Milvus / ADBV / PASE / Pinecone / Elasticsearch）vs Iterator + RM（VBASE 唯一）；Q4-Q8 上后者比前者快 100-7900×
+- [Vector Range Query](./topics/vector-range-query.md) — 按距离阈值返回（distance ≤ r）；与 TopK 平行的查询模式；TopK 接口下 K_LARGE 难选；Iterator + RM 自然支持；VBASE Q7 是 wiki 内首个原生支持系统
 
 ## Benchmarks（测评）
 
@@ -60,6 +64,7 @@
 - [PASE vs Cube / Freddy](./benchmarks/pase-vs-cube-freddy.md) — PASE 论文 §4：SIFT1M / GIST1M 上 PASE IVFFlat build 比 Freddy 4-12× 快；PASE HNSW marginal over IVFFlat（recall 高但 build 慢 20×）；Cube 在 dim>100 不可用
 - [Filtered-DiskANN vs Milvus / Faiss / NHQ](./benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md) — WWW 2023 §5-6：FilteredVamana / StitchedVamana 比 Milvus / Faiss-IVF / NHQ 快 5-10× QPS @ 90% recall on Microsoft 真实数据；广告 A/B test +34.61% clicks / +48.95% revenue (P=0.009-0.03)
 - [ACORN vs Filtered-DiskANN / NHQ / Milvus](./benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md) — SIGMOD 2024 §7：4 datasets (LCPS + HCPS) + 25M LAION scale；ACORN-γ LCPS 上 2-10× over FilteredVamana / NHQ；HCPS 30-1000× over baselines；25M LAION >1000× over next best
+- [VBASE 8-query on Recipe1M](./benchmarks/vbase-8queries-recipe1m.md) — OSDI 2023 §5：Recipe1M 330K + Tag 10K extension，8 query 类型（Q1-Q8）；VBASE Q4-Q6 multi-column TopK 比 Milvus 快 200-300×，Q7 range filter 唯一原生，Q8 vector Join 比 PG 快 7900×；selectivity sampling rate 0.001 q-error <1.1
 
 ## Queries（高价值 query 答案存档）
 

@@ -1,10 +1,10 @@
 ---
 title: Index Selection（如何在 Faiss 索引家族里选）
 type: topic
-sources: [douze-2024-faiss-library, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann]
-related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md]
+sources: [douze-2024-faiss-library, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, zhang-2023-vbase]
+related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/relaxed-monotonicity.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md, ./topk-vs-iterator-model.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-08 (VBASE)
 ---
 
 # Index Selection
@@ -92,5 +92,6 @@ updated: 2026-05-07
 - **多目标场景**：既要 MIPS 又要 L2-NN（推荐 + 去重在同一 service），是否能共享 index？
 - **磁盘 vs 内存边界正在移动**：[DiskANN](../systems/diskann.md) / [SPANN](../systems/spann.md) 改变了 1B+ 必须 quantization 的旧定理（两者已 ingest 2026-05-07）；Faiss 决策树仍是"内存中心"语境，未把 SSD-resident 路线纳入选型。详见 [topics/disk-vs-memory-ann.md](./disk-vs-memory-ann.md)
 - **filtered search 的最优策略**：vector-first vs metadata-first 的 cutoff 是 selection rate；Faiss 用经验阈值（约 3×10⁻⁴），但理论上可学习
+- **TopK 接口前提下的索引选择 vs Iterator 范式**：[per topics/topk-vs-iterator-model.md] Faiss 决策树 + Milvus 5 strategies + ADBV 4-plan 都假设 vector index 走 TopK 接口；[VBASE](../systems/vbase.md) [zhang-2023-vbase] 表明 HNSW / IVFFlat / SPANN 都满足 [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md)，可以走 iterator 接口——这让"索引选择"决策维度多了一轴："走 TopK 还是 走 iterator？" 在 multi-column / range / Join workload 下后者必胜，但简单 single-vector TopK 两者算法等价
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

@@ -2,9 +2,9 @@
 title: PASE（PostgreSQL ANN Search Extension）
 type: system
 sources: [yang-2020-pase, wang-2021-milvus]
-related: [analyticdb-v.md, milvus.md, faiss.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../benchmarks/pase-vs-cube-freddy.md]
+related: [analyticdb-v.md, milvus.md, faiss.md, vbase.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/relaxed-monotonicity.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-08 (VBASE)
 ---
 
 # PASE
@@ -151,6 +151,8 @@ loop:
 
 **关键**：用 PG 自身的 iterative search interface（`amgettuple` 返回单 tuple）——避免预估"amplification factor σ"（[ADBV](./analyticdb-v.md) 路线）。优点：不需要 cost model 预估；缺点：单线性 iterative，不能批量优化。
 
+> **VBASE [zhang-2023-vbase §5.3] 评价**："PASE's amgettuple has the **spirit** but lacks the **formalization**"——PASE 是 [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md) 的早期 workmark：iterative 思路对了，但缺少 (a) RM 性质的严格定义，(b) 跨多 vector index 的 iterator 协调，(c) selectivity sampling estimation。**PASE 仅支持单 vector column TopK + filter**（Q1-Q3）；multi-column TopK / range filter / vector Join（Q4-Q8）都不支持或性能崩溃。详见 [topics/topk-vs-iterator-model.md](../topics/topk-vs-iterator-model.md) 与 [VBASE benchmark](../benchmarks/vbase-8queries-recipe1m.md)。
+
 > **wiki 解读**：[ADBV 4-plan CBO](./analyticdb-v.md) 与 PASE iterative search 是 compound query 的**两种工程哲学**：
 > - ADBV：前置 cost model + α 估计 + plan 选择
 > - PASE：iterative + 增量 fetch + 自然 short-circuit
@@ -237,5 +239,6 @@ PASE 论文未 cover 这些后继工作（早于其发布）。当前 wiki 未 i
 - **PASE 维度 > 2000 实测**：论文 §2.4 描述 cross-page storage 但 §4 实验仅 SIFT 128-d / GIST 960-d
 - **HNSW build 在 PASE 中慢**：论文实测 HNSW build 比 IVFFlat 慢 20×（GIST 1M: HNSW 20875s vs IVFFlat 372s）；PG 内核约束如何减缓这一差距？未深入
 - **PASE 在 PostgreSQL 主线（PG 12/13/14...）下的兼容性**：论文 PG 11 时代；PG 内核版本演进影响未 follow
+- **PASE 的 K' 静态选择限制 vs VBASE Iterator + RM**：[per benchmarks/vbase-8queries-recipe1m.md Table 5/6] PASE Q2 K'=100 recall 0.0567，K'=10000 latency 99p 36900 ms——PASE 没有 selectivity estimation（默认 0.5），无法自适应。VBASE 用 sampling 0.001 估计精度 q-error <1.1，且用 RM iterator 完全绕开 K' 决策。能否给 PASE 加 RM iterator？理论可行——`amgettuple` 已经是 single-step——但需要 (a) Phase 2 检测的 RM 形式化扩展，(b) selectivity sampling，(c) cross-index 协调
 
 Cited by: 待 query 引用

@@ -2,7 +2,7 @@
 title: AnalyticDB-V（OLAP 扩展向量的 Hybrid Analytical Engine）
 type: system
 sources: [wei-2020-analyticdb-v, wang-2021-milvus]
-related: [milvus.md, faiss.md, pase.md, ../concepts/vgpq.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+related: [milvus.md, faiss.md, pase.md, vbase.md, ../concepts/vgpq.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/relaxed-monotonicity.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-08
 updated: 2026-05-08
 ---
@@ -210,5 +210,6 @@ ADBV 不重新设计 storage / scheduler / SQL parser——直接用：
 - **Cluster-based partitioning 在 vector 漂移下的行为**：centroid 不变但数据分布变了，partition 不平衡如何处理？论文 §3.3 末尾建议 re-cluster 但未详述触发条件
 - **ADBV 与 [Manu/Milvus 2.x](./milvus.md) 的 lambda 与三层架构对比**：两者同代但来自不同公司（Alibaba vs Zilliz）；具体 trade-off wiki 未直接 benchmark
 - **Pangu 与 S3/HDFS 的差异**：Pangu 是 Alibaba 自家闭源——其他云用户需 ADBV-like 系统时如何替换？
+- **4-plan CBO 的根本限制 vs VBASE Iterator 范式**：[per zhang-2023-vbase §7 + topics/topk-vs-iterator-model.md] ADBV 的 4 plan（A brute-force / B PQ Knn Bitmap Scan / C VGPQ Knn Bitmap Scan / D VGPQ Knn Scan + filter）都基于 TopK 接口——仍需估计 K'。VBASE 用 RM iterator 完全绕开 K' 选择问题，且 selectivity 估计用 0.001 sampling 而非离线 grid search per α-bin。ADBV 的 accuracy-aware 超参 grid search 是 TopK 框架内的 best engineering；VBASE 是范式转换。是否能在 OLAP 引擎里集成 RM iterator 是开放（OLAP MPP 的列存 + 分布式 query 与 single-node iterator 接口的 fit 不明显）
 
 Cited by: 待 query 引用

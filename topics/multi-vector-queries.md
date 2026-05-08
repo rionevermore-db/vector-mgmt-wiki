@@ -1,10 +1,10 @@
 ---
 title: Multi-Vector Queries（多向量查询）
 type: topic
-sources: [wang-2021-milvus]
-related: [../systems/milvus.md, ../systems/pinecone.md, ../concepts/product-quantization.md, ./mips-vs-l2-nn.md]
+sources: [wang-2021-milvus, zhang-2023-vbase]
+related: [../systems/milvus.md, ../systems/pinecone.md, ../systems/vbase.md, ../concepts/product-quantization.md, ../concepts/relaxed-monotonicity.md, ./mips-vs-l2-nn.md, ./topk-vs-iterator-model.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-08 (VBASE)
 ---
 
 # Multi-Vector Queries
@@ -63,6 +63,37 @@ g(<q.v₀, x.v₀>, <q.v₁, x.v₁>, ...) = <[w₀·q.v₀, w₁·q.v₁, ...],
 
 [wang-2021-milvus Fig 16b] 实测内积场景：vector fusion 比 iterative merging **3.4×–5.8× 快**，因只需一次 ANN search。
 
+## 算法 3：VBASE Iterator + NRA（绕开 doubling K'，2023 OSDI）
+
+[zhang-2023-vbase §4.5]
+
+VBASE 的方法是**用 iterator interface 代替 TopK**——多个 vector index 同时打开 iterator，**经典 NRA threshold-based termination**：
+
+```
+opened iterators: it_0, it_1, ..., it_{μ-1} (each on one vector column)
+result_buffer = empty
+loop:
+  pick next iterator (greedy / round-robin) and i = it_i.amgetnext()
+  add i to result_buffer
+  threshold = sum(weight_j * it_j.current_distance) for all j
+  if all iterators in Phase 2 (RM) AND result_buffer top-K's score > threshold:
+    return top-K from result_buffer
+```
+
+**关键差异**：iterator interface 让 NRA 的"按距离顺序逐个推进"语义**真正可行**——RM 性质保证每个 iterator "再也不会更近"，可以安全用 threshold。这正是 [wang-2021-milvus §4.2] 提及的 "ANN 索引不支持 efficient `getNext()`" 障碍——**VBASE [zhang-2023-vbase] 通过 RM 形式化解决了这个问题**。
+
+**Strategy 选择**：[Table 7] 实测 VBASE 自适应在 greedy / round-robin 间切换：
+
+| Weight ratio | Round-Robin scans | Greedy scans / recall | VBASE scans / recall |
+|---|---|---|---|
+| 1:1 | 651.93 | 699 / 0.9313 (locally trapped) | **638.56 / 0.9705** |
+| 1:5 | 463.39 | **372.96** / 0.9949 | 409.31 / **0.9961** |
+| 1:10 | 363.47 | **274.86** / 0.9985 | 311.66 / **0.9987** |
+
+→ Greedy 在权重悬殊时显著 reduce scans（推进当前最近 iterator，冷快），但权重均匀时陷局部最优；VBASE dynamic 切换提供两者的合并优势。
+
+详见 [topics/topk-vs-iterator-model.md](./topk-vs-iterator-model.md) 与 [concepts/relaxed-monotonicity.md](../concepts/relaxed-monotonicity.md)。
+
 ## 算法 2：Iterative Merging（通用方案）
 
 [wang-2021-milvus §4.2 Algorithm 2]
@@ -90,17 +121,20 @@ return top-k from ⋃ R_i (best effort)
 
 [wang-2021-milvus Fig 16a] 实测 Euclidean 场景（Recipe1M, 文本+图像 multi-vector）：iterative merging k'=4096 比 NRA-2048 快 **15×** 且 recall 相当。
 
-## Vector Fusion vs Iterative Merging 对比
+> **2023 VBASE 反例** [per zhang-2023-vbase §5.3 Q4-6 + benchmarks/vbase-8queries-recipe1m.md]：在 Recipe 330K × 1024-d × 双 vector column 上，**Iterative Merging 比 VBASE iterator 慢 200-300×**（Milvus Q4 99p 9300 ms vs VBASE 5.3 ms）。论文 §5.3 明示原因——"the algorithm tries different K' to produce a sufficiently large intersection of multiple TopK results... cannot finish after several rounds and **accumulates a large number of random reads**"。Iterative Merging 的 doubling K' 是 TopK 框架内的 best effort，但**根本上是因为 TopK 接口逼迫"先取 K' 个候选"**——在 multi-column 场景下"K' 翻倍 + merge"是几何级随机访问。
 
-| | Vector Fusion | Iterative Merging |
-|---|---|---|
-| 相似度限制 | **必须可分解**（inner product / cosine） | 任意 monotonic g 都可（含 Euclidean） |
-| ANN 调用次数 | **1 次** | μ × `log(k_final/k_init)` 次（doubling） |
-| 速度（内积场景） | **3.4-5.8× 快** | baseline |
-| 速度（Euclidean） | ✗ 不可用 | 唯一选择 |
-| 索引开销 | concat 后单一索引 | μ 个独立 index |
-| 索引构建复杂度 | 拼接维度变高，[index-selection](./index-selection.md) 决策可能改变 | 各维度独立优化 |
-| 增量更新 | concat index 需 rebuild | 各维度 index 独立更新 |
+## 三种算法对比
+
+| | Vector Fusion (2021 Milvus) | Iterative Merging (2021 Milvus) | **VBASE Iterator + NRA (2023)** |
+|---|---|---|---|
+| 相似度限制 | **必须可分解**（inner product / cosine） | 任意 monotonic g | **任意 monotonic g** |
+| 接口前提 | 1 个 ANN topk(K) | μ × ANN topk(K') with doubling K' | **μ × iterator (Open/Next/Close + RM)** |
+| ANN 调用次数 | **1 次** | μ × `log(k_final/k_init)` 次 | **μ × O(K) Next() 调用** |
+| 速度（内积场景） | **3.4-5.8× 快**（Milvus 论文） | baseline | **Q4 比 Milvus iterative merging 200-300× 快**（VBASE Recipe1M 实测） |
+| 速度（Euclidean） | ✗ 不可用 | 唯一 TopK-based 选择 | **唯一 iterator-based 选择** |
+| 索引开销 | concat 后单一索引 | μ 个独立 index | **μ 个独立 index** |
+| 增量更新 | concat index 需 rebuild | 各维度 index 独立更新 | **各维度 index 独立更新** |
+| 是否需 K' 预测 | ✗（K = K_final） | **✓**（doubling K'） | **✗（RM 自动停）** |
 
 ## 与 wiki 现有概念的关联
 
@@ -121,5 +155,8 @@ return top-k from ⋃ R_i (best effort)
 ## Cited Pages
 
 - [systems/milvus.md](../systems/milvus.md)
+- [systems/vbase.md](../systems/vbase.md)
 - [concepts/product-quantization.md](../concepts/product-quantization.md)
+- [concepts/relaxed-monotonicity.md](../concepts/relaxed-monotonicity.md)
 - [topics/mips-vs-l2-nn.md](./mips-vs-l2-nn.md)
+- [topics/topk-vs-iterator-model.md](./topk-vs-iterator-model.md)

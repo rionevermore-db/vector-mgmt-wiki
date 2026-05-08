@@ -2,9 +2,9 @@
 title: SPANN（System）
 type: system
 sources: [chen-2021-spann]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, diskann.md, faiss.md, milvus.md, spfresh.md, pinecone.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/spann-vs-diskann-billion.md]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, ../concepts/relaxed-monotonicity.md, diskann.md, faiss.md, milvus.md, spfresh.md, pinecone.md, vbase.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-08 (VBASE)
 ---
 
 # SPANN
@@ -140,3 +140,4 @@ SPANN 可看作"Faiss IVF 的 SSD 化版本"，但把"内存里 PQ codes"的预�
 - **现代高维 embedding（768-d / 1024-d）**：posting list 上限对 byte 向量是 12 KB、float 向量是 48 KB（论文 §3.1）。128-d byte → 12 KB / 128 ≈ 96 vec；768-d float → 48 KB / 3072 ≈ 16 vec；1024-d float → 48 KB / 4096 ≈ 12 vec。绝对数字仍然急剧收缩，足以让 closure replicas 与 query-aware pruning 的成本结构改变 —— 论文未在此区间评估
 - **Closure replicas = 8 是经验值**：与 DiskANN 的 W=4-8 一样是工程调参，无理论指导
 - **HBC 树深度的尾部分布**：簇大小不均匀的极端情况未量化分析
+- **VBASE+SPANN 集成实证**：[per zhang-2023-vbase §5.4 + benchmarks/vbase-8queries-recipe1m.md Table 8] VBASE 在 Azure Standard_L16s_v3 NVMe 上集成 SPANN，全部 8 query 类型可行；Q1 9.4 ms / 11.6 ms 99p, recall 0.9911；Q5 99p 519.7 ms（SSD 随机 IO 放大）。证明 SPANN 满足 [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md)——partition-based + SSD 索引可以走 VBASE iterator 范式。这是 wiki 内首次"in-memory graph (HNSW) + on-disk partition (SPANN)"用同一 query engine 的实证

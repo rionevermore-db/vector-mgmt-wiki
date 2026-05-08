@@ -1,10 +1,10 @@
 ---
 title: Attribute Filtering（向量+属性混合查询）
 type: topic
-sources: [wang-2021-milvus, douze-2024-faiss-library, gollapudi-2023-filtered-diskann, patel-2024-acorn]
-related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ./index-selection.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+sources: [wang-2021-milvus, douze-2024-faiss-library, gollapudi-2023-filtered-diskann, patel-2024-acorn, zhang-2023-vbase]
+related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ../concepts/relaxed-monotonicity.md, ./index-selection.md, ./topk-vs-iterator-model.md, ./vector-range-query.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-07
-updated: 2026-05-08
+updated: 2026-05-08 (VBASE)
 ---
 
 # Attribute Filtering
@@ -67,6 +67,7 @@ Query `C_A = [50, 250]`：
 | **[DiskANN](../systems/diskann.md)** | **Filtered-DiskANN** = [FilteredVamana / StitchedVamana](../concepts/filtered-vamana.md)（WWW 2023）已正式 ingest——filter-aware **build** + filter-aware search；Microsoft sponsored ads production +35-49% gain | **首个 filter-aware build 工业系统** |
 | **[SPANN](../systems/spann.md)** | 论文未涉及 | 弱 |
 | Faiss-IDSelector vs Milvus | Faiss IDSelector 走 strategy B (bitmap)；Milvus 把它泛化为 5 策略 + 自动选择 | Milvus 完整覆盖 Faiss 思路 |
+| **[VBASE](../systems/vbase.md)** | **Iterator + [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md)**——绕开 K' 预测，单 column iterator + filter check + RM Phase 2 自动停 [zhang-2023-vbase §4.4] | **新范式**——所有上述策略都基于 TopK 接口（A-E 都是"先取候选再 filter"的不同变体）；VBASE 直接换接口让 K' 不再需要预测。详见 [topics/topk-vs-iterator-model.md](./topk-vs-iterator-model.md) |
 
 [per systems/faiss.md §Open Questions] Faiss 论文 §5.2 明确把 OOD-DiskANN、**Filtered-DiskANN** 列为 frontier。**Filtered-DiskANN [gollapudi-2023-filtered-diskann] 已 ingest**——是 Faiss frontier flag 的具体答案：filter-aware graph build + per-filter medoid + filter-aware RobustPrune。Milvus 的 partition-based 是 search-time 工业 solution；Filtered-DiskANN 是 build-time 学术领先方案；两者哲学不同（详见 [concepts/filtered-vamana.md "与其他 filtered ANNS 方法对比"](../concepts/filtered-vamana.md)）。
 
@@ -78,6 +79,7 @@ Query `C_A = [50, 250]`：
 - **Dynamic data 下的 filtering**：LSM segment 持续 merge 时 partition 边界如何漂移？[wang-2021-milvus §2.3, §4.1] 没把两者完全连接
 - **Embedding 与属性的语义关联**：vector 与 attribute 是否独立分布的假设——例如商品图片 embedding 与 price 不独立时，partition-based 假设失效
 - **Top-k aggregation 在 attribute filtering 上的扩展**：[multi-vector queries](./multi-vector-queries.md) 的 vector fusion / iterative merging 未与 filter 联合讨论
+- **A-E 五策略与 Iterator 范式的关系**：[VBASE](../systems/vbase.md) 显示 Iterator + RM 直接绕开五策略选择问题；A-E 可视为 TopK 框架内的 best engineering，但不及范式转换。Milvus / ADBV / PASE 是否能在保持现架构的前提下增量集成 RM iterator？[per topics/topk-vs-iterator-model.md] 是开放
 
 ## Cited Pages
 
