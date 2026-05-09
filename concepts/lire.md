@@ -1,10 +1,10 @@
 ---
 title: LIRE（Lightweight Incremental REbalancing）
 type: concept
-sources: [xu-2023-spfresh]
-related: [../systems/spfresh.md, ../systems/spann.md, ../topics/in-place-vs-out-of-place-updates.md]
+sources: [xu-2023-spfresh, singh-2021-freshdiskann]
+related: [../systems/spfresh.md, ../systems/spann.md, ../systems/freshdiskann.md, freshvamana.md, ../topics/in-place-vs-out-of-place-updates.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-09 (FreshVamana graph-path counterpart)
 ---
 
 # LIRE

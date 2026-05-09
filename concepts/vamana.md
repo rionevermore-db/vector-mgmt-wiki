@@ -1,10 +1,10 @@
 ---
 title: Vamana（α-controlled graph）
 type: concept
-sources: [subramanya-2019-diskann, wang-2024-starling]
-related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, filtered-vamana.md, block-shuffling.md, ../systems/diskann.md, ../systems/starling.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
+sources: [subramanya-2019-diskann, wang-2024-starling, singh-2021-freshdiskann]
+related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, filtered-vamana.md, block-shuffling.md, freshvamana.md, ../systems/diskann.md, ../systems/starling.md, ../systems/freshdiskann.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-05-07
-updated: 2026-05-09 (Starling)
+updated: 2026-05-09 (FreshDiskANN)
 ---
 
 # Vamana
@@ -102,6 +102,19 @@ Vamana 本身是 in-memory 算法，但**它的小 diameter 是 [DiskANN 系统]
 - 作者实现：[`microsoft/DiskANN`](https://github.com/microsoft/DiskANN)（C++，含 Vamana in-memory + DiskANN SSD 双模式）
 - [Faiss](../systems/faiss.md) 通过 `IndexNSG` 提供 NSG 但**不直接支持 Vamana**；DiskANN 是独立生态
 
+## 后续演化：Streaming insert/delete（[FreshVamana](./freshvamana.md) + [FreshDiskANN](../systems/freshdiskann.md)）
+
+[singh-2021-freshdiskann §4] Microsoft Research India + CMU（Subramanya 等 DiskANN 作者）2021 论文提出 **FreshVamana**——把 Vamana 从 static index 升级为支持 streaming insert + delete + recall 不退化的算法。**核心 insight**：Vamana 的 **α 参数（α > 1 RobustPrune）从"性能调节钮"升级为 fresh-ANNS 必要条件**——α=1（HNSW/NSG implicit default）下 graph 过稀疏，删点失去 navigability，recall 持续下降；α=1.2 下 50 cycles × 5%/10%/50% change 后 recall 95%+ 稳定。
+
+**FreshVamana 是 strict superset of static Vamana**：
+- 支持 streaming（static Vamana 不支持）
+- Build 时间 1.48-1.83× faster（SIFT1M 32.3s → 21.8s）
+- Recall 同 static Vamana α=1.2
+
+→ 逻辑上 FreshVamana 应替代 default Vamana 算法。详见 [concepts/freshvamana.md](./freshvamana.md) 与 [systems/freshdiskann.md](../systems/freshdiskann.md)。
+
+> **wiki 解读**：FreshVamana 是 Vamana 在 streaming 场景的最大延伸——比 [Filtered-DiskANN](./filtered-vamana.md) 的 attribute filtering 延伸**更基础**（algorithm 层 + system 层都改），且证明 α 参数比之前认知的更深刻。
+
 ## 后续演化：Disk layout 优化（[Starling](../systems/starling.md) + [Block Shuffling](./block-shuffling.md)）
 
 [wang-2024-starling §4-§6.7] Zilliz/Milvus 团队 SIGMOD 2024 论文提出 **Starling-Vamana**——在 Vamana 构造的 disk graph 之上做 [block shuffling](./block-shuffling.md)（NP-hard 问题，BNF 启发式 default）+ in-memory navigation graph + block search。**算法本身不变**，只重排 vertex 到 disk block + 减少搜索路径长度。Vamana α-controlled RobustPrune 的 graph topology 保持完整。
@@ -119,6 +132,6 @@ Vamana 本身是 in-memory 算法，但**它的小 diameter 是 [DiskANN 系统]
 - **α 的最优值是经验调参**：论文给推荐区间 1.2-2 但没给理论指导；不同数据分布下的最优 α 是开放问题。
 - **两遍构建的必要性**：第一遍 α=1 + 第二遍 α>1 是经验式发现；理论上单遍是否能匹配？论文未深入。
 - **medoid entry point 的鲁棒性**：与 NSG 一样，单一 entry point 假设数据集有 well-defined 中心；高度聚类数据下 medoid 可能落到边缘。
-- **不支持增量**：与 NSG 同样问题；动态数据需要重建。FreshDiskANN [78 in douze-2024-faiss-library] 是后继工作，wiki 尚未 ingest。
-- **Vamana + [Block Shuffling](./block-shuffling.md) + 增量数据**：Starling §7 提"static disk index + 动态 in-memory + 周期 merge"模式；增量数据 → 周期触发 block shuffling 重跑。摊销成本未量化。
+- ~~**不支持增量**：与 NSG 同样问题；动态数据需要重建。FreshDiskANN 是后继工作，wiki 尚未 ingest~~ **2026-05-09 ingest [singh-2021-freshdiskann] 已解**：[FreshVamana](./freshvamana.md) (α=1.2) 把 Vamana 升级为 streaming-ready；[FreshDiskANN](../systems/freshdiskann.md) 是其 disk-resident system 实现
+- **Vamana + [Block Shuffling](./block-shuffling.md) + 增量数据**：Starling §7 提"static disk index + 动态 in-memory + 周期 merge"模式（与 FreshDiskANN StreamingMerge 同源）；FreshVamana streaming insert 后 OR(G) 漂移；周期触发 block shuffling 重跑。摊销成本未量化。
 - **Vamana 与 RaBitQ 集成**：[gao-2024-rabitq §4] 明示 graph-based 集成 future work；Vamana + RaBitQ 替代 PQ short codes for routing 是 logical 实验方向

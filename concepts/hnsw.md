@@ -1,10 +1,10 @@
 ---
 title: HNSW（分层可导航小世界图）
 type: concept
-sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, douze-2024-faiss-library, subramanya-2019-diskann, zhang-2023-vbase, wang-2024-starling]
-related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, vamana.md, acorn.md, relaxed-monotonicity.md, block-shuffling.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/pase.md, ../systems/vbase.md, ../systems/starling.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
+sources: [malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, douze-2024-faiss-library, subramanya-2019-diskann, zhang-2023-vbase, wang-2024-starling, singh-2021-freshdiskann]
+related: [nsw.md, proximity-graph.md, product-quantization.md, nsg.md, scann.md, vamana.md, acorn.md, relaxed-monotonicity.md, block-shuffling.md, freshvamana.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/pase.md, ../systems/vbase.md, ../systems/starling.md, ../systems/freshdiskann.md, ../topics/mips-vs-l2-nn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/topk-vs-iterator-model.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/hnsw-vs-faiss-200m-sift.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-04-30
-updated: 2026-05-09 (Starling)
+updated: 2026-05-09 (FreshDiskANN)
 ---
 
 # HNSW
@@ -91,5 +91,6 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 - HNSW 假设 index 全在 DRAM；当数据规模超过单机 DRAM 时只能简单分片。[DiskANN](../systems/diskann.md) 给出 SSD-resident 替代路线（单机 64 GB RAM 跑 1B SIFT @ 98% recall）。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
 - HNSW 的 zoom-in / zoom-out 两阶段搜索是 [Relaxed Monotonicity](./relaxed-monotonicity.md) 的特例——zoom-in 是 Phase 1（接近 query），zoom-out 是 Phase 2（离开 query）。但 [malkov-2016] 论文未把这个性质 expose 为 query engine 可用的接口；[VBASE](../systems/vbase.md) [zhang-2023] 第一次形式化为 RM 并加 `amisrm()` iterator API。这让 HNSW 在 vector + relational query engine 中可以摆脱 TopK black-box 角色，作为 first-class iterator 与 B-tree 并列。
 - **HNSW 在 disk-resident segment 场景的延伸**：[wang-2024-starling §6.7] 提出 **Starling-HNSW** ——把 HNSW 的 upper layers 当 in-memory navigation graph + layer-0 走 disk + [block shuffling](./block-shuffling.md)。实测 BIGANN 33M 比 Disk-HNSW baseline **2× 快**。这是 HNSW 多层结构在 disk-resident 场景的天然适配——upper layers 已经是"sampled top-level navigation"。详见 [systems/starling.md](../systems/starling.md)。
+- **HNSW streaming insert/delete 失败的根因（NEW from FreshDiskANN）**：[singh-2021-freshdiskann §3.3 + Fig 1] 实测 HNSW 在 50 cycles × 5% delete+re-insert SIFT1M 后 recall 95% → 90%；两种 natural delete policy (A 与 B) **都失败**。**根因**：HNSW 的 RobustPrune 是隐式 α=1（aggressive pruning）→ graph 极稀疏 → 删点失去 navigability。FreshDiskANN 证明只有 **α > 1 RobustPrune (Vamana α=1.2)** 才能维持 streaming recall。理论上 HNSW 加入 α-augmented RobustPrune 也可解（**logical community PR**），但 hnswlib / nmslib / Faiss 当前实现没改。详见 [concepts/freshvamana.md](./freshvamana.md) 与 [topics/in-place-vs-out-of-place-updates.md](../topics/in-place-vs-out-of-place-updates.md)。
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

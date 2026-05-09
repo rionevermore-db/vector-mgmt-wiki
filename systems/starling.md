@@ -1,8 +1,8 @@
 ---
 title: Starling（Zilliz/Milvus team segment-level disk-resident graph framework）
 type: system
-sources: [wang-2024-starling]
-related: [milvus.md, diskann.md, spann.md, faiss.md, vbase.md, pase.md, ../concepts/block-shuffling.md, ../concepts/vamana.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/relaxed-monotonicity.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
+sources: [wang-2024-starling, singh-2021-freshdiskann]
+related: [milvus.md, diskann.md, spann.md, faiss.md, vbase.md, pase.md, freshdiskann.md, ../concepts/block-shuffling.md, ../concepts/vamana.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-05-09
 updated: 2026-05-09
 ---
@@ -289,7 +289,7 @@ Starling 是 **Zilliz 学术 prototype + 产品 roadmap**——GitHub `zilliztec
 
 - **Production deployment in Milvus**：§8 future work；当前 Milvus DISKANN 索引仍是原版 DiskANN，Starling 何时进 release 未知
 - **GPU + cache optimization**：§8 明示是 next direction；GPU disk graph + block shuffling 形态需重新设计
-- **动态数据 (incremental insertion)**：§7 提"static disk index + 动态 in-memory + 周期 merge"模式（与 [Manu §3.5 stream indexing](../concepts/manu-ssd-hierarchical-kmeans.md) 类似）；增量数据如何不破坏 OR(G)？合并触发的 block shuffling 重跑成本如何 amortize？未深入
+- **动态数据 (incremental insertion)**：§7 提"static disk index + 动态 in-memory + 周期 merge"模式（与 [Manu §3.5 stream indexing](../concepts/manu-ssd-hierarchical-kmeans.md) 类似）；增量数据如何不破坏 OR(G)？合并触发的 block shuffling 重跑成本如何 amortize？未深入。**§7 描述实际是 [FreshDiskANN](./freshdiskann.md) StreamingMerge 的同源思路**——LTI on disk + TempIndex in DRAM + 周期 merge。但 Starling 论文未实证 update 模式；FreshDiskANN 完整实现了。理论上 Starling block shuffling + FreshDiskANN StreamingMerge 联合是 logical work，wiki 内 zero coverage
 - **Filter / multi-vector 集成**：Starling 仅 ANNS + RS——与 [topics/attribute-filtering.md](../topics/attribute-filtering.md) (FilteredVamana / ACORN) / [topics/multi-vector-queries.md](../topics/multi-vector-queries.md) 联合？wiki 未覆盖
 - **跨 segment 优化**：Starling 单 segment 内优化；多 segment 间 vector 关系（cross-segment NN）未利用——可能造成跨 segment 路由低效
 - **Quantizer 升级**：当前用 PQ short codes for routing；替换为 [RaBitQ](../concepts/rabitq.md)（unbiased + sharp error bound）后 routing 决策更准——理论上减少 disk reads 进一步。RaBitQ 与 Starling 同年发表，未实证

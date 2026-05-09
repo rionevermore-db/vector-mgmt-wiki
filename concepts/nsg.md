@@ -1,10 +1,10 @@
 ---
 title: NSG（Navigating Spreading-out Graph）
 type: concept
-sources: [fu-2017-nsg, guo-2019-scann, subramanya-2019-diskann, wang-2024-starling]
-related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, block-shuffling.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/starling.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
+sources: [fu-2017-nsg, guo-2019-scann, subramanya-2019-diskann, wang-2024-starling, singh-2021-freshdiskann]
+related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, block-shuffling.md, freshvamana.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/starling.md, ../systems/freshdiskann.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-05-07
-updated: 2026-05-09 (Starling)
+updated: 2026-05-09 (FreshDiskANN)
 ---
 
 # NSG
@@ -107,7 +107,7 @@ NSG 论文 §3.2 给出了关键证明：**MSNET 上 Algorithm 1 找到的就是
 ## Open Questions
 
 - **索引时间**仍是小时级（Taobao 每分区 12 小时），阻碍日级更新；分布式分片是缓解，不是根治。
-- **不支持增量更新**（论文 §5 明确承认是未来工作）。
+- ~~**不支持增量更新**（论文 §5 明确承认是未来工作）~~ **2026-05-09 部分更新**：[FreshDiskANN](../systems/freshdiskann.md) [singh-2021] 揭示 NSG 不支持增量的**根因**——NSG 隐式 α=1 (aggressive pruning) → graph 过稀疏 → 删点失去 navigability。[FreshVamana](./freshvamana.md) 证明 α > 1 是 graph fresh-ANNS 必要条件；NSG 算法理论上加入 α-augmented MRNG pruning 也可变 streaming-ready，但工业实现没人做。详见 [topics/in-place-vs-out-of-place-updates.md](../topics/in-place-vs-out-of-place-updates.md)
 - **2B 单机不可能**——必须依赖 PQ 路径或多机分片。
 - **Δr 项**的理论解释不完整——只有经验验证它"近似常数"。
 - **Navigating Node 选择**仅用 centroid 邻居；动态数据下 centroid 漂移如何处理未讨论。
