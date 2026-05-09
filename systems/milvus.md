@@ -1,7 +1,7 @@
 ---
 title: Milvus（Vector DBMS）
 type: system
-sources: [wang-2021-milvus, milvus-docs, guo-2022-manu, douze-2024-faiss-library, gao-2024-rabitq, wang-2024-starling]
+sources: [wang-2021-milvus, milvus-docs, guo-2022-manu, douze-2024-faiss-library, gao-2024-rabitq, wang-2024-starling, ootomo-2023-cagra]
 related: [faiss.md, diskann.md, spann.md, spfresh.md, pinecone.md, analyticdb-v.md, pase.md, vbase.md, starling.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/woodpecker.md, ../concepts/delta-consistency.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/milvus-vs-prior-sift10m-deep10m.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
 updated: 2026-05-09 (Starling)
@@ -214,7 +214,7 @@ updated: 2026-05-09 (Starling)
 | Graph-based | HNSW | 仍是默认 |
 | **Disk-resident** | **DISKANN** | NEW，集成 [DiskANN](./diskann.md) Vamana + SSD |
 | **MIPS / score-aware** | **SCANN** | NEW，集成 Google [ScaNN](../concepts/scann.md) anisotropic loss |
-| **GPU** | **GPU_IVF_FLAT / GPU_IVF_PQ / GPU_CAGRA / GPU_BRUTE_FORCE** | NEW，集成 NVIDIA RAPIDS RAFT (CAGRA) |
+| **GPU** | **GPU_IVF_FLAT / GPU_IVF_PQ / GPU_CAGRA / GPU_BRUTE_FORCE** | NEW，集成 NVIDIA RAPIDS RAFT；GPU_CAGRA = [CAGRA](./cagra.md) [ootomo-2023]——build 比 HNSW (CPU 64-core) 2.2-27× 快, large-batch search 33-77× 快, single-query 3.4-53× 快 |
 | **Sparse** | **SPARSE_INVERTED_INDEX** | NEW，BM25 + SPLADE / BGE-M3 学习稀疏 embedding |
 | Binary | BIN_FLAT / BIN_IVF_FLAT | Hamming / Jaccard 距离 |
 

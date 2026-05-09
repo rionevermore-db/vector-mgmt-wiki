@@ -27,6 +27,7 @@
 | gao-2024-rabitq | RaBitQ: Quantizing High-Dimensional Vectors with a Theoretical Error Bound for Approximate Nearest Neighbor Search | Jianyang Gao, Cheng Long | 2024 (SIGMOD / PACMMOD) | paper | papers/gao-2024-rabitq.pdf | 2026-05-08 |
 | wang-2024-starling | Starling: An I/O-Efficient Disk-Resident Graph Index Framework for High-Dimensional Vector Similarity Search on Data Segment | Mengzhao Wang, Weizhi Xu, Xiaomeng Yi, Songlin Wu, Zhangyang Peng, Xiangyu Ke, Yunjun Gao, Xiaoliang Xu, Rentong Guo, Charles Xie | 2024 (SIGMOD / PACMMOD) | paper | papers/wang-2024-starling.pdf | 2026-05-09 |
 | singh-2021-freshdiskann | FreshDiskANN: A Fast and Accurate Graph-Based ANN Index for Streaming Similarity Search | Aditi Singh, Suhas Jayaram Subramanya, Ravishankar Krishnaswamy, Harsha Vardhan Simhadri | 2021 (arXiv) | paper | papers/singh-2021-freshdiskann.pdf | 2026-05-09 |
+| ootomo-2023-cagra | CAGRA: Highly Parallel Graph Construction and Approximate Nearest Neighbor Search for GPUs | Hiroyuki Ootomo, Akira Naruse, Corey Nolet, Ray Wang, Tamas Feher, Yong Wang | 2023 (arXiv) / 2024 (ICDE) | paper | papers/ootomo-2023-cagra.pdf | 2026-05-09 |
 
 ## 命名约定
 

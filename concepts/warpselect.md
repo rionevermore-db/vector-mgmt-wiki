@@ -1,10 +1,10 @@
 ---
 title: WarpSelect（GPU 上的 k-selection）
 type: concept
-sources: [johnson-2017-faiss-gpu]
-related: [product-quantization.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md]
+sources: [johnson-2017-faiss-gpu, ootomo-2023-cagra]
+related: [product-quantization.md, cagra-graph.md, ../systems/cagra.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/cagra-vs-hnsw-ggnn-ganns.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-09 (CAGRA peer)
 ---
 
 # WarpSelect

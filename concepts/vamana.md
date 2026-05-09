@@ -1,10 +1,10 @@
 ---
 title: Vamana（α-controlled graph）
 type: concept
-sources: [subramanya-2019-diskann, wang-2024-starling, singh-2021-freshdiskann]
-related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, filtered-vamana.md, block-shuffling.md, freshvamana.md, ../systems/diskann.md, ../systems/starling.md, ../systems/freshdiskann.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
+sources: [subramanya-2019-diskann, wang-2024-starling, singh-2021-freshdiskann, ootomo-2023-cagra]
+related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, filtered-vamana.md, block-shuffling.md, freshvamana.md, cagra-graph.md, ../systems/diskann.md, ../systems/starling.md, ../systems/freshdiskann.md, ../systems/cagra.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/gpu-vs-cpu-ann.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md, ../benchmarks/cagra-vs-hnsw-ggnn-ganns.md]
 created: 2026-05-07
-updated: 2026-05-09 (FreshDiskANN)
+updated: 2026-05-09 (CAGRA)
 ---
 
 # Vamana
@@ -135,3 +135,4 @@ Vamana 本身是 in-memory 算法，但**它的小 diameter 是 [DiskANN 系统]
 - ~~**不支持增量**：与 NSG 同样问题；动态数据需要重建。FreshDiskANN 是后继工作，wiki 尚未 ingest~~ **2026-05-09 ingest [singh-2021-freshdiskann] 已解**：[FreshVamana](./freshvamana.md) (α=1.2) 把 Vamana 升级为 streaming-ready；[FreshDiskANN](../systems/freshdiskann.md) 是其 disk-resident system 实现
 - **Vamana + [Block Shuffling](./block-shuffling.md) + 增量数据**：Starling §7 提"static disk index + 动态 in-memory + 周期 merge"模式（与 FreshDiskANN StreamingMerge 同源）；FreshVamana streaming insert 后 OR(G) 漂移；周期触发 block shuffling 重跑。摊销成本未量化。
 - **Vamana 与 RaBitQ 集成**：[gao-2024-rabitq §4] 明示 graph-based 集成 future work；Vamana + RaBitQ 替代 PQ short codes for routing 是 logical 实验方向
+- **Vamana 在 GPU 上的等效**：[CAGRA](./cagra-graph.md) [ootomo-2023] 是 NVIDIA-native GPU graph，与 Vamana 都用 fixed-style RNG pruning 但 CAGRA 用 **rank-based** 而非 distance-based（不需 distance 重算 → 1.9× faster + DEEP-100M 唯一可行）。Vamana α-RNG vs CAGRA rank-based reordering 是不同 first-principles design——CPU disk-resident vs GPU device memory 各自最优形态。详见 [systems/cagra.md](../systems/cagra.md) 与 [topics/gpu-vs-cpu-ann.md](../topics/gpu-vs-cpu-ann.md)。

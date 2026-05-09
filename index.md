@@ -25,6 +25,7 @@
 - [RaBitQ](./concepts/rabitq.md) — NTU Singapore SIGMOD 2024 首个 unbiased + sharp error bound 的 quantization；D-bit string + 随机正交矩阵旋转 hypercube vertices codebook；O(1/√D) 渐近最优；error-bound rerank 无需 K' 调参——quantizer 层对 K' 预测问题的 dual 攻击（与 VBASE iterator 范式正交可叠加）；3× 快于 PQ LUT
 - [Block Shuffling](./concepts/block-shuffling.md) — Starling SIGMOD 2024 形式化的 disk graph index 数据布局问题；Theorem 4.1 NP-hard + 不存在多项式时间近似算法；3 个启发式 BNP/BNF/BNS 把 OR(G) 从 DiskANN ≈0 提升到 0.34-0.87；Starling 默认 BNF 占总 build 9.5% 时间
 - [FreshVamana](./concepts/freshvamana.md) — FreshDiskANN 2021 提出的 Vamana streaming 变体；首个支持 graph-based incremental insert + delete + recall 不退化的算法；α-RNG property (α=1.2) 是 fresh-ANNS 必要条件——HNSW/NSG 因隐式 α=1 仍未解；50 cycles × 5%/10%/50% change 后 recall 95%+ 稳定；build 比 static Vamana 1.48-1.83× 快
+- [CAGRA Graph](./concepts/cagra-graph.md) — NVIDIA ICDE 2024 首个 GPU-native proximity graph；fixed out-degree + non-hierarchical + directional + rank-based reordering（不需 distance 重算 → 1.9× faster, DEEP-100M 唯一可行）；search 4 个 GPU 优化（warp splitting + forgettable hash + 1-bit parented + dual single/multi-CTA）；与 [HNSW/NSG/Vamana] CPU graph 算法是不同 hardware path 的对偶
 
 ## Systems（产品 / 工程系统）
 
@@ -39,6 +40,7 @@
 - [VBASE](./systems/vbase.md) — Microsoft Research OSDI 2023 PG 扩展；**首个 iterator-model 路径**（vs 其他全部 TopK-based）；基于 [Relaxed Monotonicity](./concepts/relaxed-monotonicity.md) 绕开 K' 预测；Q4-Q6 multi-column TopK 比 Milvus 快 200-300×，Q8 vector Join 比 PG 快 7900×；学术原型，~2000 LOC + <200 LOC per index
 - [Starling](./systems/starling.md) — Zilliz/Milvus 团队 SIGMOD 2024 segment-level disk-resident graph framework；首个把 vector DBMS segment 约束（~2GB RAM + ~10GB disk）作为 design first principle；3 大贡献（block shuffling + in-memory navigation graph + block search）；ANNS 2× 快于 DiskANN，RS 43.9× 快；framework 兼容 Vamana/NSG/HNSW；§8 future work 集成 Milvus
 - [FreshDiskANN](./systems/freshdiskann.md) — Microsoft Research 2021 首个 graph-based billion-scale streaming ANN 系统；LTI on SSD + TempIndex in DRAM + StreamingMerge two-pass 合并；800M SIFT sustained 1800+1800 inserts/deletes/sec @ 95+% recall；StreamingMerge 比 DiskANN 全 rebuild 5.25× 快（15832s vs 83140s）；vs PLSH 25× 少机器；is the graph-path counterpart to SPFresh's cluster-path
+- [CAGRA / NVIDIA RAPIDS RAFT](./systems/cagra.md) — NVIDIA ICDE 2024 首个 GPU-native graph-based ANN system；NVIDIA RAPIDS RAFT library 核心实现；Milvus v2.6.x GPU_CAGRA 索引基于此；build 比 HNSW (CPU 64-core) 2.2-27× 快，large-batch search 33-77× 快，single-query 3.4-53× 快；vs GGNN/GANNS (前作 GPU graph) 3.8-8.8× 快
 
 ## Topics（跨概念主题）
 
@@ -73,6 +75,7 @@
 - [RaBitQ vs PQ/OPQ/LSQ on 6 Datasets](./benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md) — SIGMOD 2024 §5：6 dataset (MSong/SIFT/DEEP/GIST/Word2Vec/Image)；RaBitQ 用一半 code length 仍 dominate PQ/OPQ/LSQ time-accuracy 曲线；MSong/Word2Vec PQ avg rel error >100% RaBitQ <40%；ε₀=1.9 + B_q=4 cross all datasets 无调参；6/6 dominate HNSW
 - [Starling vs DiskANN / SPANN on Segment](./benchmarks/starling-vs-diskann-spann-on-segment.md) — SIGMOD 2024 §6：4 dataset (BIGANN 33M / DEEP 11M / SSNPP 16M / Text2image 5M) on Milvus segment 配置 (2GB RAM + 10GB disk)；ANNS 2× DiskANN，RS 43.9× DiskANN（98% 低 latency），>10× SPANN on Text2image；Starling-Vamana/NSG/HNSW 全 2× 各自 baseline；BIGANN 1B 用 31 segment 跑通
 - [FreshDiskANN Streaming on 800M SIFT](./benchmarks/freshdiskann-streaming-sift800m.md) — arXiv 2021 §6：单机 96 thread + 3.2 TB NVMe + 128 GB RAM；800M SIFT week-long steady-state 1800+1800 inserts/deletes/sec @ 95+% recall；StreamingMerge 5.25× faster than DiskANN full rebuild；burst 40K inserts/sec；FreshVamana α=1.2 vs α=1 in 50 cycles 5%/10%/50% change rate
+- [CAGRA vs HNSW / GGNN / GANNS](./benchmarks/cagra-vs-hnsw-ggnn-ganns.md) — ICDE 2024 §V：7 datasets (SIFT/GIST/GloVe/NYTimes/DEEP-1M/10M/100M) on DGX A100；CAGRA build 2.2-27× faster than HNSW；large-batch search 33-77× faster；single-query 3.4-53× faster；vs GGNN/GANNS GPU baselines 1.0-31× faster；rank-based reordering 1.9× faster + DEEP-100M 唯一可行；FP16 mode +30% throughput
 
 ## Queries（高价值 query 答案存档）
 
