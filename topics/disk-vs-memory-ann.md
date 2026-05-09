@@ -1,10 +1,10 @@
 ---
 title: Disk vs Memory ANN（SSD 与 DRAM 的 ANN 路线）
 type: topic
-sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../concepts/lire.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ./in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/pase-vs-cube-freddy.md]
+sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library, wang-2024-starling]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../concepts/lire.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/block-shuffling.md, ../concepts/rabitq.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/starling.md, ../systems/vbase.md, ./in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-09 (Starling)
 ---
 
 # Disk vs Memory ANN
@@ -137,6 +137,31 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 | **1B+** | **64 GB + SSD** | **DiskANN** |
 | 1B+ | DRAM 极便宜 / 多机 | 多机 graph 分片（Taobao 模式） |
 | 100B+（trillion） | 任意 | 分布式 mmap + 极端压缩（[Faiss trillion-scale](../benchmarks/faiss-trillion-scale.md)） |
+| **vector DBMS segment（≤33M / 2GB RAM / 10GB disk）** | **per-segment 严格约束** | **[Starling](../systems/starling.md)（block shuffling + nav graph）** |
+
+## 关键洞见 4：vector DBMS segment 模型 ≠ single-server 假设（NEW）
+
+[wang-2024-starling §1, §6.9]
+
+之前 wiki 内 disk-resident 系统（[DiskANN](../systems/diskann.md) / [SPANN](../systems/spann.md)）的 hidden assumption 是 "**single-server 大磁盘 + 大内存 budget**"——DiskANN 64 GB RAM + 几 TB SSD；SPANN Bing 几千亿用 single-cluster 大磁盘 + 跨机 replicate。
+
+**vector DBMS 工程现实是不同**：
+- [Milvus](../systems/milvus.md) / [Manu](../systems/milvus.md) / 大多数现代 vector DB 用 **segment** 抽象——每 segment ~2GB RAM + ~10GB disk hard limit
+- 一台 query node **多 segment** 共享 RAM/disk
+- Distributed + load balancing + fault tolerance 都在 segment 粒度而非 server 粒度
+
+→ Single-server 假设的优化在 segment-level **失败**：
+- **SPANN**：closure clustering 复制 up to 8× → 33M × 8 = 264M storage 远超 10GB cap → **不可行**
+- **DiskANN**：data locality OR(G) ≈ 0（94% block 浪费）+ 长 search path（362 hops）→ **高 latency**
+
+[Starling](../systems/starling.md) 是 wiki 内**首个 explicit 接受 segment-level 约束作为 design first principle** 的 disk graph framework：
+- Block shuffling（NP-hard 优化数据 locality 在 4KB block 内）
+- In-memory navigation graph（采样 <10% vector 减少 search path）
+- Block search + 三个 computation 优化
+
+实测 BIGANN 33M segment：Starling ANNS 2× 快于 DiskANN，RS **43.9× 快**。
+
+→ disk-vs-memory landscape 现在有**第三层**："single-server"路径（DiskANN/SPANN）vs"segment-level"路径（Starling）；两者都属"DRAM + SSD 混合"但 budget 假设不同。详见 [systems/starling.md](../systems/starling.md) 与 [benchmarks/starling-vs-diskann-spann-on-segment.md](../benchmarks/starling-vs-diskann-spann-on-segment.md)。
 
 ## Open Questions
 

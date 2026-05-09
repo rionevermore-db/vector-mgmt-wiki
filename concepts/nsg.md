@@ -1,10 +1,10 @@
 ---
 title: NSG（Navigating Spreading-out Graph）
 type: concept
-sources: [fu-2017-nsg, guo-2019-scann, subramanya-2019-diskann]
-related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, ../systems/diskann.md, ../systems/milvus.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md]
+sources: [fu-2017-nsg, guo-2019-scann, subramanya-2019-diskann, wang-2024-starling]
+related: [hnsw.md, nsw.md, proximity-graph.md, product-quantization.md, scann.md, vamana.md, block-shuffling.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/starling.md, ../topics/mips-vs-l2-nn.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/nsg-vs-graph-anns-million.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-09 (Starling)
 ---
 
 # NSG
@@ -115,5 +115,6 @@ NSG 论文 §3.2 给出了关键证明：**MSNET 上 Algorithm 1 找到的就是
 - NSG 隐式 α=1；[Vamana](./vamana.md) 引入可调 α 后**在 SIFT1M / GIST1M / DEEP1M 上系统击败 NSG**（更小的 graph diameter，更少 hops）[subramanya-2019-diskann §4.1]。Vamana 是否完全取代 NSG？争议中。
 - NSG 也假设全内存；[DiskANN](../systems/diskann.md) 用 Vamana + SSD 给出"单机 + 大数据"组合，与 Taobao 32-shard 路线不同。详见 [topics/disk-vs-memory-ann.md](../topics/disk-vs-memory-ann.md)。
 - **Milvus 的 "RNSG" 身份**：[wang-2021-milvus §2.2] 把 graph 索引列为 "HNSW + RNSG"，引用 ref [20] = Fu 2017 = 本 page 的 NSG。但生态里 "RNSG" 一名常被解读为 "Rand-NSG" = Subramanya 2019 早期名 = [Vamana](./vamana.md) / [DiskANN](../systems/diskann.md)（Milvus 论文 ref [61]）。**正文 ref vs 命名矛盾，论文未澄清**，是 NSG 还是 Vamana 的工程实现需查 Milvus 源码确认。
+- **NSG 在 disk-resident segment 场景的延伸**：[wang-2024-starling §6.7] 提出 **Starling-NSG**——用 NSG 算法构造 disk graph + [block shuffling](./block-shuffling.md) 重排 layout + in-memory navigation graph 减少 search path。NSG 单层结构与 block shuffling 适配 OK；实测 BIGANN 33M 比 Disk-NSG baseline **2× 快**。证明 Starling 的优化是 graph-agnostic（与 [Vamana](./vamana.md) / [HNSW](./hnsw.md) 同样有效）。详见 [systems/starling.md](../systems/starling.md)。
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

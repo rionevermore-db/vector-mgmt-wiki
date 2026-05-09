@@ -1,10 +1,10 @@
 ---
 title: Vamana（α-controlled graph）
 type: concept
-sources: [subramanya-2019-diskann]
-related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, filtered-vamana.md, ../systems/diskann.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]
+sources: [subramanya-2019-diskann, wang-2024-starling]
+related: [hnsw.md, nsg.md, proximity-graph.md, product-quantization.md, filtered-vamana.md, block-shuffling.md, ../systems/diskann.md, ../systems/starling.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-05-09 (Starling)
 ---
 
 # Vamana
@@ -102,6 +102,14 @@ Vamana 本身是 in-memory 算法，但**它的小 diameter 是 [DiskANN 系统]
 - 作者实现：[`microsoft/DiskANN`](https://github.com/microsoft/DiskANN)（C++，含 Vamana in-memory + DiskANN SSD 双模式）
 - [Faiss](../systems/faiss.md) 通过 `IndexNSG` 提供 NSG 但**不直接支持 Vamana**；DiskANN 是独立生态
 
+## 后续演化：Disk layout 优化（[Starling](../systems/starling.md) + [Block Shuffling](./block-shuffling.md)）
+
+[wang-2024-starling §4-§6.7] Zilliz/Milvus 团队 SIGMOD 2024 论文提出 **Starling-Vamana**——在 Vamana 构造的 disk graph 之上做 [block shuffling](./block-shuffling.md)（NP-hard 问题，BNF 启发式 default）+ in-memory navigation graph + block search。**算法本身不变**，只重排 vertex 到 disk block + 减少搜索路径长度。Vamana α-controlled RobustPrune 的 graph topology 保持完整。
+
+效果（BIGANN 33M segment 配置）：Starling-Vamana 比 Disk-Vamana ANNS 2× 快、RS 43.9× 快；vertex utilization ratio 从 6.25% → 34%（5×）。详见 [systems/starling.md](../systems/starling.md) 与 [benchmarks/starling-vs-diskann-spann-on-segment.md](../benchmarks/starling-vs-diskann-spann-on-segment.md)。
+
+> **wiki 解读**：Starling 是 Vamana 在 segment-level disk DBMS 场景的最大延伸——比 [Filtered-DiskANN](./filtered-vamana.md) 的 attribute filtering 延伸**更基础**（layout 层而非 graph 算法层），且与 FilteredVamana 正交可叠加（理论上 FilteredVamana + Starling block shuffling 同时使用未实证）。
+
 ## 后续演化：Filter-aware（[FilteredVamana](./filtered-vamana.md)）
 
 [gollapudi-2023-filtered-diskann §3] 把 Vamana 的 RobustPrune α 系数加 **label intersection 检查**：FilteredVamana / StitchedVamana 两算法**首次把 label 信息 baked-in 到 graph 构造本身**——RobustPrune 时检查 `F_p* ⊃ F_p'` 来决定是否 prune。Microsoft sponsored ads A/B test +34.61% clicks / +48.95% revenue（[per benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md]）。这是 [Vamana](#) 在 attribute filtering 维度的最大延伸。详见 [filtered-vamana.md](./filtered-vamana.md)。
@@ -112,3 +120,5 @@ Vamana 本身是 in-memory 算法，但**它的小 diameter 是 [DiskANN 系统]
 - **两遍构建的必要性**：第一遍 α=1 + 第二遍 α>1 是经验式发现；理论上单遍是否能匹配？论文未深入。
 - **medoid entry point 的鲁棒性**：与 NSG 一样，单一 entry point 假设数据集有 well-defined 中心；高度聚类数据下 medoid 可能落到边缘。
 - **不支持增量**：与 NSG 同样问题；动态数据需要重建。FreshDiskANN [78 in douze-2024-faiss-library] 是后继工作，wiki 尚未 ingest。
+- **Vamana + [Block Shuffling](./block-shuffling.md) + 增量数据**：Starling §7 提"static disk index + 动态 in-memory + 周期 merge"模式；增量数据 → 周期触发 block shuffling 重跑。摊销成本未量化。
+- **Vamana 与 RaBitQ 集成**：[gao-2024-rabitq §4] 明示 graph-based 集成 future work；Vamana + RaBitQ 替代 PQ short codes for routing 是 logical 实验方向

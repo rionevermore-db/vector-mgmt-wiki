@@ -1,10 +1,10 @@
 ---
 title: DiskANN（System）
 type: system
-sources: [subramanya-2019-diskann, chen-2021-spann, gollapudi-2023-filtered-diskann, gao-2024-rabitq]
-related: [../concepts/vamana.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/rabitq.md, faiss.md, spann.md, milvus.md, spfresh.md, pinecone.md, vbase.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
+sources: [subramanya-2019-diskann, chen-2021-spann, gollapudi-2023-filtered-diskann, gao-2024-rabitq, wang-2024-starling]
+related: [../concepts/vamana.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, faiss.md, spann.md, milvus.md, spfresh.md, pinecone.md, vbase.md, starling.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
-updated: 2026-05-08 (RaBitQ)
+updated: 2026-05-09 (Starling)
 ---
 
 # DiskANN
@@ -139,5 +139,7 @@ PQ 失真大 → 图遍历可能走偏路径，需要更多 hops；但终点全�
 - **更新与删除**：与 [NSG](../concepts/nsg.md) 一样不支持增量；merged 方案下加点更难。**周期 streamingMerge global rebuild 的资源峰值 1100 GB DRAM + 32 cores × 2 天**——[SPFresh](./spfresh.md) [xu-2023-spfresh] 的对照实验（100 day × 1% daily update）显示 DiskANN P99.9 latency 在 rebuild 时飙到 >20ms。Cluster-based 路线（[SPANN](./spann.md)）已有 SPFresh in-place 解；**graph-based 路线（DiskANN/Vamana）的 in-place update 仍是开放问题**。详见 [topics/in-place-vs-out-of-place-updates.md](../topics/in-place-vs-out-of-place-updates.md)
 - **和 Faiss 的最优组合**：理论上 [Faiss](./faiss.md) 的 IVF + Vamana coarse quantizer 是新点子，但当前两个生态独立
 - **DRAM PQ 替代为 [RaBitQ](../concepts/rabitq.md)**：[gao-2024-rabitq] SIGMOD 2024 提出 unbiased + sharp error bound 的 RaBitQ——理论上替换 DiskANN DRAM 中的 PQ 后 (a) navigation 距离估计更准（更少 SSD 反复读），(b) error bound 让 SSD 全精度 re-rank 的"是否触发"决策从 fixed beam-width 变成 principled drop-by-bound——可能减少 SSD 访问数。但 RaBitQ 论文 [gao-2024 §4] 明示 graph-based 集成"would require much more efforts"——bitwise 距离估计与 graph greedy traversal 的 single-vector 接口 fit 但 batch SIMD 不易用。DiskANN + RaBitQ 实证未做
+- ~~**数据 locality 问题**：DiskANN 把 ID-consecutive vertex 分到同 block，但 ID 序与 graph 邻居关系无关——94% 数据 block 浪费~~ **2026-05-09 ingest [wang-2024-starling] 已部分回答**：[Starling](./starling.md) 形式化为 [Block Shuffling 问题](../concepts/block-shuffling.md)（NP-hard），3 个启发式算法把 OR(G) 从 DiskANN 的 ≈0 提升到 0.34-0.87；vertex utilization ratio ξ 5-7× 提升；BIGANN 33M 上 ANNS recall 0.95 latency 从 DiskANN 10ms → Starling 5ms（**2× 快**），RS QPS **43.9× DiskANN**。详见 [benchmarks/starling-vs-diskann-spann-on-segment.md](../benchmarks/starling-vs-diskann-spann-on-segment.md)
+- ~~**Long search path**：DiskANN 用 random/fixed entry point；33M dataset top-10 需 ~362 hops × disk I/O~~ **2026-05-09 ingest [wang-2024-starling] 已回答**：Starling 加 in-memory navigation graph（采样 <10% vertex），找 query-aware entry points → ℓ 减半（362 → 182）。**根本上挑战 DiskANN 的"single-server 大磁盘"假设**：在 vector DBMS segment-level（~2GB RAM + ~10GB disk）下 DiskANN 已不是最优——Starling 是 Zilliz/Milvus 团队下一代候选
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)

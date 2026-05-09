@@ -1,8 +1,8 @@
 ---
 title: Index Selection（如何在 Faiss 索引家族里选）
 type: topic
-sources: [douze-2024-faiss-library, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, zhang-2023-vbase, gao-2024-rabitq]
-related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md, ./topk-vs-iterator-model.md]
+sources: [douze-2024-faiss-library, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, zhang-2023-vbase, gao-2024-rabitq, wang-2024-starling]
+related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/starling.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md, ./topk-vs-iterator-model.md]
 created: 2026-05-07
 updated: 2026-05-08 (RaBitQ)
 ---
@@ -94,5 +94,6 @@ updated: 2026-05-08 (RaBitQ)
 - **filtered search 的最优策略**：vector-first vs metadata-first 的 cutoff 是 selection rate；Faiss 用经验阈值（约 3×10⁻⁴），但理论上可学习
 - **TopK 接口前提下的索引选择 vs Iterator 范式**：[per topics/topk-vs-iterator-model.md] Faiss 决策树 + Milvus 5 strategies + ADBV 4-plan 都假设 vector index 走 TopK 接口；[VBASE](../systems/vbase.md) [zhang-2023-vbase] 表明 HNSW / IVFFlat / SPANN 都满足 [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md)，可以走 iterator 接口——这让"索引选择"决策维度多了一轴："走 TopK 还是 走 iterator？" 在 multi-column / range / Join workload 下后者必胜，但简单 single-vector TopK 两者算法等价
 - **Quantizer 选择维度新增 [RaBitQ](../concepts/rabitq.md) 选项**：[per gao-2024-rabitq] Faiss §A.5 Step 3 内存预算决策树仅给 Flat / SQfp16 / SQ8 / RQM / OPQM,IVFx,PQM 五个 quantizer 选项；RaBitQ (D bits + unbiased + sharp error bound + 3× 快 single 距离 + comparable batch) 是**一个比 PQ 全方位优**的新选项——理论上替代 SQ8 / OPQM,PQM。但 (a) Faiss 论文 2024 年发表时 RaBitQ 同年发表，未来 Faiss release 是否纳入？(b) RaBitQ 与 graph-based 索引集成困难（gao-2024 §4 明示 future work），所以"内存预算紧 + graph 路径"场景仍需 PQ。决策树更新需考虑 quantizer 与 base index 的耦合维度
+- **Segment-level constraint 维度（NEW from [wang-2024-starling]）**：Faiss 决策树假设 single-server budget；vector DBMS segment 模型（~2GB RAM + ~10GB disk per segment）下决策完全不同——**SPANN 不可行**（复制超容量），**DiskANN 高 latency**（OR(G)≈0 + 长 search path）。[Starling](../systems/starling.md) 是 segment-level 路径——但仅 Zilliz 学术 prototype，未集成 Milvus release。Faiss 决策树 + Milvus segment 决策需联合考虑：是单 server 大磁盘 OR 多 segment per server？工程现实多数是后者
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)
