@@ -100,6 +100,34 @@ PQ、OPQ、Scalar Quantization、RaBitQ 这几种向量压缩方法各自的精�
 
 ---
 
+## 8. vector-scalar-bench-methodology
+
+**Question**:
+对比多个 vector DB 在**向量 + 标量过滤**混合查询下的性能，如何公平地横向 benchmark？
+
+**Why track**:
+- Pre：wiki 已有 `topics/attribute-filtering.md` 五策略框架，能给出方法论骨架
+- Post（Pinecone / Qdrant / Weaviate / Vespa 等产品文档 ingest 后）：能填上每个产品的具体实现 + 真实 selectivity 拐点数字
+
+**Cover area**: vector-scalar hybrid query, filter pushdown, selectivity curves, fair benchmarking
+
+---
+
+## 9. multimodal-bench-methodology
+
+**Question**:
+对比多个 vector DB 在**向量 + 标量 + 空间**三模检索下的性能，怎么公平 benchmark？关键挑战：空间能力**严重不对称**（真索引 / bbox 近似 / 完全没有），怎么处理？
+
+**Why track**:
+- Pre：空间维度在 wiki 完全空白；答案大概率薄
+- Post：随产品文档（含空间能力）+ 空间索引材料 ingest，能给出空间能力 inventory + 三模陷阱例
+
+**与 #8 分工**：#8 是 2 模成熟问题（5 策略已成型），#9 是 3 模新边界（学术界没认真做）。
+
+**Cover area**: tri-modal retrieval, spatial indexing, capability asymmetry, real-world hybrid query
+
+---
+
 ## 使用说明
 
 - **新增 query**：直接在本文件追加一节，确保 `query-key` 唯一
