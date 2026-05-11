@@ -29,6 +29,7 @@
 | singh-2021-freshdiskann | FreshDiskANN: A Fast and Accurate Graph-Based ANN Index for Streaming Similarity Search | Aditi Singh, Suhas Jayaram Subramanya, Ravishankar Krishnaswamy, Harsha Vardhan Simhadri | 2021 (arXiv) | paper | papers/singh-2021-freshdiskann.pdf | 2026-05-09 |
 | ootomo-2023-cagra | CAGRA: Highly Parallel Graph Construction and Approximate Nearest Neighbor Search for GPUs | Hiroyuki Ootomo, Akira Naruse, Corey Nolet, Ray Wang, Tamas Feher, Yong Wang | 2023 (arXiv) / 2024 (ICDE) | paper | papers/ootomo-2023-cagra.pdf | 2026-05-09 |
 | qdrant-docs | Qdrant 官方文档（git clone qdrant/landing_page sparse-checkout `qdrant-landing/content/documentation/`, commit fa07b1b8, covers Qdrant Engine v0.8.0+ through v1.17.0) | Qdrant Solutions GmbH | 2026-05-11 fetch | docs | docs/qdrant/ | 2026-05-11 |
+| weaviate-docs | Weaviate 官方文档（llms.txt 455 行 substantive prose + 5 LLM-friendly twin pages product/hybrid-search/rag/agentic-ai/cost-performance-optimization, covers Weaviate Server v1.36.2+ recommended） | Weaviate B.V. | 2026-05-11 fetch | docs | docs/weaviate/{llms.txt + 5 twin pages} | 2026-05-11 |
 
 ## 命名约定
 

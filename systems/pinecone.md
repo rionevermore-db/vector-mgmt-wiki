@@ -1,10 +1,10 @@
 ---
 title: Pinecone（Commercial SaaS Vector Database）
 type: system
-sources: [pinecone-docs, douze-2024-faiss-library, wang-2021-milvus, qdrant-docs]
-related: [faiss.md, milvus.md, diskann.md, spann.md, spfresh.md, qdrant.md, ../concepts/pinecone-pod-based.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+sources: [pinecone-docs, douze-2024-faiss-library, wang-2021-milvus, qdrant-docs, weaviate-docs]
+related: [faiss.md, milvus.md, diskann.md, spann.md, spfresh.md, qdrant.md, weaviate.md, ../concepts/pinecone-pod-based.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-08
-updated: 2026-05-11 (Qdrant comparison)
+updated: 2026-05-11 (Weaviate peer comparison)
 ---
 
 # Pinecone
@@ -227,5 +227,6 @@ Pinecone 自家不像 Milvus 公布详细客户名单。已知的 high-profile �
 - **Vendor lock-in**：闭源 SaaS 的迁移成本——切到 Milvus / Faiss self-host 的工程量，docs 不讨论
 - **HIPAA + 合规** 各 cloud region 支持：docs 提"HIPAA compliance add-on"但具体细节通过 sales 流程
 - **Pinecone vs [Qdrant](./qdrant.md) production trade-off**：Pinecone 闭源 SaaS only（极简部署） vs Qdrant OSS + Cloud + Hybrid + Private + Edge 五 SKU（极致 deployment flexibility）。Qdrant Cloud 也在 Stripe/AT&T 等大客户落地——直接竞争 Pinecone。具体 latency / recall / cost head-to-head 双方都不公开
+- **Pinecone vs [Weaviate](./weaviate.md) "DBaaS + agent stack" 同代竞争**：Pinecone 商业 SaaS + Pinecone Inference vs Weaviate Cloud + Query Agent + Engram。Pinecone 黑盒 adaptive index；Weaviate 显式 HNSW + RQ8 + 完整 inverted index 套件。**Vendor 哲学**：Pinecone "managed simplicity"；Weaviate "AI-native primary DB"。两者都集成 inference / agent stack 但 Weaviate 上层 productization 更深（Query Agent turnkey RAG + Engram agent memory preview）。Weaviate **是 OSS 路径 + Cloud**，给客户 deployment 选择权；Pinecone 仅 SaaS。详见 [systems/weaviate.md "与 Pinecone 的对比"](./weaviate.md)。
 
 Cited by: 待 query 引用

@@ -1,10 +1,10 @@
 ---
 title: Qdrant（Rust 实现的开源 vector DBMS）
 type: system
-sources: [qdrant-docs]
-related: [faiss.md, milvus.md, pinecone.md, spfresh.md, freshdiskann.md, cagra.md, vbase.md, analyticdb-v.md, pase.md, starling.md, ../concepts/hnsw.md, ../concepts/acorn.md, ../concepts/filtered-vamana.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../topics/attribute-filtering.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/gpu-vs-cpu-ann.md]
+sources: [qdrant-docs, weaviate-docs]
+related: [faiss.md, milvus.md, pinecone.md, weaviate.md, spfresh.md, freshdiskann.md, cagra.md, vbase.md, analyticdb-v.md, pase.md, starling.md, ../concepts/hnsw.md, ../concepts/acorn.md, ../concepts/filtered-vamana.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../topics/attribute-filtering.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/gpu-vs-cpu-ann.md]
 created: 2026-05-11
-updated: 2026-05-11
+updated: 2026-05-11 (Weaviate peer cross-link)
 ---
 
 # Qdrant
