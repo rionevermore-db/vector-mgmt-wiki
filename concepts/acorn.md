@@ -1,10 +1,10 @@
 ---
 title: ACORN（Predicate-Agnostic HNSW Filtered ANNS）
 type: concept
-sources: [patel-2024-acorn]
-related: [./hnsw.md, ./filtered-vamana.md, ../topics/attribute-filtering.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+sources: [patel-2024-acorn, qdrant-docs]
+related: [./hnsw.md, ./filtered-vamana.md, ../topics/attribute-filtering.md, ../systems/qdrant.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-11 (Qdrant production deployment)
 ---
 
 # ACORN
@@ -221,7 +221,7 @@ ACORN 是 HNSW 的 **predicate-aware 扩展**——保持 HNSW 的 multilayer hi
 - **多 predicate conjunction (AND/OR/NOT)**：论文 §1 承认 supports OR；AND/NOT 复杂表达通过 inverted index 等结构辅助；论文未深入
 - **Distributed ACORN**：单机算法；多机扩展未涉及
 - **ACORN + SSD**：HNSW 系列 SSD 集成困难（neighbor random access）；ACORN 没探讨 SSD 路径
-- **ACORN 与 [FilteredVamana](./filtered-vamana.md) 在 production 实测对比**：[FilteredVamana](./filtered-vamana.md) 有 Microsoft 广告 A/B test +35-49% revenue；ACORN 仅学术 benchmark——production deployment 比较 wiki 未覆盖
+- ~~**ACORN 与 [FilteredVamana](./filtered-vamana.md) 在 production 实测对比**：[FilteredVamana](./filtered-vamana.md) 有 Microsoft 广告 A/B test +35-49% revenue；ACORN 仅学术 benchmark——production deployment 比较 wiki 未覆盖~~ **2026-05-11 ingest [qdrant-docs] 部分关闭**：[Qdrant](../systems/qdrant.md) v1.16.0 **集成 ACORN 算法作为 Filterable HNSW 的 fallback**（per `sources/docs/qdrant/manage-data/indexing.md "The ACORN Search Algorithm"`）——这是 ACORN 进入 production 的首个明确证据。Trigger 条件：(a) 多个 strict filter 组合 OR (b) 大量 soft-deleted points。但 Qdrant docs 未公开生产 workload 实测 vs ACORN 论文 25M LAION 实证的 gap。FilteredVamana production A/B 实证仍 unique。
 - **NHQ-NPG 实际表现**：论文 §A.1 实测 KGraph 版本仍 1 order of magnitude slower than FilteredVamana at 100 recall；ACORN 论文 §7.2 用 KGraph 版本作 baseline——但 ACORN vs Filtered-DiskANN 直接对比是关键
 - **更新（delete / mutation）**：ACORN 论文未深入；HNSW 自身 delete 困难继承
 

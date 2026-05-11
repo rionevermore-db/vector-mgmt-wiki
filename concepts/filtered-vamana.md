@@ -1,10 +1,10 @@
 ---
 title: FilteredVamana / StitchedVamana（Filter-aware Graph ANNS）
 type: concept
-sources: [gollapudi-2023-filtered-diskann]
-related: [./vamana.md, ./hnsw.md, ./proximity-graph.md, ./acorn.md, ../systems/diskann.md, ../topics/attribute-filtering.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+sources: [gollapudi-2023-filtered-diskann, qdrant-docs]
+related: [./vamana.md, ./hnsw.md, ./proximity-graph.md, ./acorn.md, ../systems/diskann.md, ../systems/qdrant.md, ../topics/attribute-filtering.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-11 (Qdrant Filterable HNSW comparison)
 ---
 
 # FilteredVamana / StitchedVamana

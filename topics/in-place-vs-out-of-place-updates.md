@@ -1,10 +1,10 @@
 ---
 title: In-Place vs Out-of-Place Updates（向量索引更新策略）
 type: topic
-sources: [xu-2023-spfresh, chen-2021-spann, subramanya-2019-diskann, wang-2021-milvus, douze-2024-faiss-library, singh-2021-freshdiskann]
-related: [../systems/spfresh.md, ../systems/freshdiskann.md, ../systems/spann.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/faiss.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/starling.md, ../concepts/lire.md, ../concepts/freshvamana.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/delta-consistency.md, ../concepts/vgpq.md]
+sources: [xu-2023-spfresh, chen-2021-spann, subramanya-2019-diskann, wang-2021-milvus, douze-2024-faiss-library, singh-2021-freshdiskann, qdrant-docs]
+related: [../systems/spfresh.md, ../systems/freshdiskann.md, ../systems/spann.md, ../systems/diskann.md, ../systems/milvus.md, ../systems/faiss.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/starling.md, ../systems/qdrant.md, ../concepts/lire.md, ../concepts/freshvamana.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/delta-consistency.md, ../concepts/vgpq.md]
 created: 2026-05-07
-updated: 2026-05-09 (FreshDiskANN — graph path now solved)
+updated: 2026-05-11 (Qdrant Collection Aliases)
 ---
 
 # In-Place vs Out-of-Place Updates
@@ -153,7 +153,17 @@ DiskANN 的 Vamana 算法本身**不预设** update 模型。**out-of-place 是 
 
 **注意区别**：本 topic 讨论"**同 embedding 空间内的 vector update**"——insert / delete / modify 单个向量。**不**包括"**embedding model 升级**"（BERT→SBERT）情况——那是 vector space 整体迁移，所有索引必须重建，与 in-place vs out-of-place 正交。
 
-详见 wiki 当前未覆盖 embedding-lifecycle 工程实践（双索引切换、increment patch、共享空间训练等）。
+**2026-05-11 update**：[Qdrant Collection Aliases](../systems/qdrant.md) [per sources/docs/qdrant/manage-data/collections.md "Collection aliases"] 是 **wiki 内首个明确的 production model migration tool**——通过 atomic alias swap 让新旧 embedding model 共存：
+
+```
+旧 collection `prod_v1` (旧 model) ← alias `prod` ← user queries
+新 collection `prod_v2` (新 model) 后台 build + ingest re-embedded data
+原子 swap: alias `prod` → `prod_v2`, 旧 collection delete/archive
+```
+
+工程便利显著（atomic switch + Qdrant Migration tool docker image），但**不解决跨 model embedding mapping 的 algorithm 问题**——新旧 model 的 vector space 仍然 incompatible，必须全量 re-embed 数据。**embedding-update-handling query 的 algorithm-level 解仍是 zero coverage**（19 个 ingest 后确认）。
+
+详见 wiki 当前未覆盖 embedding-lifecycle 完整工程实践（双索引切换、increment patch、共享空间训练等）。
 
 ## Open Questions
 

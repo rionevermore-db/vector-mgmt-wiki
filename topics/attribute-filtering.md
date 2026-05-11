@@ -1,10 +1,10 @@
 ---
 title: Attribute Filtering（向量+属性混合查询）
 type: topic
-sources: [wang-2021-milvus, douze-2024-faiss-library, gollapudi-2023-filtered-diskann, patel-2024-acorn, zhang-2023-vbase]
-related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ../concepts/relaxed-monotonicity.md, ./index-selection.md, ./topk-vs-iterator-model.md, ./vector-range-query.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md]
+sources: [wang-2021-milvus, douze-2024-faiss-library, gollapudi-2023-filtered-diskann, patel-2024-acorn, zhang-2023-vbase, qdrant-docs]
+related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/qdrant.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ../concepts/relaxed-monotonicity.md, ./index-selection.md, ./topk-vs-iterator-model.md, ./vector-range-query.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-07
-updated: 2026-05-08 (VBASE)
+updated: 2026-05-11 (Qdrant Filterable HNSW + ACORN production)
 ---
 
 # Attribute Filtering
@@ -68,6 +68,7 @@ Query `C_A = [50, 250]`：
 | **[SPANN](../systems/spann.md)** | 论文未涉及 | 弱 |
 | Faiss-IDSelector vs Milvus | Faiss IDSelector 走 strategy B (bitmap)；Milvus 把它泛化为 5 策略 + 自动选择 | Milvus 完整覆盖 Faiss 思路 |
 | **[VBASE](../systems/vbase.md)** | **Iterator + [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md)**——绕开 K' 预测，单 column iterator + filter check + RM Phase 2 自动停 [zhang-2023-vbase §4.4] | **新范式**——所有上述策略都基于 TopK 接口（A-E 都是"先取候选再 filter"的不同变体）；VBASE 直接换接口让 K' 不再需要预测。详见 [topics/topk-vs-iterator-model.md](./topk-vs-iterator-model.md) |
+| **[Qdrant](../systems/qdrant.md)** | **Filterable HNSW**——HNSW graph + payload-aware extra edges (per indexed field)；v1.16.0 集成 [ACORN](../concepts/acorn.md) algorithm 作 fallback（多 strict filter combination 或大量 soft-deleted points）[per sources/docs/qdrant/manage-data/indexing.md] | **HNSW 路径 filter-aware build**——与 [FilteredVamana](../concepts/filtered-vamana.md) Vamana base 平行；**首个 ACORN production 落地**。Trade-off: extra edges 占额外存储；多 payload index 组合不能 cover 所有 filter combination，故 ACORN fallback |
 
 [per systems/faiss.md §Open Questions] Faiss 论文 §5.2 明确把 OOD-DiskANN、**Filtered-DiskANN** 列为 frontier。**Filtered-DiskANN [gollapudi-2023-filtered-diskann] 已 ingest**——是 Faiss frontier flag 的具体答案：filter-aware graph build + per-filter medoid + filter-aware RobustPrune。Milvus 的 partition-based 是 search-time 工业 solution；Filtered-DiskANN 是 build-time 学术领先方案；两者哲学不同（详见 [concepts/filtered-vamana.md "与其他 filtered ANNS 方法对比"](../concepts/filtered-vamana.md)）。
 

@@ -1,10 +1,10 @@
 ---
 title: Pinecone（Commercial SaaS Vector Database）
 type: system
-sources: [pinecone-docs, douze-2024-faiss-library, wang-2021-milvus]
-related: [faiss.md, milvus.md, diskann.md, spann.md, spfresh.md, ../concepts/pinecone-pod-based.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+sources: [pinecone-docs, douze-2024-faiss-library, wang-2021-milvus, qdrant-docs]
+related: [faiss.md, milvus.md, diskann.md, spann.md, spfresh.md, qdrant.md, ../concepts/pinecone-pod-based.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-11 (Qdrant comparison)
 ---
 
 # Pinecone
@@ -226,5 +226,6 @@ Pinecone 自家不像 Milvus 公布详细客户名单。已知的 high-profile �
 - **billion-vector benchmark**：docs 仅提"scalability to billion-vector datasets" 但未给具体配置 / latency / recall 数字（与 [Faiss trillion-scale](../benchmarks/faiss-trillion-scale.md) 相比，Pinecone 的 billion 级别公开数据极少）
 - **Vendor lock-in**：闭源 SaaS 的迁移成本——切到 Milvus / Faiss self-host 的工程量，docs 不讨论
 - **HIPAA + 合规** 各 cloud region 支持：docs 提"HIPAA compliance add-on"但具体细节通过 sales 流程
+- **Pinecone vs [Qdrant](./qdrant.md) production trade-off**：Pinecone 闭源 SaaS only（极简部署） vs Qdrant OSS + Cloud + Hybrid + Private + Edge 五 SKU（极致 deployment flexibility）。Qdrant Cloud 也在 Stripe/AT&T 等大客户落地——直接竞争 Pinecone。具体 latency / recall / cost head-to-head 双方都不公开
 
 Cited by: 待 query 引用
