@@ -26,6 +26,7 @@
 - [Block Shuffling](./concepts/block-shuffling.md) — Starling SIGMOD 2024 形式化的 disk graph index 数据布局问题；Theorem 4.1 NP-hard + 不存在多项式时间近似算法；3 个启发式 BNP/BNF/BNS 把 OR(G) 从 DiskANN ≈0 提升到 0.34-0.87；Starling 默认 BNF 占总 build 9.5% 时间
 - [FreshVamana](./concepts/freshvamana.md) — FreshDiskANN 2021 提出的 Vamana streaming 变体；首个支持 graph-based incremental insert + delete + recall 不退化的算法；α-RNG property (α=1.2) 是 fresh-ANNS 必要条件——HNSW/NSG 因隐式 α=1 仍未解；50 cycles × 5%/10%/50% change 后 recall 95%+ 稳定；build 比 static Vamana 1.48-1.83× 快
 - [CAGRA Graph](./concepts/cagra-graph.md) — NVIDIA ICDE 2024 首个 GPU-native proximity graph；fixed out-degree + non-hierarchical + directional + rank-based reordering（不需 distance 重算 → 1.9× faster, DEEP-100M 唯一可行）；search 4 个 GPU 优化（warp splitting + forgettable hash + 1-bit parented + dual single/multi-CTA）；与 [HNSW/NSG/Vamana] CPU graph 算法是不同 hardware path 的对偶
+- [CLIP](./concepts/clip.md) — OpenAI 2021 ICML，wiki 内**首个 multimodal embedding model concept**；dual-encoder + linear projection only → joint image+text embedding space；L2-normalized + cosine similarity + learnable temperature τ → 所有 wiki vendor cosine ANN 直接服务；400M (image, text) WIT 数据集，32K batch size InfoNCE 对比训练；ResNet-50/101/×4/×16/×64 + ViT-B/32, B/16, L/14, L/14@336px 共 8 个变体（embedding dim 512-1024）；ImageNet zero-shot 76.2% (ViT-L/14@336px) 击败 fully-supervised baselines 在 16/27 datasets；启动现代 multimodal embedding generation (SigLIP / ALIGN / ImageBind 等都以 CLIP 为对照)；**vector DB 端不需要新数据结构**——cosine ANN over normalized embedding 服务 all multimodal workload
 
 ## Systems（产品 / 工程系统）
 
@@ -58,6 +59,7 @@
 - [In-Place vs Out-of-Place Updates](./topics/in-place-vs-out-of-place-updates.md) — 向量索引更新策略；周期 rebuild（DiskANN/Faiss/Milvus）vs in-place 增量（SPFresh LIRE）；graph-based 在 in-place 仍开放
 - [TopK 接口 vs Iterator Model](./topics/topk-vs-iterator-model.md) — vector index 集成范式之争；TopK + K' 预测（Milvus / ADBV / PASE / Pinecone / Elasticsearch）vs Iterator + RM（VBASE 唯一）；Q4-Q8 上后者比前者快 100-7900×
 - [Vector Range Query](./topics/vector-range-query.md) — 按距离阈值返回（distance ≤ r）；与 TopK 平行的查询模式；TopK 接口下 K_LARGE 难选；Iterator + RM 自然支持；VBASE Q7 是 wiki 内首个原生支持系统
+- [Multimodal Embedding Retrieval](./topics/multimodal-embedding-retrieval.md) — wiki 内首个 multimodal-focused topic；CLIP/SigLIP/ALIGN/ImageBind 等 dual-encoder embedding 把 image/text/audio/multi-modal 映射到 shared embedding space，让 vector DB **用单一 cosine ANN 服务所有 multimodal workload**；6 vendor 全部 native 支持 (cosine ANN over normalized embedding)——没有 vendor 把 multimodal 当 "special index"；**wiki industry coverage gap**: head-to-head multimodal benchmark 不存在；与 spatial retrieval gap (仅 Vespa native) 形成 algorithm-成熟 vs benchmark-成熟的对称缺失
 
 ## Benchmarks（测评）
 
