@@ -1,10 +1,10 @@
 ---
 title: ACORN（Predicate-Agnostic HNSW Filtered ANNS）
 type: concept
-sources: [patel-2024-acorn, qdrant-docs, weaviate-docs]
-related: [./hnsw.md, ./filtered-vamana.md, ../topics/attribute-filtering.md, ../systems/qdrant.md, ../systems/weaviate.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
+sources: [patel-2024-acorn, qdrant-docs, weaviate-docs, vespa-docs]
+related: [./hnsw.md, ./filtered-vamana.md, ../topics/attribute-filtering.md, ../systems/qdrant.md, ../systems/weaviate.md, ../systems/vespa.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md]
 created: 2026-05-08
-updated: 2026-05-11 (Weaviate as 2nd ACORN production case)
+updated: 2026-05-11 (Vespa as 3rd ACORN production case — frontier COMPLETELY closed)
 ---
 
 # ACORN
@@ -221,11 +221,12 @@ ACORN 是 HNSW 的 **predicate-aware 扩展**——保持 HNSW 的 multilayer hi
 - **多 predicate conjunction (AND/OR/NOT)**：论文 §1 承认 supports OR；AND/NOT 复杂表达通过 inverted index 等结构辅助；论文未深入
 - **Distributed ACORN**：单机算法；多机扩展未涉及
 - **ACORN + SSD**：HNSW 系列 SSD 集成困难（neighbor random access）；ACORN 没探讨 SSD 路径
-- ~~**ACORN 与 [FilteredVamana](./filtered-vamana.md) 在 production 实测对比**：[FilteredVamana](./filtered-vamana.md) 有 Microsoft 广告 A/B test +35-49% revenue；ACORN 仅学术 benchmark——production deployment 比较 wiki 未覆盖~~ **2026-05-11 双 ingest 完整关闭 frontier**：
+- ~~**ACORN 与 [FilteredVamana](./filtered-vamana.md) 在 production 实测对比**：[FilteredVamana](./filtered-vamana.md) 有 Microsoft 广告 A/B test +35-49% revenue；ACORN 仅学术 benchmark——production deployment 比较 wiki 未覆盖~~ **2026-05-11 三 ingest 完整 closure**：
   - **Qdrant v1.16.0** [qdrant-docs] 集成 ACORN 作为 Filterable HNSW fallback——多 strict filter combination 或 soft-deleted points 多时启用
   - **Weaviate** [weaviate-docs llms.txt] 集成 ACORN + "**positive & negative correlation optimization**"——query planner 用 payload 字段相关性估计 selectivity
-  - **两个独立 OSS vector DBMS 都集成 ACORN**——证明 [patel-2024-acorn] Stanford 学术工作已是工业 OSS DBMS 的 default-or-fallback 之一
-  - 但 Qdrant / Weaviate docs 都未公开 production workload vs ACORN 论文 25M LAION 实证的 gap。FilteredVamana Microsoft 广告 A/B test +35-49% revenue 仍是 unique production metric
+  - **Vespa** [vespa-docs llms-full.txt §Approximate Nn Hnsw] 实现 **"Acorn-1" mode**——"filtering before distance calculation"，比传统 pre-filter 更激进
+  - **3 个独立 OSS vector DBMS 都集成 ACORN-1**——证明 [patel-2024-acorn] Stanford 学术工作已是工业 OSS DBMS 的 **default 之一**。**ACORN production frontier 完全闭合**——从单个学术论文到 3 个独立 OSS DBMS 工业 deployment 仅用 2 年时间（2024 → 2026）
+  - 但 Qdrant / Weaviate / Vespa docs 都未公开 production workload vs ACORN 论文 25M LAION 实证的 gap。FilteredVamana Microsoft 广告 A/B test +35-49% revenue 仍是 unique production business metric
 - **NHQ-NPG 实际表现**：论文 §A.1 实测 KGraph 版本仍 1 order of magnitude slower than FilteredVamana at 100 recall；ACORN 论文 §7.2 用 KGraph 版本作 baseline——但 ACORN vs Filtered-DiskANN 直接对比是关键
 - **更新（delete / mutation）**：ACORN 论文未深入；HNSW 自身 delete 困难继承
 

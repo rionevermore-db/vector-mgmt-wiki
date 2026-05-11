@@ -1,0 +1,966 @@
+# Vespa documentation
+
+> Vespa is a powerful and scalable engine for low-latency computation over large data sets. It is designed for real-time applications that require a combination of search, recommendation, and personalization. Vespa allows developers to build applications that can handle high volumes of queries and data writes while maintaining fast response times.
+
+**Key Features**
+
+Vespa offers a rich set of features for building sophisticated search and recommendation applications:
+
+* **Real-time Indexing and Search:** Vespa provides low-latency CRUD (Create, Read, Update, Delete) operations, making data searchable in milliseconds after being fed.
+* **Approximate Nearest Neighbor (ANN) Search:** Vespa includes a highly efficient implementation of the HNSW algorithm for fast and accurate vector search, which can be combined with traditional filters.
+* **Flexible Ranking and Relevance:** Ranking is a first-class citizen in Vespa. It supports complex, multi-phase ranking expressions and can integrate with machine-learned models (e.g., ONNX, TensorFlow, XGBoost, LightGBM) to deliver highly relevant results.
+* **Scalability and Elasticity:** Vespa is designed to scale horizontally. Content clusters can be grown or shrunk on the fly without service interruptions, and data is automatically redistributed to maintain a balanced load.
+* **Rich Data Modeling:** Vespa supports a variety of data types, including structured data, unstructured text, and tensors for vector embeddings. It also supports parent-child relationships to model complex data hierarchies.
+* **Comprehensive Query Language:** Vespa's query language (YQL) allows for a combination of keyword search, structured filtering, and nearest neighbor search in a single query.
+* **Component-Based Architecture:** Vespa's container clusters host custom Java components (Searchers, Document Processors) that allow for extensive customization of query and data processing pipelines.
+
+**Architecture**
+
+A Vespa application consists of two main types of clusters:
+
+* **Stateless Container Clusters:** These clusters handle incoming queries and data writes. They host application components that process requests and responses, perform query rewriting, and federate to backend services.
+* **Stateful Content Clusters:** These clusters are responsible for storing, indexing, and searching data. They automatically manage data distribution and redundancy.
+
+Vespa's architecture is designed for high availability and fault tolerance. When a node fails, the system automatically re-routes traffic and re-distributes data to maintain service.
+
+**Application Package**
+
+A Vespa application is defined by an **application package**, which contains all the necessary configuration, schemas, components, and machine-learned models. This self-contained package allows for atomic deployments and ensures consistency between code and configuration.
+
+Key files in an application package include:
+
+* **`services.xml`**: Defines the services and clusters that make up the application, including their topology and resource allocation.
+* **`schemas/*.sd`**: Defines the document types, their fields, and how they should be indexed and searched. Rank profiles are also defined within schemas.
+
+**APIs and Interfaces**
+
+Vespa provides a comprehensive set of APIs for interacting with the system:
+
+* **Document API (`/document/v1/`)**: A REST API for performing CRUD operations on documents.
+* **Query API (`/search/`)**: A powerful API for querying data using YQL, with extensive options for ranking, grouping, and presentation.
+* **Configuration and Deployment APIs**: REST APIs for deploying application packages and managing system configuration.
+
+This overview provides a glimpse into the capabilities of the Vespa Search engine. For more in-depth information, please refer to each of the documentation links below.
+## About Documentation
+
+- [About this documentation](https://docs.vespa.ai/en/learn/about-documentation.html.md): [](/en/learn/about-documentation.html.md "View as Markdown")
+
+## Access Logging
+
+- [Access Logging](https://docs.vespa.ai/en/operations/access-logging.html.md): [](/en/operations/access-logging.html.md "View as Markdown")
+
+## Self Managed
+
+- [Administrative Procedures](https://docs.vespa.ai/en/operations/self-managed/admin-procedures.html.md): [](/en/operations/self-managed/admin-procedures.html.md "View as Markdown")
+- [Build / install Vespa](https://docs.vespa.ai/en/operations/self-managed/build-install.html.md): [](/en/operations/self-managed/build-install.html.md "View as Markdown")
+- [Configuration proxy](https://docs.vespa.ai/en/operations/self-managed/config-proxy.html.md): [](/en/operations/self-managed/config-proxy.html.md "View as Markdown")
+- [Config sentinel](https://docs.vespa.ai/en/operations/self-managed/config-sentinel.html.md): [](/en/operations/self-managed/config-sentinel.html.md "View as Markdown")
+- [Configuration Servers](https://docs.vespa.ai/en/operations/self-managed/configuration-server.html.md): [](/en/operations/self-managed/configuration-server.html.md "View as Markdown")
+- [Container](https://docs.vespa.ai/en/operations/self-managed/container.html.md): [](/en/operations/self-managed/container.html.md "View as Markdown")
+- [Content node recovery](https://docs.vespa.ai/en/operations/self-managed/content-node-recovery.html.md): [](/en/operations/self-managed/content-node-recovery.html.md "View as Markdown")
+- [CPU Support](https://docs.vespa.ai/en/operations/self-managed/cpu-support.html.md): [](/en/operations/self-managed/cpu-support.html.md "View as Markdown")
+- [Docker containers](https://docs.vespa.ai/en/operations/self-managed/docker-containers.html.md): [](/en/operations/self-managed/docker-containers.html.md "View as Markdown")
+- [Files, Processes, Ports, Environment](https://docs.vespa.ai/en/operations/self-managed/files-processes-and-ports.html.md): [](/en/operations/self-managed/files-processes-and-ports.html.md "View as Markdown")
+- [Live-upgrading Vespa](https://docs.vespa.ai/en/operations/self-managed/live-upgrade.html.md): [](/en/operations/self-managed/live-upgrade.html.md "View as Markdown")
+- [Monitoring](https://docs.vespa.ai/en/operations/self-managed/monitoring.html.md): [](/en/operations/self-managed/monitoring.html.md "View as Markdown")
+- [Multinode systems](https://docs.vespa.ai/en/operations/self-managed/multinode-systems.html.md): [](/en/operations/self-managed/multinode-systems.html.md "View as Markdown")
+- [Node and network setup](https://docs.vespa.ai/en/operations/self-managed/node-setup.html.md): [](/en/operations/self-managed/node-setup.html.md "View as Markdown")
+- [Procedure: Change from attribute to index](https://docs.vespa.ai/en/operations/self-managed/procedure-change-attribute-index.html.md): [](/en/operations/self-managed/procedure-change-attribute-index.html.md "View as Markdown")
+- [Vespa Scaling Configuration Examples](https://docs.vespa.ai/en/operations/self-managed/sizing-examples.html.md): [](/en/operations/self-managed/sizing-examples.html.md "View as Markdown")
+- [Service location broker - slobrok](https://docs.vespa.ai/en/operations/self-managed/slobrok.html.md): [](/en/operations/self-managed/slobrok.html.md "View as Markdown")
+- [Using Kubernetes with Vespa](https://docs.vespa.ai/en/operations/self-managed/using-kubernetes-with-vespa.html.md): [](/en/operations/self-managed/using-kubernetes-with-vespa.html.md "View as Markdown")
+- [Container GPU setup](https://docs.vespa.ai/en/operations/self-managed/vespa-gpu-container.html.md): [](/en/operations/self-managed/vespa-gpu-container.html.md "View as Markdown")
+- [Vespa Support CLI](https://docs.vespa.ai/en/operations/self-managed/vespa-support.html.md): [](/en/operations/self-managed/vespa-support.html.md "View as Markdown")
+
+## Applications
+
+- [services.xml - 'admin'](https://docs.vespa.ai/en/reference/applications/services/admin.html.md): [](/en/reference/applications/services/admin.html.md "View as Markdown")
+- [Application package reference](https://docs.vespa.ai/en/reference/applications/application-packages.html.md): [](/en/reference/applications/application-packages.html.md "View as Markdown")
+- [Vespa applications](https://docs.vespa.ai/en/basics/applications.html.md): [](/en/basics/applications.html.md "View as Markdown")
+- [Component reference](https://docs.vespa.ai/en/reference/applications/components.html.md): [](/en/reference/applications/components.html.md "View as Markdown")
+- [Custom Configuration File Reference](https://docs.vespa.ai/en/reference/applications/config-files.html.md): [](/en/reference/applications/config-files.html.md "View as Markdown")
+- [services.xml - container](https://docs.vespa.ai/en/reference/applications/services/container.html.md): [](/en/reference/applications/services/container.html.md "View as Markdown")
+- [services.xml - 'content'](https://docs.vespa.ai/en/reference/applications/services/content.html.md): [](/en/reference/applications/services/content.html.md "View as Markdown")
+- [deployment.xml reference](https://docs.vespa.ai/en/reference/applications/deployment.html.md): [](/en/reference/applications/deployment.html.md "View as Markdown")
+- [services.xml - document-processing](https://docs.vespa.ai/en/reference/applications/services/docproc.html.md): [](/en/reference/applications/services/docproc.html.md "View as Markdown")
+- [hosts.xml](https://docs.vespa.ai/en/reference/applications/hosts.html.md): [](/en/reference/applications/hosts.html.md "View as Markdown")
+- [services.xml - http](https://docs.vespa.ai/en/reference/applications/services/http.html.md): [](/en/reference/applications/services/http.html.md "View as Markdown")
+- [services.xml - processing](https://docs.vespa.ai/en/reference/applications/services/processing.html.md): [](/en/reference/applications/services/processing.html.md "View as Markdown")
+- [services.xml - 'search'](https://docs.vespa.ai/en/reference/applications/services/search.html.md): [](/en/reference/applications/services/search.html.md "View as Markdown")
+- [services.xml](https://docs.vespa.ai/en/reference/applications/services/services.html.md): [](/en/reference/applications/services/services.html.md "View as Markdown")
+- [Testing with Java JUnit tests](https://docs.vespa.ai/en/reference/applications/testing-java.html.md): [](/en/reference/applications/testing-java.html.md "View as Markdown")
+- [Basic HTTP testing](https://docs.vespa.ai/en/reference/applications/testing.html.md): [](/en/reference/applications/testing.html.md "View as Markdown")
+- [validation-overrides.xml](https://docs.vespa.ai/en/reference/applications/validation-overrides.html.md): [](/en/reference/applications/validation-overrides.html.md "View as Markdown")
+
+## Api
+
+- [Vespa API and interfaces](https://docs.vespa.ai/en/reference/api/api.html.md): [](/en/reference/api/api.html.md "View as Markdown")
+- [/application/v2/tenant API reference](https://docs.vespa.ai/en/reference/api/application-v2.html.md): [](/en/reference/api/application-v2.html.md "View as Markdown")
+- [/cluster/v2 API reference](https://docs.vespa.ai/en/reference/api/cluster-v2.html.md): [](/en/reference/api/cluster-v2.html.md "View as Markdown")
+- [Config API](https://docs.vespa.ai/en/reference/api/config-v2.html.md): [](/en/reference/api/config-v2.html.md "View as Markdown")
+- [Deploy API](https://docs.vespa.ai/en/reference/api/deploy-v2.html.md): [](/en/reference/api/deploy-v2.html.md "View as Markdown")
+- [/document/v1 API reference](https://docs.vespa.ai/en/reference/api/document-v1.html.md): [](/en/reference/api/document-v1.html.md "View as Markdown")
+- [/metrics/v1 API reference](https://docs.vespa.ai/en/reference/api/metrics-v1.html.md): [](/en/reference/api/metrics-v1.html.md "View as Markdown")
+- [/metrics/v2 API reference](https://docs.vespa.ai/en/reference/api/metrics-v2.html.md): [](/en/reference/api/metrics-v2.html.md "View as Markdown")
+- [/prometheus/v1 API reference](https://docs.vespa.ai/en/reference/api/prometheus-v1.html.md): [](/en/reference/api/prometheus-v1.html.md "View as Markdown")
+- [Query API Reference](https://docs.vespa.ai/en/reference/api/query.html.md): [](/en/reference/api/query.html.md "View as Markdown")
+- [/state/v1 API reference](https://docs.vespa.ai/en/reference/api/state-v1.html.md): [](/en/reference/api/state-v1.html.md "View as Markdown")
+
+## Approximate Nn Hnsw
+
+- [Approximate nearest neighbor search using HNSW index](https://docs.vespa.ai/en/querying/approximate-nn-hnsw.html.md): [](/en/querying/approximate-nn-hnsw.html.md "View as Markdown")
+
+## Kubernetes
+
+- [Architecture](https://docs.vespa.ai/en/operations/kubernetes/architecture.html.md): [](/en/operations/kubernetes/architecture.html.md "View as Markdown")
+- [Configure Local Storage Type](https://docs.vespa.ai/en/operations/kubernetes/configuration/configure-local-storage-type.html.md): [](/en/operations/kubernetes/configuration/configure-local-storage-type.html.md "View as Markdown")
+- [Provide Custom Overrides](https://docs.vespa.ai/en/operations/kubernetes/custom-overrides-podtemplate.html.md): [](/en/operations/kubernetes/custom-overrides-podtemplate.html.md "View as Markdown")
+- [Setup Dev Environment](https://docs.vespa.ai/en/operations/kubernetes/deployment/dev-mode.html.md): [](/en/operations/kubernetes/deployment/dev-mode.html.md "View as Markdown")
+- [Setup Amazon ECR Pull-Through Cache](https://docs.vespa.ai/en/operations/kubernetes/deployment/ecr-pull-through-cache.html.md): [](/en/operations/kubernetes/deployment/ecr-pull-through-cache.html.md "View as Markdown")
+- [Configure External Access Layer](https://docs.vespa.ai/en/operations/kubernetes/ingress.html.md): [](/en/operations/kubernetes/ingress.html.md "View as Markdown")
+- [Install Vespa on Kubernetes](https://docs.vespa.ai/en/operations/kubernetes/deployment/installation.html.md): [](/en/operations/kubernetes/deployment/installation.html.md "View as Markdown")
+- [Deploy Vespa Locally](https://docs.vespa.ai/en/operations/kubernetes/deployment/local-deployment.html.md): [](/en/operations/kubernetes/deployment/local-deployment.html.md "View as Markdown")
+- [Configure Log Collection](https://docs.vespa.ai/en/operations/kubernetes/logging.html.md): [](/en/operations/kubernetes/logging.html.md "View as Markdown")
+- [Monitor a Vespa on Kubernetes Deployment](https://docs.vespa.ai/en/operations/kubernetes/monitoring.html.md): [](/en/operations/kubernetes/monitoring.html.md "View as Markdown")
+- [Lifecycle Operations for Vespa on Kubernetes](https://docs.vespa.ai/en/operations/kubernetes/operations/operations.html.md): [](/en/operations/kubernetes/operations/operations.html.md "View as Markdown")
+- [Permissions](https://docs.vespa.ai/en/operations/kubernetes/deployment/permissions.html.md): [](/en/operations/kubernetes/deployment/permissions.html.md "View as Markdown")
+- [Enable TLS Encryption for Vespa on Kubernetes](https://docs.vespa.ai/en/operations/kubernetes/tls.html.md): [](/en/operations/kubernetes/tls.html.md "View as Markdown")
+- [Upgrades](https://docs.vespa.ai/en/operations/kubernetes/operations/upgrades.html.md): [](/en/operations/kubernetes/operations/upgrades.html.md "View as Markdown")
+- [Vespa on Kubernetes](https://docs.vespa.ai/en/operations/kubernetes/vespa-on-kubernetes.html.md): [](/en/operations/kubernetes/vespa-on-kubernetes.html.md "View as Markdown")
+
+## Archive
+
+- [AWS Archive guide](https://docs.vespa.ai/en/operations/archive/archive-guide-aws.html.md): [](/en/operations/archive/archive-guide-aws.html.md "View as Markdown")
+- [Azure Archive guide](https://docs.vespa.ai/en/operations/archive/archive-guide-azure.html.md): [](/en/operations/archive/archive-guide-azure.html.md "View as Markdown")
+- [GCP Archive guide](https://docs.vespa.ai/en/operations/archive/archive-guide-gcp.html.md): [](/en/operations/archive/archive-guide-gcp.html.md "View as Markdown")
+- [Archive guide](https://docs.vespa.ai/en/operations/archive/archive-guide.html.md): [](/en/operations/archive/archive-guide.html.md "View as Markdown")
+
+## Enclave
+
+- [Log archive in Vespa Cloud Enclave](https://docs.vespa.ai/en/operations/enclave/archive.html.md): [](/en/operations/enclave/archive.html.md "View as Markdown")
+- [Vespa Cloud Enclave AWS Architecture](https://docs.vespa.ai/en/operations/enclave/aws-architecture.html.md): [](/en/operations/enclave/aws-architecture.html.md "View as Markdown")
+- [Getting started with Vespa Cloud Enclave in AWS](https://docs.vespa.ai/en/operations/enclave/aws-getting-started.html.md): [](/en/operations/enclave/aws-getting-started.html.md "View as Markdown")
+- [Architecture for Vespa Cloud Enclave in Azure](https://docs.vespa.ai/en/operations/enclave/azure-architecture.html.md): [](/en/operations/enclave/azure-architecture.html.md "View as Markdown")
+- [Getting started with Vespa Cloud Enclave in Azure](https://docs.vespa.ai/en/operations/enclave/azure-getting-started.html.md): [](/en/operations/enclave/azure-getting-started.html.md "View as Markdown")
+- [Vespa Cloud Enclave](https://docs.vespa.ai/en/operations/enclave/enclave.html.md): [](/en/operations/enclave/enclave.html.md "View as Markdown")
+- [Architecture for Vespa Cloud Enclave in GCP](https://docs.vespa.ai/en/operations/enclave/gcp-architecture.html.md): [](/en/operations/enclave/gcp-architecture.html.md "View as Markdown")
+- [Getting started with Vespa Cloud Enclave in GCP](https://docs.vespa.ai/en/operations/enclave/gcp-getting-started.html.md): [](/en/operations/enclave/gcp-getting-started.html.md "View as Markdown")
+- [Operations and Support for Vespa Cloud Enclave](https://docs.vespa.ai/en/operations/enclave/operations.html.md): [](/en/operations/enclave/operations.html.md "View as Markdown")
+
+## Attributes
+
+- [Attributes](https://docs.vespa.ai/en/content/attributes.html.md): [](/en/content/attributes.html.md "View as Markdown")
+
+## Automated Deployments
+
+- [Automated Deployments](https://docs.vespa.ai/en/operations/automated-deployments.html.md): [](/en/operations/automated-deployments.html.md "View as Markdown")
+
+## Autoscaling
+
+- [Autoscaling](https://docs.vespa.ai/en/operations/autoscaling.html.md): [](/en/operations/autoscaling.html.md "View as Markdown")
+
+## Instance Types
+
+- [AWS Instance Type Reference](https://docs.vespa.ai/en/performance/instance-types/aws-instance-types.html.md): [](/en/performance/instance-types/aws-instance-types.html.md "View as Markdown")
+- [Azure Instance Type Reference](https://docs.vespa.ai/en/performance/instance-types/azure-instance-types.html.md): [](/en/performance/instance-types/azure-instance-types.html.md "View as Markdown")
+- [GCP Instance Type Reference](https://docs.vespa.ai/en/performance/instance-types/gcp-instance-types.html.md): [](/en/performance/instance-types/gcp-instance-types.html.md "View as Markdown")
+
+## Batch Delete
+
+- [Batch delete](https://docs.vespa.ai/en/writing/batch-delete.html.md): [](/en/writing/batch-delete.html.md "View as Markdown")
+
+## Benchmarking Cloud
+
+- [Benchmarking](https://docs.vespa.ai/en/performance/benchmarking-cloud.html.md): [](/en/performance/benchmarking-cloud.html.md "View as Markdown")
+
+## Benchmarking
+
+- [Vespa Benchmarking](https://docs.vespa.ai/en/performance/benchmarking.html.md): [](/en/performance/benchmarking.html.md "View as Markdown")
+
+## Billion Scale Image Search
+
+- [Billion Scale Image Search](https://docs.vespa.ai/en/examples/billion-scale-image-search.html.md): [](/en/examples/billion-scale-image-search.html.md "View as Markdown")
+
+## Billion Scale Vector Search
+
+- [SPANN Billion Scale Vector Search](https://docs.vespa.ai/en/examples/billion-scale-vector-search.html.md): [](/en/examples/billion-scale-vector-search.html.md "View as Markdown")
+
+## Binarizing Vectors
+
+- [Binarizing Vectors](https://docs.vespa.ai/en/rag/binarizing-vectors.html.md): [](/en/rag/binarizing-vectors.html.md "View as Markdown")
+
+## Bm25
+
+- [The BM25 rank feature](https://docs.vespa.ai/en/ranking/bm25.html.md): [](/en/ranking/bm25.html.md "View as Markdown")
+
+## Buckets
+
+- [Buckets](https://docs.vespa.ai/en/content/buckets.html.md): [](/en/content/buckets.html.md "View as Markdown")
+
+## Bundles
+
+- [Bundles](https://docs.vespa.ai/en/applications/bundles.html.md): [](/en/applications/bundles.html.md "View as Markdown")
+
+## Caches In Vespa
+
+- [Caches](https://docs.vespa.ai/en/performance/caches-in-vespa.html.md): [](/en/performance/caches-in-vespa.html.md "View as Markdown")
+
+## Chaining
+
+- [Chained Components](https://docs.vespa.ai/en/applications/chaining.html.md): [](/en/applications/chaining.html.md "View as Markdown")
+
+## Rag
+
+- [Chunking Reference](https://docs.vespa.ai/en/reference/rag/chunking.html.md): [](/en/reference/rag/chunking.html.md "View as Markdown")
+- [Embedding Reference](https://docs.vespa.ai/en/reference/rag/embedding.html.md): [](/en/reference/rag/embedding.html.md "View as Markdown")
+- [Retrieval-augmented generation (RAG) in Vespa](https://docs.vespa.ai/en/rag/rag.html.md): [](/en/rag/rag.html.md "View as Markdown")
+
+## Cloning
+
+- [Cloning applications and data](https://docs.vespa.ai/en/operations/cloning.html.md): [](/en/operations/cloning.html.md "View as Markdown")
+
+## Cloudflare Workers
+
+- [Using Cloudflare Workers with Vespa Cloud](https://docs.vespa.ai/en/security/cloudflare-workers.html.md): [](/en/security/cloudflare-workers.html.md "View as Markdown")
+
+## Operations
+
+- [ClusterController Metrics](https://docs.vespa.ai/en/reference/operations/metrics/clustercontroller.html.md): [](/en/reference/operations/metrics/clustercontroller.html.md "View as Markdown")
+- [ConfigServer Metrics](https://docs.vespa.ai/en/reference/operations/metrics/configserver.html.md): [](/en/reference/operations/metrics/configserver.html.md "View as Markdown")
+- [Container Metrics](https://docs.vespa.ai/en/reference/operations/metrics/container.html.md): [](/en/reference/operations/metrics/container.html.md "View as Markdown")
+- [Default Metric Set](https://docs.vespa.ai/en/reference/operations/metrics/default-metric-set.html.md): [](/en/reference/operations/metrics/default-metric-set.html.md "View as Markdown")
+- [Distributor Metrics](https://docs.vespa.ai/en/reference/operations/metrics/distributor.html.md): [](/en/reference/operations/metrics/distributor.html.md "View as Markdown")
+- [Health checks reference](https://docs.vespa.ai/en/reference/operations/health-checks.html.md): [](/en/reference/operations/health-checks.html.md "View as Markdown")
+- [Log file reference](https://docs.vespa.ai/en/reference/operations/log-files.html.md): [](/en/reference/operations/log-files.html.md "View as Markdown")
+- [Logd Metrics](https://docs.vespa.ai/en/reference/operations/metrics/logd.html.md): [](/en/reference/operations/metrics/logd.html.md "View as Markdown")
+- [Metric Units Reference](https://docs.vespa.ai/en/reference/operations/metrics/metric-units.html.md): [](/en/reference/operations/metrics/metric-units.html.md "View as Markdown")
+- [Metrics Reference](https://docs.vespa.ai/en/reference/operations/metrics/metrics.html.md): [](/en/reference/operations/metrics/metrics.html.md "View as Markdown")
+- [NodeAdmin Metrics](https://docs.vespa.ai/en/reference/operations/metrics/nodeadmin.html.md): [](/en/reference/operations/metrics/nodeadmin.html.md "View as Markdown")
+- [Operations](https://docs.vespa.ai/en/basics/operations.html.md): [](/en/basics/operations.html.md "View as Markdown")
+- [SearchNode Metrics](https://docs.vespa.ai/en/reference/operations/metrics/searchnode.html.md): [](/en/reference/operations/metrics/searchnode.html.md "View as Markdown")
+- [Sentinel Metrics](https://docs.vespa.ai/en/reference/operations/metrics/sentinel.html.md): [](/en/reference/operations/metrics/sentinel.html.md "View as Markdown")
+- [Slobrok Metrics](https://docs.vespa.ai/en/reference/operations/metrics/slobrok.html.md): [](/en/reference/operations/metrics/slobrok.html.md "View as Markdown")
+- [Storage Metrics](https://docs.vespa.ai/en/reference/operations/metrics/storage.html.md): [](/en/reference/operations/metrics/storage.html.md "View as Markdown")
+- [Vespa Command-line Tools](https://docs.vespa.ai/en/reference/operations/self-managed/tools.html.md): [](/en/reference/operations/self-managed/tools.html.md "View as Markdown")
+- [Tools](https://docs.vespa.ai/en/reference/operations/tools.html.md): [](/en/reference/operations/tools.html.md "View as Markdown")
+- [Vespa Metric Set](https://docs.vespa.ai/en/reference/operations/metrics/vespa-metric-set.html.md): [](/en/reference/operations/metrics/vespa-metric-set.html.md "View as Markdown")
+
+## Components
+
+- [Container Components](https://docs.vespa.ai/en/applications/components.html.md): [](/en/applications/components.html.md "View as Markdown")
+
+## Concrete Documents
+
+- [Concrete documents](https://docs.vespa.ai/en/schemas/concrete-documents.html.md): [](/en/schemas/concrete-documents.html.md "View as Markdown")
+
+## Config System
+
+- [The Config System](https://docs.vespa.ai/en/applications/config-system.html.md): [](/en/applications/config-system.html.md "View as Markdown")
+
+## Configapi Dev
+
+- [Cloud Config API](https://docs.vespa.ai/en/applications/configapi-dev.html.md): [](/en/applications/configapi-dev.html.md "View as Markdown")
+
+## Configuring Components
+
+- [Configuring Java components](https://docs.vespa.ai/en/applications/configuring-components.html.md): [](/en/applications/configuring-components.html.md "View as Markdown")
+
+## Consistency
+
+- [Vespa Consistency Model](https://docs.vespa.ai/en/content/consistency.html.md): [](/en/content/consistency.html.md "View as Markdown")
+
+## Ranking
+
+- [Constant Tensor JSON Format](https://docs.vespa.ai/en/reference/ranking/constant-tensor-json-format.html.md): [](/en/reference/ranking/constant-tensor-json-format.html.md "View as Markdown")
+- [Stateless model reference](https://docs.vespa.ai/en/reference/ranking/model-files.html.md): [](/en/reference/ranking/model-files.html.md "View as Markdown")
+- [nativeRank Reference](https://docs.vespa.ai/en/reference/ranking/nativerank.html.md): [](/en/reference/ranking/nativerank.html.md "View as Markdown")
+- [Rank Feature Configuration](https://docs.vespa.ai/en/reference/ranking/rank-feature-configuration.html.md): [](/en/reference/ranking/rank-feature-configuration.html.md "View as Markdown")
+- [Rank Feature Reference](https://docs.vespa.ai/en/reference/ranking/rank-features.html.md): [](/en/reference/ranking/rank-features.html.md "View as Markdown")
+- [Rank Types](https://docs.vespa.ai/en/reference/ranking/rank-types.html.md): [](/en/reference/ranking/rank-types.html.md "View as Markdown")
+- [Ranking Expressions](https://docs.vespa.ai/en/reference/ranking/ranking-expressions.html.md): [](/en/reference/ranking/ranking-expressions.html.md "View as Markdown")
+- [Ranking](https://docs.vespa.ai/en/basics/ranking.html.md): [](/en/basics/ranking.html.md "View as Markdown")
+- [String Segment Match](https://docs.vespa.ai/en/reference/ranking/string-segment-match.html.md): [](/en/reference/ranking/string-segment-match.html.md "View as Markdown")
+- [Tensor Reference](https://docs.vespa.ai/en/reference/ranking/tensor.html.md): [](/en/reference/ranking/tensor.html.md "View as Markdown")
+
+## Container Http
+
+- [HTTP Performance Testing of the Container using Gatling](https://docs.vespa.ai/en/performance/container-http.html.md): [](/en/performance/container-http.html.md "View as Markdown")
+
+## Container Tuning
+
+- [Container Tuning](https://docs.vespa.ai/en/performance/container-tuning.html.md): [](/en/performance/container-tuning.html.md "View as Markdown")
+
+## Containers
+
+- [Container clusters](https://docs.vespa.ai/en/applications/containers.html.md): [](/en/applications/containers.html.md "View as Markdown")
+
+## Content Nodes
+
+- [Content nodes, states and metrics](https://docs.vespa.ai/en/content/content-nodes.html.md): [](/en/content/content-nodes.html.md "View as Markdown")
+
+## Contributing
+
+- [Contributing to Vespa](https://docs.vespa.ai/en/learn/contributing.html.md): [](/en/learn/contributing.html.md "View as Markdown")
+
+## Cross Encoders
+
+- [Ranking With Transformer Cross-Encoder Models](https://docs.vespa.ai/en/ranking/cross-encoders.html.md): [](/en/ranking/cross-encoders.html.md "View as Markdown")
+
+## Data Management
+
+- [Data management and backup](https://docs.vespa.ai/en/operations/data-management.html.md): [](/en/operations/data-management.html.md "View as Markdown")
+
+## Querying
+
+- [Default JSON Result Format](https://docs.vespa.ai/en/reference/querying/default-result-format.html.md): [](/en/reference/querying/default-result-format.html.md "View as Markdown")
+- [Grouping Reference](https://docs.vespa.ai/en/reference/querying/grouping-language.html.md): [](/en/reference/querying/grouping-language.html.md "View as Markdown")
+- [Select Query Reference](https://docs.vespa.ai/en/reference/querying/json-query-language.html.md): [](/en/reference/querying/json-query-language.html.md "View as Markdown")
+- [The 'page' result format](https://docs.vespa.ai/en/reference/querying/page-result-format.html.md): [](/en/reference/querying/page-result-format.html.md "View as Markdown")
+- [Page templates reference](https://docs.vespa.ai/en/reference/querying/page-templates.html.md): [](/en/reference/querying/page-templates.html.md "View as Markdown")
+- [Query Profile Reference](https://docs.vespa.ai/en/reference/querying/query-profiles.html.md): [](/en/reference/querying/query-profiles.html.md "View as Markdown")
+- [Querying](https://docs.vespa.ai/en/basics/querying.html.md): [](/en/basics/querying.html.md "View as Markdown")
+- [Semantic Rule Language Reference](https://docs.vespa.ai/en/reference/querying/semantic-rules.html.md): [](/en/reference/querying/semantic-rules.html.md "View as Markdown")
+- [Simple Query Language Reference](https://docs.vespa.ai/en/reference/querying/simple-query-language.html.md): [](/en/reference/querying/simple-query-language.html.md "View as Markdown")
+- [Sorting Reference](https://docs.vespa.ai/en/reference/querying/sorting-language.html.md): [](/en/reference/querying/sorting-language.html.md "View as Markdown")
+- [YQL Query Language Reference](https://docs.vespa.ai/en/reference/querying/yql.html.md): [](/en/reference/querying/yql.html.md "View as Markdown")
+
+## Deleting Applications
+
+- [Deleting Applications](https://docs.vespa.ai/en/operations/deleting-applications.html.md): [](/en/operations/deleting-applications.html.md "View as Markdown")
+
+## Dependency Injection
+
+- [Dependency injection](https://docs.vespa.ai/en/applications/dependency-injection.html.md): [](/en/applications/dependency-injection.html.md "View as Markdown")
+
+## Deploy An Application Java
+
+- [Deploy an application having Java components](https://docs.vespa.ai/en/basics/deploy-an-application-java.html.md): [](/en/basics/deploy-an-application-java.html.md "View as Markdown")
+
+## Deploy An Application Local Java
+
+- [Deploy an application having Java components locally](https://docs.vespa.ai/en/basics/deploy-an-application-local-java.html.md): [](/en/basics/deploy-an-application-local-java.html.md "View as Markdown")
+
+## Deploy An Application Local
+
+- [Deploy an application locally](https://docs.vespa.ai/en/basics/deploy-an-application-local.html.md): [](/en/basics/deploy-an-application-local.html.md "View as Markdown")
+
+## Deploy An Application Shell
+
+- [Deploy an application without Vespa CLI](https://docs.vespa.ai/en/basics/deploy-an-application-shell.html.md): [](/en/basics/deploy-an-application-shell.html.md "View as Markdown")
+
+## Deploy An Application
+
+- [Deploy an application](https://docs.vespa.ai/en/basics/deploy-an-application.html.md): [](/en/basics/deploy-an-application.html.md "View as Markdown")
+
+## Deployment Patterns
+
+- [Deployment patterns](https://docs.vespa.ai/en/operations/deployment-patterns.html.md): [](/en/operations/deployment-patterns.html.md "View as Markdown")
+
+## Deployment Variants
+
+- [Application, instance, region, cloud and environment variants](https://docs.vespa.ai/en/operations/deployment-variants.html.md): [](/en/operations/deployment-variants.html.md "View as Markdown")
+
+## Deployment
+
+- [Deployment](https://docs.vespa.ai/en/applications/deployment.html.md): [](/en/applications/deployment.html.md "View as Markdown")
+
+## Developer Guide
+
+- [Developer Guide](https://docs.vespa.ai/en/applications/developer-guide.html.md): [](/en/applications/developer-guide.html.md "View as Markdown")
+
+## Document Api Guide
+
+- [Document API](https://docs.vespa.ai/en/writing/document-api-guide.html.md): [](/en/writing/document-api-guide.html.md "View as Markdown")
+
+## Document Enrichment
+
+- [Document enrichment with LLMs](https://docs.vespa.ai/en/rag/document-enrichment.html.md): [](/en/rag/document-enrichment.html.md "View as Markdown")
+
+## Schemas
+
+- [Document field path reference](https://docs.vespa.ai/en/reference/schemas/document-field-path.html.md): [](/en/reference/schemas/document-field-path.html.md "View as Markdown")
+- [Document JSON format reference](https://docs.vespa.ai/en/reference/schemas/document-json-format.html.md): [](/en/reference/schemas/document-json-format.html.md "View as Markdown")
+- [Schemas](https://docs.vespa.ai/en/basics/schemas.html.md): [](/en/basics/schemas.html.md "View as Markdown")
+- [Schema reference](https://docs.vespa.ai/en/reference/schemas/schemas.html.md): [](/en/reference/schemas/schemas.html.md "View as Markdown")
+
+## Document Processors
+
+- [Document processors](https://docs.vespa.ai/en/applications/document-processors.html.md): [](/en/applications/document-processors.html.md "View as Markdown")
+
+## Document Routing
+
+- [Routing](https://docs.vespa.ai/en/writing/document-routing.html.md): [](/en/writing/document-routing.html.md "View as Markdown")
+
+## Writing
+
+- [Document selector language reference](https://docs.vespa.ai/en/reference/writing/document-selector-language.html.md): [](/en/reference/writing/document-selector-language.html.md "View as Markdown")
+- [Indexing language reference](https://docs.vespa.ai/en/reference/writing/indexing-language.html.md): [](/en/reference/writing/indexing-language.html.md "View as Markdown")
+- [Writing](https://docs.vespa.ai/en/basics/writing.html.md): [](/en/basics/writing.html.md "View as Markdown")
+
+## Document Summaries
+
+- [Document Summaries](https://docs.vespa.ai/en/querying/document-summaries.html.md): [](/en/querying/document-summaries.html.md "View as Markdown")
+
+## Document V1 Api Guide
+
+- [/document/v1 API guide](https://docs.vespa.ai/en/writing/document-v1-api-guide.html.md): [](/en/writing/document-v1-api-guide.html.md "View as Markdown")
+
+## Documents
+
+- [Documents](https://docs.vespa.ai/en/schemas/documents.html.md): [](/en/schemas/documents.html.md "View as Markdown")
+
+## Tutorials
+
+- [Use Case - shopping](https://docs.vespa.ai/en/learn/tutorials/e-commerce.html.md): [](/en/learn/tutorials/e-commerce.html.md "View as Markdown")
+- [Building an HTTP API using request handlers and processors](https://docs.vespa.ai/en/learn/tutorials/http-api.html.md): [](/en/learn/tutorials/http-api.html.md "View as Markdown")
+- [Hybrid Text Search Tutorial](https://docs.vespa.ai/en/learn/tutorials/hybrid-search.html.md): [](/en/learn/tutorials/hybrid-search.html.md "View as Markdown")
+- [Tutorials and use cases](https://docs.vespa.ai/en/learn/tutorials/index.html.md): [](/en/learn/tutorials/index.html.md "View as Markdown")
+- [News search and recommendation tutorial - getting started on Docker](https://docs.vespa.ai/en/learn/tutorials/news-1-deploy-an-application.html.md): [](/en/learn/tutorials/news-1-deploy-an-application.html.md "View as Markdown")
+- [News search and recommendation tutorial - applications, feeding and querying](https://docs.vespa.ai/en/learn/tutorials/news-2-basic-feeding-and-query.html.md): [](/en/learn/tutorials/news-2-basic-feeding-and-query.html.md "View as Markdown")
+- [News search and recommendation tutorial - searching](https://docs.vespa.ai/en/learn/tutorials/news-3-searching.html.md): [](/en/learn/tutorials/news-3-searching.html.md "View as Markdown")
+- [News search and recommendation tutorial - embeddings](https://docs.vespa.ai/en/learn/tutorials/news-4-embeddings.html.md): [](/en/learn/tutorials/news-4-embeddings.html.md "View as Markdown")
+- [News search and recommendation tutorial - recommendations](https://docs.vespa.ai/en/learn/tutorials/news-5-recommendation.html.md): [](/en/learn/tutorials/news-5-recommendation.html.md "View as Markdown")
+- [News search and recommendation tutorial - Searchers](https://docs.vespa.ai/en/learn/tutorials/news-6-recommendation-with-searchers.html.md): [](/en/learn/tutorials/news-6-recommendation-with-searchers.html.md "View as Markdown")
+- [News Recommendation Tutorial - parent child and tensor ranking](https://docs.vespa.ai/en/learn/tutorials/news-7-recommendation-with-parent-child.html.md): [](/en/learn/tutorials/news-7-recommendation-with-parent-child.html.md "View as Markdown")
+- [RAG Blueprint](https://docs.vespa.ai/en/learn/tutorials/rag-blueprint.html.md): [](/en/learn/tutorials/rag-blueprint.html.md "View as Markdown")
+- [Improving Text Search through ML](https://docs.vespa.ai/en/learn/tutorials/text-search-ml.html.md): [](/en/learn/tutorials/text-search-ml.html.md "View as Markdown")
+- [Text Search Tutorial](https://docs.vespa.ai/en/learn/tutorials/text-search.html.md): [](/en/learn/tutorials/text-search.html.md "View as Markdown")
+
+## Elasticity
+
+- [Content cluster elasticity](https://docs.vespa.ai/en/content/elasticity.html.md): [](/en/content/elasticity.html.md "View as Markdown")
+
+## Embedding
+
+- [Embedding](https://docs.vespa.ai/en/rag/embedding.html.md): [](/en/rag/embedding.html.md "View as Markdown")
+
+## Endpoint Routing
+
+- [Routing and endpoints](https://docs.vespa.ai/en/operations/endpoint-routing.html.md): [](/en/operations/endpoint-routing.html.md "View as Markdown")
+
+## Environments
+
+- [Environments](https://docs.vespa.ai/en/operations/environments.html.md): [](/en/operations/environments.html.md "View as Markdown")
+
+## Exposing Schema Information
+
+- [Exposing schema information](https://docs.vespa.ai/en/schemas/exposing-schema-information.html.md): [](/en/schemas/exposing-schema-information.html.md "View as Markdown")
+
+## External Llms
+
+- [External LLMs in Vespa](https://docs.vespa.ai/en/rag/external-llms.html.md): [](/en/rag/external-llms.html.md "View as Markdown")
+
+## Faq
+
+- [FAQ - frequently asked questions](https://docs.vespa.ai/en/learn/faq.html.md): [](/en/learn/faq.html.md "View as Markdown")
+
+## Feature Tuning
+
+- [Vespa Serving Tuning](https://docs.vespa.ai/en/performance/feature-tuning.html.md): [](/en/performance/feature-tuning.html.md "View as Markdown")
+
+## Features
+
+- [Features](https://docs.vespa.ai/en/learn/features.html.md): [](/en/learn/features.html.md "View as Markdown")
+
+## Ja
+
+- [Vespaの機能](https://docs.vespa.ai/ja/features.html.md): [](/ja/features.html.md "View as Markdown")
+- [Vespaドキュメンテーションの紹介](https://docs.vespa.ai/ja/introduction-to-documentation.html.md): [](/ja/introduction-to-documentation.html.md "View as Markdown")
+- [Vespaの概要](https://docs.vespa.ai/ja/overview.html.md): [](/ja/overview.html.md "View as Markdown")
+- [Dockerを使ったVespaのクイック・スタート](https://docs.vespa.ai/ja/vespa-quick-start.html.md): [](/ja/vespa-quick-start.html.md "View as Markdown")
+
+## Federation
+
+- [Federation](https://docs.vespa.ai/en/querying/federation.html.md): [](/en/querying/federation.html.md "View as Markdown")
+
+## Feed Block
+
+- [Feed block](https://docs.vespa.ai/en/writing/feed-block.html.md): [](/en/writing/feed-block.html.md "View as Markdown")
+
+## Geo Search
+
+- [Geo Search](https://docs.vespa.ai/en/querying/geo-search.html.md): [](/en/querying/geo-search.html.md "View as Markdown")
+
+## Glossary
+
+- [Glossary](https://docs.vespa.ai/en/learn/glossary.html.md): [](/en/learn/glossary.html.md "View as Markdown")
+
+## Graceful Degradation
+
+- [Graceful Query Coverage Degradation](https://docs.vespa.ai/en/performance/graceful-degradation.html.md): [](/en/performance/graceful-degradation.html.md "View as Markdown")
+
+## Grouping
+
+- [Grouping and aggregation](https://docs.vespa.ai/en/querying/grouping.html.md): [](/en/querying/grouping.html.md "View as Markdown")
+
+## Guide
+
+- [Security Guide](https://docs.vespa.ai/en/security/guide.html.md): [](/en/security/guide.html.md "View as Markdown")
+
+## Http Best Practices
+
+- [HTTP Best Practices](https://docs.vespa.ai/en/clients/http-best-practices.html.md): [](/en/clients/http-best-practices.html.md "View as Markdown")
+
+## Http Servers And Filters
+
+- [Http servers and filters](https://docs.vespa.ai/en/applications/http-servers-and-filters.html.md): [](/en/applications/http-servers-and-filters.html.md "View as Markdown")
+
+## Http2
+
+- [HTTP/2](https://docs.vespa.ai/en/performance/http2.html.md): [](/en/performance/http2.html.md "View as Markdown")
+
+## Ide Support
+
+- [IDE support](https://docs.vespa.ai/en/applications/ide-support.html.md): [](/en/applications/ide-support.html.md "View as Markdown")
+
+## Idealstate
+
+- [Distribution Algorithm](https://docs.vespa.ai/en/content/idealstate.html.md): [](/en/content/idealstate.html.md "View as Markdown")
+
+## Performance
+
+- [Performance](https://docs.vespa.ai/en/performance/index.html.md): [](/en/performance/index.html.md "View as Markdown")
+
+## Root
+
+- [Vespa documentation](https://docs.vespa.ai/index.html.md): Welcome to the Vespa documentation site!
+
+## Indexing Paged Vectors
+
+- [Indexing paged vectors](https://docs.vespa.ai/en/writing/indexing-paged-vectors.html.md): [](/en/writing/indexing-paged-vectors.html.md "View as Markdown")
+
+## Indexing
+
+- [Indexing](https://docs.vespa.ai/en/writing/indexing.html.md): [](/en/writing/indexing.html.md "View as Markdown")
+
+## Inheritance In Schemas
+
+- [Inheritance in schemas](https://docs.vespa.ai/en/schemas/inheritance-in-schemas.html.md): [](/en/schemas/inheritance-in-schemas.html.md "View as Markdown")
+
+## Initial Batch Feed
+
+- [Initial batch feed](https://docs.vespa.ai/en/writing/initial-batch-feed.html.md): [](/en/writing/initial-batch-feed.html.md "View as Markdown")
+
+## Inspecting Structured Data
+
+- [Inspecting structured data in a Searcher](https://docs.vespa.ai/en/applications/inspecting-structured-data.html.md): [](/en/applications/inspecting-structured-data.html.md "View as Markdown")
+
+## Lightgbm
+
+- [Ranking with LightGBM Models](https://docs.vespa.ai/en/ranking/lightgbm.html.md): [](/en/ranking/lightgbm.html.md "View as Markdown")
+
+## Linguistics Custom
+
+- [Custom Linguistics](https://docs.vespa.ai/en/linguistics/linguistics-custom.html.md): [](/en/linguistics/linguistics-custom.html.md "View as Markdown")
+
+## Linguistics Opennlp
+
+- [OpenNLP Linguistics](https://docs.vespa.ai/en/linguistics/linguistics-opennlp.html.md): [](/en/linguistics/linguistics-opennlp.html.md "View as Markdown")
+
+## Linguistics
+
+- [Linguistics in Vespa](https://docs.vespa.ai/en/linguistics/linguistics.html.md): [](/en/linguistics/linguistics.html.md "View as Markdown")
+
+## Llm Help
+
+- [Getting help from LLMs](https://docs.vespa.ai/en/learn/llm-help.html.md): [](/en/learn/llm-help.html.md "View as Markdown")
+
+## Llms In Vespa
+
+- [Large Language Models in Vespa](https://docs.vespa.ai/en/rag/llms-in-vespa.html.md): [](/en/rag/llms-in-vespa.html.md "View as Markdown")
+
+## Local Llms
+
+- [Running LLMs inside your Vespa application](https://docs.vespa.ai/en/rag/local-llms.html.md): [](/en/rag/local-llms.html.md "View as Markdown")
+
+## Login
+
+- [Login](https://docs.vespa.ai/en/operations/login.html.md): [](/en/operations/login.html.md "View as Markdown")
+
+## Lucene Linguistics
+
+- [Lucene Linguistics](https://docs.vespa.ai/en/linguistics/lucene-linguistics.html.md): [](/en/linguistics/lucene-linguistics.html.md "View as Markdown")
+
+## Memory Visualizer
+
+- [Memory Visualizer](https://docs.vespa.ai/en/performance/memory-visualizer.html.md): [](/en/performance/memory-visualizer.html.md "View as Markdown")
+
+## Metrics
+
+- [Metrics](https://docs.vespa.ai/en/operations/metrics.html.md): [](/en/operations/metrics.html.md "View as Markdown")
+
+## Migrating From Elastic Search
+
+- [Migrating from Elasticsearch](https://docs.vespa.ai/en/learn/migrating-from-elastic-search.html.md): [](/en/learn/migrating-from-elastic-search.html.md "View as Markdown")
+
+## Migrating To Cloud
+
+- [Migrating to Vespa Cloud](https://docs.vespa.ai/en/learn/migrating-to-cloud.html.md): [](/en/learn/migrating-to-cloud.html.md "View as Markdown")
+
+## Model Hub
+
+- [Using machine-learned models from Vespa Cloud](https://docs.vespa.ai/en/rag/model-hub.html.md): [](/en/rag/model-hub.html.md "View as Markdown")
+
+## Monitoring
+
+- [Monitoring](https://docs.vespa.ai/en/operations/monitoring.html.md): [](/en/operations/monitoring.html.md "View as Markdown")
+
+## Security
+
+- [Mutually authenticated TLS (mTLS) reference](https://docs.vespa.ai/en/reference/security/mtls.html.md): [](/en/reference/security/mtls.html.md "View as Markdown")
+- [Vespa Cloud Security](https://docs.vespa.ai/en/security/security.html.md): [](/en/security/security.html.md "View as Markdown")
+
+## Mtls
+
+- [Securing Vespa with mutually authenticated TLS (mTLS)](https://docs.vespa.ai/en/security/mtls.html.md): [](/en/security/mtls.html.md "View as Markdown")
+
+## E Commerce
+
+- [Multi-Currency Pricing](https://docs.vespa.ai/en/modules/e-commerce/multi-currency-filtering.html.md): [](/en/modules/e-commerce/multi-currency-filtering.html.md "View as Markdown")
+- [Saved Search Notifications](https://docs.vespa.ai/en/modules/e-commerce/saved-search.html.md): [](/en/modules/e-commerce/saved-search.html.md "View as Markdown")
+- [Using Features Together](https://docs.vespa.ai/en/modules/e-commerce/using-features-together.html.md): [](/en/modules/e-commerce/using-features-together.html.md "View as Markdown")
+
+## Multivalue Query Operators
+
+- [Multivalue Query Operators](https://docs.vespa.ai/en/ranking/multivalue-query-operators.html.md): [](/en/ranking/multivalue-query-operators.html.md "View as Markdown")
+
+## Nativerank
+
+- [The nativeRank rank feature](https://docs.vespa.ai/en/ranking/nativerank.html.md): [](/en/ranking/nativerank.html.md "View as Markdown")
+
+## Nearest Neighbor Search Guide
+
+- [Vespa nearest neighbor search - a practical guide](https://docs.vespa.ai/en/querying/nearest-neighbor-search-guide.html.md): [](/en/querying/nearest-neighbor-search-guide.html.md "View as Markdown")
+
+## Nearest Neighbor Search
+
+- [Nearest Neighbor Search](https://docs.vespa.ai/en/querying/nearest-neighbor-search.html.md): [](/en/querying/nearest-neighbor-search.html.md "View as Markdown")
+
+## Node Resources
+
+- [Node Resources](https://docs.vespa.ai/en/performance/node-resources.html.md): [](/en/performance/node-resources.html.md "View as Markdown")
+
+## Notifications
+
+- [Notifications](https://docs.vespa.ai/en/operations/notifications.html.md): [](/en/operations/notifications.html.md "View as Markdown")
+
+## Onnx
+
+- [Ranking With ONNX Models](https://docs.vespa.ai/en/ranking/onnx.html.md): [](/en/ranking/onnx.html.md "View as Markdown")
+
+## Overview
+
+- [Vespa Overview](https://docs.vespa.ai/en/learn/overview.html.md): [](/en/learn/overview.html.md "View as Markdown")
+
+## Page Templates
+
+- [Page Templates](https://docs.vespa.ai/en/querying/page-templates.html.md): [](/en/querying/page-templates.html.md "View as Markdown")
+
+## Parent Child
+
+- [Parent/Child](https://docs.vespa.ai/en/schemas/parent-child.html.md): [](/en/schemas/parent-child.html.md "View as Markdown")
+
+## Partial Updates
+
+- [Partial Updates](https://docs.vespa.ai/en/writing/partial-updates.html.md): [](/en/writing/partial-updates.html.md "View as Markdown")
+
+## Phased Ranking
+
+- [Phased Ranking](https://docs.vespa.ai/en/ranking/phased-ranking.html.md): [](/en/ranking/phased-ranking.html.md "View as Markdown")
+
+## Pluggable Frameworks
+
+- [Using pluggable frameworks](https://docs.vespa.ai/en/applications/pluggable-frameworks.html.md): [](/en/applications/pluggable-frameworks.html.md "View as Markdown")
+
+## Practical Search Performance Guide
+
+- [Vespa query performance - a practical guide](https://docs.vespa.ai/en/performance/practical-search-performance-guide.html.md): [](/en/performance/practical-search-performance-guide.html.md "View as Markdown")
+
+## Predicate Fields
+
+- [Predicate Fields](https://docs.vespa.ai/en/schemas/predicate-fields.html.md): [](/en/schemas/predicate-fields.html.md "View as Markdown")
+
+## Private Endpoints
+
+- [Private endpoints](https://docs.vespa.ai/en/operations/private-endpoints.html.md): [](/en/operations/private-endpoints.html.md "View as Markdown")
+
+## Processing
+
+- [Request-Response Processing](https://docs.vespa.ai/en/applications/processing.html.md): [](/en/applications/processing.html.md "View as Markdown")
+
+## Production Deployment
+
+- [Production Deployment](https://docs.vespa.ai/en/operations/production-deployment.html.md): [](/en/operations/production-deployment.html.md "View as Markdown")
+
+## Profiling
+
+- [Profiling](https://docs.vespa.ai/en/performance/profiling.html.md): [](/en/performance/profiling.html.md "View as Markdown")
+
+## Proton
+
+- [Proton](https://docs.vespa.ai/en/content/proton.html.md): [](/en/content/proton.html.md "View as Markdown")
+
+## Query Api
+
+- [Query API](https://docs.vespa.ai/en/querying/query-api.html.md): [](/en/querying/query-api.html.md "View as Markdown")
+
+## Query Language
+
+- [Vespa Query Language - YQL](https://docs.vespa.ai/en/querying/query-language.html.md): [](/en/querying/query-language.html.md "View as Markdown")
+
+## Query Profiles
+
+- [Query Profiles](https://docs.vespa.ai/en/querying/query-profiles.html.md): [](/en/querying/query-profiles.html.md "View as Markdown")
+
+## Query Rewriting
+
+- [Query Rewriting](https://docs.vespa.ai/en/linguistics/query-rewriting.html.md): [](/en/linguistics/query-rewriting.html.md "View as Markdown")
+
+## Quota
+
+- [Quota](https://docs.vespa.ai/en/cloud/quota.html.md): [](/en/cloud/quota.html.md "View as Markdown")
+
+## Rag Blueprint
+
+- [The RAG Blueprint](https://docs.vespa.ai/en/examples/rag-blueprint.html.md): [](/en/examples/rag-blueprint.html.md "View as Markdown")
+
+## Ranking Expressions Features
+
+- [Ranking Expressions and Features](https://docs.vespa.ai/en/ranking/ranking-expressions-features.html.md): [](/en/ranking/ranking-expressions-features.html.md "View as Markdown")
+
+## Ranking Intro
+
+- [Introduction to ranking](https://docs.vespa.ai/en/ranking/ranking-intro.html.md): [](/en/ranking/ranking-intro.html.md "View as Markdown")
+
+## Rate Limiting Searcher
+
+- [Rate Limiting Search Requests](https://docs.vespa.ai/en/performance/rate-limiting-searcher.html.md): [](/en/performance/rate-limiting-searcher.html.md "View as Markdown")
+
+## Reads And Writes
+
+- [Reads and writes](https://docs.vespa.ai/en/writing/reads-and-writes.html.md): [](/en/writing/reads-and-writes.html.md "View as Markdown")
+
+## Reindexing
+
+- [Reindexing](https://docs.vespa.ai/en/operations/reindexing.html.md): [](/en/operations/reindexing.html.md "View as Markdown")
+
+## Releases
+
+- [Releases](https://docs.vespa.ai/en/learn/releases.html.md): [](/en/learn/releases.html.md "View as Markdown")
+
+## Request Handlers
+
+- [Request handlers](https://docs.vespa.ai/en/applications/request-handlers.html.md): [](/en/applications/request-handlers.html.md "View as Markdown")
+
+## Reranking In Searcher
+
+- [Re-ranking using a custom Searcher](https://docs.vespa.ai/en/ranking/reranking-in-searcher.html.md): [](/en/ranking/reranking-in-searcher.html.md "View as Markdown")
+
+## Result Diversity
+
+- [Result Diversity](https://docs.vespa.ai/en/querying/result-diversity.html.md): [](/en/querying/result-diversity.html.md "View as Markdown")
+
+## Result Renderers
+
+- [Result renderers](https://docs.vespa.ai/en/applications/result-renderers.html.md): [](/en/applications/result-renderers.html.md "View as Markdown")
+
+## Search
+
+- [search](https://docs.vespa.ai/search.html.md)
+
+## Search_beta
+
+- [search_beta](https://docs.vespa.ai/search_beta.html.md)
+
+## Searchers
+
+- [Searchers](https://docs.vespa.ai/en/applications/searchers.html.md): [](/en/applications/searchers.html.md "View as Markdown")
+
+## Searching Multivalue Fields
+
+- [Searching and ranking of multivalued fields](https://docs.vespa.ai/en/querying/searching-multivalue-fields.html.md): [](/en/querying/searching-multivalue-fields.html.md "View as Markdown")
+
+## Secret Store
+
+- [Secret Store](https://docs.vespa.ai/en/security/secret-store.html.md): [](/en/security/secret-store.html.md "View as Markdown")
+
+## Securing Your Vespa Installation
+
+- [Securing a Vespa Installation](https://docs.vespa.ai/en/security/securing-your-vespa-installation.html.md): [](/en/security/securing-your-vespa-installation.html.md "View as Markdown")
+
+## Significance
+
+- [Significance Model](https://docs.vespa.ai/en/ranking/significance.html.md): [](/en/ranking/significance.html.md "View as Markdown")
+
+## Sitemap
+
+- [Table of contents](https://docs.vespa.ai/sitemap.html.md): - [Deploy an application](/en/basics/deploy-an-application.html)
+
+## Sizing Feeding
+
+- [Vespa Feed Sizing Guide](https://docs.vespa.ai/en/performance/sizing-feeding.html.md): [](/en/performance/sizing-feeding.html.md "View as Markdown")
+
+## Sizing Search
+
+- [Vespa Serving Scaling Guide](https://docs.vespa.ai/en/performance/sizing-search.html.md): [](/en/performance/sizing-search.html.md "View as Markdown")
+
+## Stateless Model Evaluation
+
+- [Stateless Model Evaluation](https://docs.vespa.ai/en/ranking/stateless-model-evaluation.html.md): [](/en/ranking/stateless-model-evaluation.html.md "View as Markdown")
+
+## Streaming Search
+
+- [Streaming Search](https://docs.vespa.ai/en/performance/streaming-search.html.md): [](/en/performance/streaming-search.html.md "View as Markdown")
+
+## Structs
+
+- [Structs](https://docs.vespa.ai/en/schemas/structs.html.md): [](/en/schemas/structs.html.md "View as Markdown")
+
+## Tenant Apps Instances
+
+- [Tenants, Applications and Instances](https://docs.vespa.ai/en/learn/tenant-apps-instances.html.md): [](/en/learn/tenant-apps-instances.html.md "View as Markdown")
+
+## Tensor Examples
+
+- [Tensor Computation Examples](https://docs.vespa.ai/en/ranking/tensor-examples.html.md): [](/en/ranking/tensor-examples.html.md "View as Markdown")
+
+## Tensor User Guide
+
+- [Tensor Guide](https://docs.vespa.ai/en/ranking/tensor-user-guide.html.md): [](/en/ranking/tensor-user-guide.html.md "View as Markdown")
+
+## Tensorflow
+
+- [Ranking with TensorFlow Models](https://docs.vespa.ai/en/ranking/tensorflow.html.md): [](/en/ranking/tensorflow.html.md "View as Markdown")
+
+## Testing
+
+- [System testing](https://docs.vespa.ai/en/applications/testing.html.md): [](/en/applications/testing.html.md "View as Markdown")
+
+## Text Matching
+
+- [Text Matching](https://docs.vespa.ai/en/querying/text-matching.html.md): [](/en/querying/text-matching.html.md "View as Markdown")
+
+## Topology And Resizing
+
+- [Topology and Resizing](https://docs.vespa.ai/en/performance/topology-and-resizing.html.md): [](/en/performance/topology-and-resizing.html.md "View as Markdown")
+
+## Troubleshooting Encoding
+
+- [Troubleshooting character encoding](https://docs.vespa.ai/en/linguistics/troubleshooting-encoding.html.md): [](/en/linguistics/troubleshooting-encoding.html.md "View as Markdown")
+
+## Unit Testing
+
+- [Unit testing](https://docs.vespa.ai/en/applications/unit-testing.html.md): [](/en/applications/unit-testing.html.md "View as Markdown")
+
+## Using Zookeeper
+
+- [Using ZooKeeper](https://docs.vespa.ai/en/applications/using-zookeeper.html.md): [](/en/applications/using-zookeeper.html.md "View as Markdown")
+
+## Valgrind
+
+- [Using Valgrind with Vespa](https://docs.vespa.ai/en/performance/valgrind.html.md): [](/en/performance/valgrind.html.md "View as Markdown")
+
+## Vector Search Intro
+
+- [An intro to vector search](https://docs.vespa.ai/en/querying/vector-search-intro.html.md): [](/en/querying/vector-search-intro.html.md "View as Markdown")
+
+## Vespa Cli
+
+- [Vespa CLI](https://docs.vespa.ai/en/clients/vespa-cli.html.md): [](/en/clients/vespa-cli.html.md "View as Markdown")
+
+## Vespa Feed Client
+
+- [vespa-feed-client](https://docs.vespa.ai/en/clients/vespa-feed-client.html.md): [](/en/clients/vespa-feed-client.html.md "View as Markdown")
+
+## Clients
+
+- [vespa](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa.html.md): [](/en/reference/clients/vespa-cli/vespa.html.md "View as Markdown")
+- [vespa activate](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_activate.html.md): [](/en/reference/clients/vespa-cli/vespa_activate.html.md "View as Markdown")
+- [vespa auth](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_auth.html.md): [](/en/reference/clients/vespa-cli/vespa_auth.html.md "View as Markdown")
+- [vespa auth api-key](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_auth_api-key.html.md): [](/en/reference/clients/vespa-cli/vespa_auth_api-key.html.md "View as Markdown")
+- [vespa auth cert](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_auth_cert.html.md): [](/en/reference/clients/vespa-cli/vespa_auth_cert.html.md "View as Markdown")
+- [vespa auth cert add](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_auth_cert_add.html.md): [](/en/reference/clients/vespa-cli/vespa_auth_cert_add.html.md "View as Markdown")
+- [vespa auth login](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_auth_login.html.md): [](/en/reference/clients/vespa-cli/vespa_auth_login.html.md "View as Markdown")
+- [vespa auth logout](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_auth_logout.html.md): [](/en/reference/clients/vespa-cli/vespa_auth_logout.html.md "View as Markdown")
+- [vespa auth show](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_auth_show.html.md): [](/en/reference/clients/vespa-cli/vespa_auth_show.html.md "View as Markdown")
+- [vespa clone](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_clone.html.md): [](/en/reference/clients/vespa-cli/vespa_clone.html.md "View as Markdown")
+- [vespa completion](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_completion.html.md): [](/en/reference/clients/vespa-cli/vespa_completion.html.md "View as Markdown")
+- [vespa completion bash](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_completion_bash.html.md): [](/en/reference/clients/vespa-cli/vespa_completion_bash.html.md "View as Markdown")
+- [vespa completion fish](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_completion_fish.html.md): [](/en/reference/clients/vespa-cli/vespa_completion_fish.html.md "View as Markdown")
+- [vespa completion powershell](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_completion_powershell.html.md): [](/en/reference/clients/vespa-cli/vespa_completion_powershell.html.md "View as Markdown")
+- [vespa completion zsh](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_completion_zsh.html.md): [](/en/reference/clients/vespa-cli/vespa_completion_zsh.html.md "View as Markdown")
+- [vespa config](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_config.html.md): [](/en/reference/clients/vespa-cli/vespa_config.html.md "View as Markdown")
+- [vespa config get](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_config_get.html.md): [](/en/reference/clients/vespa-cli/vespa_config_get.html.md "View as Markdown")
+- [vespa config set](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_config_set.html.md): [](/en/reference/clients/vespa-cli/vespa_config_set.html.md "View as Markdown")
+- [vespa config unset](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_config_unset.html.md): [](/en/reference/clients/vespa-cli/vespa_config_unset.html.md "View as Markdown")
+- [vespa curl](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_curl.html.md): [](/en/reference/clients/vespa-cli/vespa_curl.html.md "View as Markdown")
+- [vespa deploy](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_deploy.html.md): [](/en/reference/clients/vespa-cli/vespa_deploy.html.md "View as Markdown")
+- [vespa destroy](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_destroy.html.md): [](/en/reference/clients/vespa-cli/vespa_destroy.html.md "View as Markdown")
+- [vespa document](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_document.html.md): [](/en/reference/clients/vespa-cli/vespa_document.html.md "View as Markdown")
+- [vespa document get](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_document_get.html.md): [](/en/reference/clients/vespa-cli/vespa_document_get.html.md "View as Markdown")
+- [vespa document put](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_document_put.html.md): [](/en/reference/clients/vespa-cli/vespa_document_put.html.md "View as Markdown")
+- [vespa document remove](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_document_remove.html.md): [](/en/reference/clients/vespa-cli/vespa_document_remove.html.md "View as Markdown")
+- [vespa document update](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_document_update.html.md): [](/en/reference/clients/vespa-cli/vespa_document_update.html.md "View as Markdown")
+- [vespa feed](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_feed.html.md): [](/en/reference/clients/vespa-cli/vespa_feed.html.md "View as Markdown")
+- [vespa fetch](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_fetch.html.md): [](/en/reference/clients/vespa-cli/vespa_fetch.html.md "View as Markdown")
+- [vespa inspect](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_inspect.html.md): [](/en/reference/clients/vespa-cli/vespa_inspect.html.md "View as Markdown")
+- [vespa inspect profile](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_inspect_profile.html.md): [](/en/reference/clients/vespa-cli/vespa_inspect_profile.html.md "View as Markdown")
+- [vespa log](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_log.html.md): [](/en/reference/clients/vespa-cli/vespa_log.html.md "View as Markdown")
+- [vespa prepare](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_prepare.html.md): [](/en/reference/clients/vespa-cli/vespa_prepare.html.md "View as Markdown")
+- [vespa prod](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_prod.html.md): [](/en/reference/clients/vespa-cli/vespa_prod.html.md "View as Markdown")
+- [vespa prod deploy](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_prod_deploy.html.md): [](/en/reference/clients/vespa-cli/vespa_prod_deploy.html.md "View as Markdown")
+- [vespa prod init](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_prod_init.html.md): [](/en/reference/clients/vespa-cli/vespa_prod_init.html.md "View as Markdown")
+- [vespa query](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_query.html.md): [](/en/reference/clients/vespa-cli/vespa_query.html.md "View as Markdown")
+- [vespa status](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_status.html.md): [](/en/reference/clients/vespa-cli/vespa_status.html.md "View as Markdown")
+- [vespa status deploy](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_status_deploy.html.md): [](/en/reference/clients/vespa-cli/vespa_status_deploy.html.md "View as Markdown")
+- [vespa status deployment](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_status_deployment.html.md): [](/en/reference/clients/vespa-cli/vespa_status_deployment.html.md "View as Markdown")
+- [vespa status document](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_status_document.html.md): [](/en/reference/clients/vespa-cli/vespa_status_document.html.md "View as Markdown")
+- [vespa status endpoint](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_status_endpoint.html.md): [](/en/reference/clients/vespa-cli/vespa_status_endpoint.html.md "View as Markdown")
+- [vespa status query](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_status_query.html.md): [](/en/reference/clients/vespa-cli/vespa_status_query.html.md "View as Markdown")
+- [vespa test](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_test.html.md): [](/en/reference/clients/vespa-cli/vespa_test.html.md "View as Markdown")
+- [vespa version](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_version.html.md): [](/en/reference/clients/vespa-cli/vespa_version.html.md "View as Markdown")
+- [vespa visit](https://docs.vespa.ai/en/reference/clients/vespa-cli/vespa_visit.html.md): [](/en/reference/clients/vespa-cli/vespa_visit.html.md "View as Markdown")
+
+## Release Notes
+
+- [Vespa 7 Release Notes](https://docs.vespa.ai/en/reference/release-notes/vespa7.html.md): [](/en/reference/release-notes/vespa7.html.md "View as Markdown")
+- [Position fields - Vespa 8 migration](https://docs.vespa.ai/en/reference/release-notes/vespa8-geo-migration-guide.html.md): [](/en/reference/release-notes/vespa8-geo-migration-guide.html.md "View as Markdown")
+- [Vespa 8 Release Notes](https://docs.vespa.ai/en/reference/release-notes/vespa8.html.md): [](/en/reference/release-notes/vespa8.html.md "View as Markdown")
+- [Vespa 9 Release Notes](https://docs.vespa.ai/en/reference/release-notes/vespa9.html.md): [](/en/reference/release-notes/vespa9.html.md "View as Markdown")
+
+## Vespaignore
+
+- [.vespaignore](https://docs.vespa.ai/en/applications/vespaignore.html.md): [](/en/applications/vespaignore.html.md "View as Markdown")
+
+## Visiting
+
+- [Visiting](https://docs.vespa.ai/en/writing/visiting.html.md): [](/en/writing/visiting.html.md "View as Markdown")
+
+## Wand
+
+- [WAND: Accelerated OR search](https://docs.vespa.ai/en/ranking/wand.html.md): [](/en/ranking/wand.html.md "View as Markdown")
+
+## Web Services
+
+- [Developing Web Service Applications](https://docs.vespa.ai/en/applications/web-services.html.md): [](/en/applications/web-services.html.md "View as Markdown")
+
+## Whats More
+
+- [What's more](https://docs.vespa.ai/en/basics/whats-more.html.md): [](/en/basics/whats-more.html.md "View as Markdown")
+
+## Whitepaper
+
+- [Vespa Cloud Security Whitepaper](https://docs.vespa.ai/en/security/whitepaper.html.md): [](/en/security/whitepaper.html.md "View as Markdown")
+
+## Working With Chunks
+
+- [Working with chunks](https://docs.vespa.ai/en/rag/working-with-chunks.html.md): [](/en/rag/working-with-chunks.html.md "View as Markdown")
+
+## Xgboost
+
+- [Ranking with XGBoost Models](https://docs.vespa.ai/en/ranking/xgboost.html.md): [](/en/ranking/xgboost.html.md "View as Markdown")
+
+## Zones
+
+- [Zones](https://docs.vespa.ai/en/operations/zones.html.md): [](/en/operations/zones.html.md "View as Markdown")
+

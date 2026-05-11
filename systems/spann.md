@@ -1,7 +1,7 @@
 ---
 title: SPANN（System）
 type: system
-sources: [chen-2021-spann, gao-2024-rabitq, wang-2024-starling]
+sources: [chen-2021-spann, gao-2024-rabitq, wang-2024-starling, vespa-docs]
 related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, diskann.md, faiss.md, milvus.md, spfresh.md, pinecone.md, vbase.md, starling.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
 updated: 2026-05-09 (Starling)
@@ -132,6 +132,7 @@ SPANN 可看作"Faiss IVF 的 SSD 化版本"，但把"内存里 PQ codes"的预�
 
 - **Microsoft Bing**：论文 §1 末尾明示"deployed into Microsoft Bing to support hundreds of billions scale vector search"
 - **SPTAG 库**：[microsoft/SPTAG](https://github.com/microsoft/SPTAG) C++ 实现（与 SPANN 同库，SPANN 是其上层使用模式）
+- **[Vespa](./vespa.md)**：[per sources/docs/vespa/llms-full.txt §Billion Scale Vector Search] **wiki 内 SPANN 第二个 production deployment**——Vespa 实现 SPANN 作为 billion-scale vector search 选项，与原版 HNSW path 并存。OSS Apache-2.0 路径——比 Bing 闭源 production 更容易获取实证。Sample app 使用 **Microsoft SPACEV 10M-100M** production-style dataset，Vespa Cloud 与 self-hosted 都支持。详见 [blog post: Vespa hybrid HNSW-IF billion-scale](https://blog.vespa.ai/vespa-hybrid-billion-scale-vector-search/)。**SPANN production frontier 进一步关闭**：之前仅 Microsoft Bing 一家 production；现在 Vespa OSS implementation 是公开第二个独立 production deployment，证明 SPANN 算法已从单 vendor 走向 OSS 生态。
 
 ## Open Questions
 
