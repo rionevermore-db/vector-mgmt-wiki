@@ -11,9 +11,9 @@
 
 **Question**:
 当我面对千亿、万亿级向量规模，在私有云部署（16 个 128U + 1TB RAM 节点），采取何种分片策略构建索引？
-Workload 假设：read-heavy，目标 P99 < 50ms，向量维度 768，原始数据周级别全量更新一次。
+Workload 假设：read-heavy，向量维度 768，原始数据周级别全量更新一次。**分级延迟目标**：千亿 P99 < 50ms，万亿 P99 < 1s（万亿一档对齐 Meta 1.5T 实测 ~1s 的物理上限）。
 
-**Why track**: 这是 talk "成果展示" 段（15 min）的主问题。从 D1 几乎答不出 → D14 给出多策略对比 + 5+ page citation，是开场 promise 最强证据。
+**Why track**: 这是 talk "成果展示" 段（15 min）的主问题。从 D1 几乎答不出 → D14 给出多策略对比 + 5+ page citation，是开场 promise 最强证据。**分级延迟目标本身就是洞察**——规模质变带来目标松动，迫使答案给出"千亿全内存 IVF / 万亿 mmap + 极端压缩"两套不同方案。
 
 **Cover area**: sharding strategies, system architecture, scale trade-offs
 
