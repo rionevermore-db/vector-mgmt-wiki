@@ -1,10 +1,10 @@
 ---
 title: SPFresh（Incremental In-Place Update System）
 type: system
-sources: [xu-2023-spfresh, chen-2021-spann, singh-2021-freshdiskann, turbopuffer-docs]
-related: [spann.md, diskann.md, milvus.md, faiss.md, freshdiskann.md, turbopuffer.md, ../concepts/lire.md, ../concepts/freshvamana.md, ../concepts/product-quantization.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
+sources: [xu-2023-spfresh, chen-2021-spann, singh-2021-freshdiskann, turbopuffer-docs, adams-2025-distributedann]
+related: [spann.md, diskann.md, milvus.md, faiss.md, freshdiskann.md, turbopuffer.md, distributedann.md, ../concepts/lire.md, ../concepts/freshvamana.md, ../concepts/product-quantization.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-05-07
-updated: 2026-05-11 (Turbopuffer = first OSS-known production deployment — SPFresh frontier closed)
+updated: 2026-05-11 (DistributedANN as MSR lineage 5th-gen sibling)
 ---
 
 # SPFresh
@@ -206,7 +206,7 @@ Milvus v2.6.x 的 LSM segment 模型是另一种 dynamic data 解——周期 me
 
 ## Open Questions
 
-- **分布式版本**：[xu-2023-spfresh §6] 明示 future work；多 SSD / 多机的 cross-shard LIRE 协议未设计
+- ~~**分布式版本**：[xu-2023-spfresh §6] 明示 future work；多 SSD / 多机的 cross-shard LIRE 协议未设计~~ **2026-05-11 部分 update**：[adams-2025-distributedann] 是同 MSR 团队（含 Qi Chen）的**第 5 代 distributed 演化分支**，但走的是**single graph + KV store 路径**（DistributedANN）而**非 cluster + LIRE 分布式**。SPFresh cluster-path 的分布式 + LIRE cross-shard 协议**论文层仍未做**。MSR 谱系 5 代：DiskANN 2019 (single-node graph) → SPANN 2021 (centroid + partition) → FreshDiskANN 2021 (streaming graph) → **SPFresh 2023 (streaming cluster)** → DistributedANN 2025 (distributed graph). **SPFresh streaming + distributed 组合**仍是开放——MSR 当前选了 graph 路径的 distributed，cluster 路径的 distributed (SPANN/SPFresh 分布式) 仍未公开. [Turbopuffer](./turbopuffer.md) 提供 SPFresh 的 commercial-distributed 实现 (object storage + multi-host KV-like) 是 cluster-path distributed 的 commercial 路径, 但 LIRE 是否做 cross-host coordination docs 不公开.
 - ~~**Graph-based 适配**：LIRE 仅适用 cluster-based；HNSW / Vamana 类 graph 上的 in-place update 仍开放~~ **2026-05-09 ingest [singh-2021-freshdiskann] 已答**：[FreshDiskANN](./freshdiskann.md) 用 [FreshVamana](../concepts/freshvamana.md) (α=1.2) 给出 Vamana graph 的 streaming 解；SPFresh 与 FreshDiskANN 是 cluster-path / graph-path **姐妹工作**，都来自 Microsoft Research。**Memory budget 差异**：SPFresh ~4 GB 1B vs FreshDiskANN ~128 GB 1B（30× 差距）——cluster path 更经济。HNSW 因隐式 α=1 仍未解；NSG 同。详见 [topics/in-place-vs-out-of-place-updates.md](../topics/in-place-vs-out-of-place-updates.md) 的"In-place 的两条路径"
 - **MIPS 任务**：LIRE 与 SPANN 同样未在 MIPS 验证
 - **大 update batch**：1% daily 假设；burst 写场景（10% / 50% daily）下 LIRE 触发率与 cascading 上限未量化

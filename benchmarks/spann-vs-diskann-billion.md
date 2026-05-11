@@ -126,3 +126,5 @@ SPACEV1B 真实生产 query workload 测试（100k 历史 query），32-partitio
 | **SPANN @ Bing** | **1B+ (实测) / 千亿+ (生产)** | **HBC + closure + IVF + SSD** | **DRAM + NVMe** | **~1 ms** | **本论文** |
 
 SPANN 在 SSD 路线上达到与 GPU 路线相近的延迟（数毫秒级），但内存预算只占 ~10%。
+
+Cited by: [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)

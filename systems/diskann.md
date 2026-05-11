@@ -1,10 +1,10 @@
 ---
 title: DiskANN（System）
 type: system
-sources: [subramanya-2019-diskann, chen-2021-spann, gollapudi-2023-filtered-diskann, gao-2024-rabitq, wang-2024-starling, singh-2021-freshdiskann]
-related: [../concepts/vamana.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ../concepts/freshvamana.md, faiss.md, spann.md, milvus.md, spfresh.md, freshdiskann.md, pinecone.md, vbase.md, starling.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
+sources: [subramanya-2019-diskann, chen-2021-spann, gollapudi-2023-filtered-diskann, gao-2024-rabitq, wang-2024-starling, singh-2021-freshdiskann, adams-2025-distributedann]
+related: [../concepts/vamana.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ../concepts/freshvamana.md, faiss.md, spann.md, milvus.md, spfresh.md, freshdiskann.md, distributedann.md, pinecone.md, vbase.md, starling.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-05-07
-updated: 2026-05-09 (FreshDiskANN)
+updated: 2026-05-11 (DistributedANN as distributed evolution)
 ---
 
 # DiskANN
@@ -129,6 +129,7 @@ PQ 失真大 → 图遍历可能走偏路径，需要更多 hops；但终点全�
 - **后继 Filtered-DiskANN**（[gollapudi-2023-filtered-diskann] WWW 2023）：把 [FilteredVamana / StitchedVamana](../concepts/filtered-vamana.md) 算法（filter-aware graph）放进 DiskANN 框架。**首次将 label 信息 baked-in 到 graph 构造本身**——比 search-time filter（Milvus / Pinecone / Faiss IDSelector）快 5-10× QPS @ 90% recall on Microsoft 真实数据。Microsoft 赞助广告搜索 A/B test +34.61% clicks / +48.95% revenue。28M DANN dataset SSD 部署 thousands QPS @ 90%+ recall。详见 [benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md](../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md)。**注：FilteredVamana 限 ≤1000 equality filters**——大型 ad-hoc filter set + 任意 operator 场景下被 [ACORN](../concepts/acorn.md) [patel-2024-acorn] 显著超越（HCPS 10^8-10^11 predicates 实测，FilteredVamana 直接 fail）。
 - **OOD-DiskANN**：处理 out-of-distribution queries（同上）
 - **FreshDiskANN**：支持 streaming updates（同上）
+- **[DistributedANN](./distributedann.md) (Microsoft Bing 2025 当前 production, NEW 2026-05-11 ingest)**：[adams-2025-distributedann §1-2] DiskANN 谱系第 5 代——把 single DiskANN graph 跨 1000+ 台机器分布式服务, **通过 distributed KV store 作 shared-disk 抽象**, 3 个关键改造 (compressed vectors duplicated into graph nodes + in-memory head index + near-data computation)。**Bing 已用 DistributedANN 替换 conventional scale-out (SPANN-style)**——是 DiskANN 算法体系 distributed 演化的当前 production 形态。50B × 384-d int8 per slice, hundreds of billions of vectors total。论文明示 "DISTRIBUTEDANN has replaced conventional scale-out architectures for serving the Bing search engine". MSR 谱系 5 代演化：**DiskANN 2019 (single-node graph) → SPANN 2021 (centroid + partition) → FreshDiskANN 2021 (streaming graph) → SPFresh 2023 (streaming cluster) → DistributedANN 2025 (single graph distributed)**。
 
 ## Open Questions
 
@@ -142,4 +143,4 @@ PQ 失真大 → 图遍历可能走偏路径，需要更多 hops；但终点全�
 - ~~**数据 locality 问题**：DiskANN 把 ID-consecutive vertex 分到同 block，但 ID 序与 graph 邻居关系无关——94% 数据 block 浪费~~ **2026-05-09 ingest [wang-2024-starling] 已部分回答**：[Starling](./starling.md) 形式化为 [Block Shuffling 问题](../concepts/block-shuffling.md)（NP-hard），3 个启发式算法把 OR(G) 从 DiskANN 的 ≈0 提升到 0.34-0.87；vertex utilization ratio ξ 5-7× 提升；BIGANN 33M 上 ANNS recall 0.95 latency 从 DiskANN 10ms → Starling 5ms（**2× 快**），RS QPS **43.9× DiskANN**。详见 [benchmarks/starling-vs-diskann-spann-on-segment.md](../benchmarks/starling-vs-diskann-spann-on-segment.md)
 - ~~**Long search path**：DiskANN 用 random/fixed entry point；33M dataset top-10 需 ~362 hops × disk I/O~~ **2026-05-09 ingest [wang-2024-starling] 已回答**：Starling 加 in-memory navigation graph（采样 <10% vertex），找 query-aware entry points → ℓ 减半（362 → 182）。**根本上挑战 DiskANN 的"single-server 大磁盘"假设**：在 vector DBMS segment-level（~2GB RAM + ~10GB disk）下 DiskANN 已不是最优——Starling 是 Zilliz/Milvus 团队下一代候选
 
-Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)
+Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md), [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)

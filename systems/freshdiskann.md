@@ -1,10 +1,10 @@
 ---
 title: FreshDiskANN（首个 graph-based billion-scale streaming ANN 系统）
 type: system
-sources: [singh-2021-freshdiskann]
-related: [diskann.md, spann.md, spfresh.md, milvus.md, faiss.md, starling.md, ../concepts/vamana.md, ../concepts/freshvamana.md, ../concepts/lire.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
+sources: [singh-2021-freshdiskann, adams-2025-distributedann]
+related: [diskann.md, spann.md, spfresh.md, milvus.md, faiss.md, starling.md, distributedann.md, ../concepts/vamana.md, ../concepts/freshvamana.md, ../concepts/lire.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-05-11 (DistributedANN as MSR lineage 5th-gen sibling)
 ---
 
 # FreshDiskANN
@@ -304,6 +304,7 @@ Faiss 论文 [douze-2024-faiss-library §6.1] 把 FreshDiskANN [78] 列为"data 
 - **GitHub**: [microsoft/DiskANN](https://github.com/Microsoft/DiskANN)——FreshDiskANN 与 DiskANN 共同仓库，C++17
 - **Production deployment**：论文未明示具体公司部署；推断 Microsoft Bing Vector Search 等内部产品潜在用户
 - **License**：MIT
+- **MSR 谱系 5 代演化 sibling (NEW 2026-05-11 ingest)**：[adams-2025-distributedann] 是同 MSR 团队（同含 Qi Chen / Harsha Vardhan Simhadri 等 author）的**第 5 代** distributed 演化分支。MSR 谱系演化 5 步：DiskANN 2019 (single-node graph) → SPANN 2021 (centroid + partition) → **FreshDiskANN 2021 (streaming graph)** → SPFresh 2023 (streaming cluster) → DistributedANN 2025 (single graph distributed via KV store)。**FreshDiskANN focus on streaming axis, DistributedANN focus on distributed axis** —— 两个 sibling evolution branches 都来自 DiskANN 单节点基础。DistributedANN paper 没明示 streaming support——focus 在 serving 大 static graph; 但 future direction 提到 streaming + distributed 组合是 open work. Bing 当前 production 是 DistributedANN (per [adams-2025-distributedann §1])——FreshDiskANN streaming 路径在 Bing internal 是否仍 active 论文未明示.
 
 ## Open Questions
 

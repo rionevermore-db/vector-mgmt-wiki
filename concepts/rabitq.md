@@ -291,4 +291,4 @@ C++ 源码：[github.com/gaoj0017/RaBitQ](https://github.com/gaoj0017/RaBitQ)（
 - **与 [ScaNN anisotropic loss](./scann.md) 联合**：RaBitQ codebook 是 distribution-uniform；ScaNN 是 score-aware。理论上是否可以 hybrid（先 RaBitQ 找候选 + ScaNN 精排）？未探索
 - **ε₀ = 1.9 vs 不同 use case**：要求 99.9% recall 时 ε₀ 应增大；要求低延迟时 ε₀ 应减小——但论文实测固定 1.9 在 6/6 数据集 work——这是否是因为 6 数据集 distribution 接近 normal？outlier-heavy 数据集行为未实测
 
-Cited by: 待 query 引用
+Cited by: [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)

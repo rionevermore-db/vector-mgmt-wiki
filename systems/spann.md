@@ -1,15 +1,17 @@
 ---
 title: SPANN（System）
 type: system
-sources: [chen-2021-spann, gao-2024-rabitq, wang-2024-starling, vespa-docs]
-related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, diskann.md, faiss.md, milvus.md, spfresh.md, pinecone.md, vbase.md, starling.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
+sources: [chen-2021-spann, gao-2024-rabitq, wang-2024-starling, vespa-docs, adams-2025-distributedann]
+related: [../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/lire.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, diskann.md, faiss.md, milvus.md, spfresh.md, pinecone.md, vbase.md, starling.md, distributedann.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
-updated: 2026-05-09 (Starling)
+updated: 2026-05-11 (DistributedANN: Bing migration off SPANN)
 ---
 
 # SPANN
 
-**TL;DR**: Microsoft 开源的 SSD-resident ANN 系统，走 inverted file 路线。**Centroids 在内存（占 ~10% 总向量）+ posting list 全精度在 SSD**。在三个 billion-scale 数据集上比 [DiskANN](./diskann.md) 在 90% recall 时快 **2×**，已部署到 Microsoft Bing 几千亿规模。是 DiskANN 的同期对手（同时期、同一公司、对立算法路线）。[chen-2021-spann §3-4]
+**TL;DR**: Microsoft 开源的 SSD-resident ANN 系统，走 inverted file 路线。**Centroids 在内存（占 ~10% 总向量）+ posting list 全精度在 SSD**。在三个 billion-scale 数据集上比 [DiskANN](./diskann.md) 在 90% recall 时快 **2×**，**2021-2024 期间是 Microsoft Bing 几千亿规模 production 主力**。是 DiskANN 的同期对手（同时期、同一公司、对立算法路线）。[chen-2021-spann §3-4]
+
+> **2026-05-11 重要更新（Bing production status historicized）**：[per adams-2025-distributedann §1] Microsoft Bing 已在 2025 把 production 从 SPANN-style clustered partitioning **切换到 [DistributedANN](./distributedann.md)**——同 MSR 团队 5 代演化 (DiskANN 2019 → SPANN 2021 → FreshDiskANN 2021 → SPFresh 2023 → **DistributedANN 2025**) 的 distributed 演化分支替换了 partition 路径。**SPANN 仍是 historically valid production case + 仍在 [Vespa OSS](./vespa.md) 等 ecosystem 生存**——但 "Bing 当前 production" claim 转移给 DistributedANN。详见下文 "生产案例" + "与 DistributedANN 的对比"。
 
 ## 架构图
 
@@ -130,9 +132,43 @@ SPANN 可看作"Faiss IVF 的 SSD 化版本"，但把"内存里 PQ codes"的预�
 
 ## 生产案例
 
-- **Microsoft Bing**：论文 §1 末尾明示"deployed into Microsoft Bing to support hundreds of billions scale vector search"
+- **Microsoft Bing (2021-2024 production main, 2025 historicized)**：[chen-2021-spann §1] 末尾明示"deployed into Microsoft Bing to support hundreds of billions scale vector search"——**这是 2021 状态**。[adams-2025-distributedann §1] 明示 Bing 2025 已把 production 切换到 [DistributedANN](./distributedann.md)："DISTRIBUTEDANN has replaced conventional scale-out architectures for serving the Bing search engine"——其中 "conventional scale-out" 即 SPANN-style clustered partitioning. **SPANN at Bing 是 historically valid + 算法仍 OSS 可用 + Vespa 路径 active**, 但 "Bing 当前 production" 已不在 SPANN.
 - **SPTAG 库**：[microsoft/SPTAG](https://github.com/microsoft/SPTAG) C++ 实现（与 SPANN 同库，SPANN 是其上层使用模式）
-- **[Vespa](./vespa.md)**：[per sources/docs/vespa/llms-full.txt §Billion Scale Vector Search] **wiki 内 SPANN 第二个 production deployment**——Vespa 实现 SPANN 作为 billion-scale vector search 选项，与原版 HNSW path 并存。OSS Apache-2.0 路径——比 Bing 闭源 production 更容易获取实证。Sample app 使用 **Microsoft SPACEV 10M-100M** production-style dataset，Vespa Cloud 与 self-hosted 都支持。详见 [blog post: Vespa hybrid HNSW-IF billion-scale](https://blog.vespa.ai/vespa-hybrid-billion-scale-vector-search/)。**SPANN production frontier 进一步关闭**：之前仅 Microsoft Bing 一家 production；现在 Vespa OSS implementation 是公开第二个独立 production deployment，证明 SPANN 算法已从单 vendor 走向 OSS 生态。
+- **[Vespa](./vespa.md)**：[per sources/docs/vespa/llms-full.txt §Billion Scale Vector Search] **wiki 内 SPANN 第二个 production deployment，且是当前 active 的最大 OSS path**——Vespa 实现 SPANN 作为 billion-scale vector search 选项，与原版 HNSW path 并存。OSS Apache-2.0 路径——比 Bing 闭源 production 更容易获取实证。Sample app 使用 **Microsoft SPACEV 10M-100M** production-style dataset，Vespa Cloud 与 self-hosted 都支持。详见 [blog post: Vespa hybrid HNSW-IF billion-scale](https://blog.vespa.ai/vespa-hybrid-billion-scale-vector-search/)。
+- **[Turbopuffer](./turbopuffer.md) (SPFresh path, MSR 谱系 cluster-update 分支)**：Turbopuffer 用 [SPFresh](./spfresh.md) (SPANN + LIRE) 作 ANN——是 SPANN 算法基础上的 streaming 演化，已 OSS-known production。Bing 在 DistributedANN 切换后 SPANN cluster path 在 Bing 不再主力，但**通过 SPFresh 在 Turbopuffer commercial SaaS 仍 active**.
+
+## 与 DistributedANN 的对比（2026-05-11 ingest）
+
+[per adams-2025-distributedann Table 1, §4]
+
+Bing 把 production 从 SPANN-style clustered partitioning 切换到 DistributedANN——Table 1 提供**直接 head-to-head**（同 hardware footprint, 同 Bing web index 50B × 384-d int8 slice, 3 replicas）：
+
+| Metric | DistributedANN | SPANN-style Clustered Partitioning |
+|---|---|---|
+| Recall@5 (%) | **90.8** | 83.0 |
+| Recall@200 (%) | **71.9** | 67.4 |
+| Latency p50 (ms) | 26 | **16** |
+| Latency p99 (ms) | 35 | **22** |
+| SSD Space (TiB) | 780 | **270** |
+| Memory (TiB) | 42 | **18** |
+| IO per query | **640** | 4800 |
+| Network BW per query (MiB) | 1.4 | **0.3** |
+| Throughput (QPS) | **>100K** | ~15K |
+
+**DistributedANN 赢的方面**：recall (+7.8pp recall@5, +4.5pp recall@200)、IO per query (7.5× less)、throughput (>6×).
+
+**SPANN-style 仍赢的方面**：latency (p50 26→16, p99 35→22)、SSD space (270 vs 780 TiB, 2.9× cheaper)、memory (18 vs 42 TiB, 2.3× cheaper)、network bandwidth per query (0.3 vs 1.4 MiB).
+
+**Bing 选 DistributedANN 的 trade-off rationale (§4.4)**：
+- 6× throughput at same machine footprint —— **resource utilization 大幅改善**
+- 7.5× less IO —— SSD bound 系统下可装更大 index
+- Sublinear scaling (single graph log(|X|) vs partitioned P × log(|X|/P))
+- **Reliability 改善**：partition 失败 → drops 一大片 dataset & recall drop; DistributedANN node-level 失败 → 渐进 graceful degradation
+- Load balancing：clustered partition 是 semantic partitioning, popular cluster 集中流量 → 需要 over-provision; DistributedANN KV store 随机 sharded → 流量均匀
+
+**Bing 接受的 cost**：latency 略升 (16→26 ms p50)、storage 2.9× 多 (270→780 TiB SSD)、memory 2.3× 多.
+
+**注**：表中 "Clustered Partitioning" 是 SPANN-style 的更一般描述, 不限于精确 SPANN 实现; 但其哲学（partition + 每 partition 独立 graph + query 路由到 N partitions）与 SPANN 相同.
 
 ## Open Questions
 
@@ -144,3 +180,5 @@ SPANN 可看作"Faiss IVF 的 SSD 化版本"，但把"内存里 PQ codes"的预�
 - **VBASE+SPANN 集成实证**：[per zhang-2023-vbase §5.4 + benchmarks/vbase-8queries-recipe1m.md Table 8] VBASE 在 Azure Standard_L16s_v3 NVMe 上集成 SPANN，全部 8 query 类型可行；Q1 9.4 ms / 11.6 ms 99p, recall 0.9911；Q5 99p 519.7 ms（SSD 随机 IO 放大）。证明 SPANN 满足 [Relaxed Monotonicity](../concepts/relaxed-monotonicity.md)——partition-based + SSD 索引可以走 VBASE iterator 范式。这是 wiki 内首次"in-memory graph (HNSW) + on-disk partition (SPANN)"用同一 query engine 的实证
 - **SPANN posting list 引入 [RaBitQ](../concepts/rabitq.md)**：[chen-2021] §3 SPANN 论文明确反对量化（"避免 PQ 失真天花板"）；但 [gao-2024-rabitq] 提供的 unbiased + sharp error bound 量化器可能改变这个 trade-off——理论上 SPANN posting list 用 RaBitQ 编码后 (a) SSD 占用从 32D bits → D bits（4× 节省），(b) error bound 仍允许 100% recall （rerank 全精度从 SSD 读）。开放问题：SPANN 的 closure clustering 与 RaBitQ 的 normalization 假设是否兼容？(SPANN closure 把边界向量复制到多 cluster；RaBitQ normalize 基于 cluster centroid。复制边界向量 → 不同 normalize 基准 → 同 vector 多 quantization codes，是否影响 unbiasedness？理论分析未做)
 - **Segment-level 限制（NEW from [wang-2024-starling]）**：[starling §1 footnote 1] 明确 SPANN 在 vector DBMS segment 配置（~2GB RAM + ~10GB disk per segment）**不可行**——每向量 closure clustering 复制 up to 8× → 33M vectors × 8 远超 10GB 容量。这暴露 SPANN 的 hidden assumption "single-server 大磁盘 + 多机故障域 fault tolerance via replicas"——与 Milvus segment 模型（在 query node 内多 segment 共享内存）根本不兼容。Text2image 5M 实测 [Starling benchmark §6.2] **Starling 比 SPANN >10×** at high recall。**Bing 几千亿仍是 SPANN 主力 production**——但前提是 single-server 大磁盘环境。详见 [systems/starling.md](./starling.md) 与 [benchmarks/starling-vs-diskann-spann-on-segment.md](../benchmarks/starling-vs-diskann-spann-on-segment.md)
+
+Cited by: [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)

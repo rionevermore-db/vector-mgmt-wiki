@@ -377,4 +377,4 @@ Vespa **GPU support for ONNX inference in global-phase** （ranking layer），�
 - **Custom Java Searchers debugging / observability** in production: docs 多 reference 但实战 case studies 缺
 - **Vespa Cloud vs self-hosted Vespa Operator** scale ceiling: Cloud 不公开规模上限；Operator-based K8s self-host 仍 docs reference
 
-Cited by: 待 query 引用
+Cited by: [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)

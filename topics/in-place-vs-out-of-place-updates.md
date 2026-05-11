@@ -189,3 +189,5 @@ DiskANN 的 Vamana 算法本身**不预设** update 模型。**out-of-place 是 
 - [concepts/hnsw.md](../concepts/hnsw.md)
 - [concepts/nsg.md](../concepts/nsg.md)
 - [concepts/vamana.md](../concepts/vamana.md)
+
+Cited by: [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)

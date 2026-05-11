@@ -32,6 +32,7 @@
 | weaviate-docs | Weaviate 官方文档（llms.txt 455 行 substantive prose + 5 LLM-friendly twin pages product/hybrid-search/rag/agentic-ai/cost-performance-optimization, covers Weaviate Server v1.36.2+ recommended） | Weaviate B.V. | 2026-05-11 fetch | docs | docs/weaviate/{llms.txt + 5 twin pages} | 2026-05-11 |
 | vespa-docs | Vespa 官方文档（llms-full.txt 92K 行 / 4.2 MB full prose + llms.txt 966 行 overview prefix + URL catalog, covers Vespa 8.x） | Vespa.ai (Yahoo! 团队) | 2026-05-11 fetch | docs | docs/vespa/{llms-full.txt, llms.txt} | 2026-05-11 |
 | turbopuffer-docs | Turbopuffer 官方文档（llms-full.txt 15803 行 / 537 KB full prose + llms.txt 52 行 catalog；闭源 commercial SaaS，覆盖 April 2026 pinning + 当前 GA 状态） | Turbopuffer Inc. | 2026-05-11 fetch | docs | docs/turbopuffer/{llms-full.txt, llms.txt} | 2026-05-11 |
+| adams-2025-distributedann | DistributedANN: Efficient Scaling of a Single DiskANN Graph Across Thousands of Computers | Philip Adams, Menghao Li, Shi Zhang, Li Tan, Qi Chen, Mingqin Li, Zengzhong Li, Knut Risvik, Harsha Vardhan Simhadri | 2025 (arXiv) / 2025 (ICML Workshop on Vector DBs) | paper | papers/adams-2025-distributedann.pdf | 2026-05-11 |
 
 ## 命名约定
 

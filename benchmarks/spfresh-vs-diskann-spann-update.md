@@ -175,3 +175,5 @@ SPFresh 在 wiki 已有 6 个 1B+ 部署中**唯一**：(1) 持续 in-place upda
   - 单机 / 单 NVMe；多 SSD / 分布式未测（论文 §6 明示 future）
   - 同步 update（每天发起）；burst / async event-driven update 未测
   - 100 days / 20 days 实验时长——年级 update 累积下 LIRE 行为未知
+
+Cited by: [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)
