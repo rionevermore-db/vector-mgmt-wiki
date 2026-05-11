@@ -1,10 +1,10 @@
 ---
 title: CLIP（Contrastive Language-Image Pre-training）
 type: concept
-sources: [radford-2021-clip]
-related: [../systems/vespa.md, product-quantization.md, scann.md, hnsw.md, ../topics/multimodal-embedding-retrieval.md, ../topics/multi-vector-queries.md, ../topics/mips-vs-l2-nn.md]
+sources: [radford-2021-clip, kusupati-2022-matryoshka]
+related: [../systems/vespa.md, product-quantization.md, scann.md, hnsw.md, matryoshka-embedding.md, ../topics/multimodal-embedding-retrieval.md, ../topics/multi-vector-queries.md, ../topics/mips-vs-l2-nn.md, ../topics/adaptive-retrieval-shortlist-rerank.md]
 created: 2026-05-11
-updated: 2026-05-11
+updated: 2026-05-11 (MRL as CLIP variant matrix replacement path)
 ---
 
 # CLIP
@@ -230,7 +230,7 @@ CLIP 启动了 modern multimodal embedding model 整个 frontier:
 - **Multimodal retrieval 标准 benchmark**: 类似 MTEB-image 的 ANN-friendly 多模态 retrieval benchmark? 现有 CLIP benchmark (Flickr30K / MS-COCO / ImageNet zero-shot) 都不是 vector-DB-aware
 - **Cross-domain CLIP variant routing**: production system 需要 in-domain (BiomedCLIP for medical) vs general CLIP routing logic; vector DB schema 如何支持? 单 namespace 单 model 还是 multi-namespace 多 model fusion?
 - **Temperature τ 在 vector DB 端的应用**: CLIP τ 是 training-time scalar; vector DB query-time 通常不暴露 τ, 但 logit scaling 影响相似度 percentile 解释——Pinecone / Vespa rerank 阶段使用 τ-scaled cosine? docs 不细谈
-- **Embedding versioning + multi-CLIP-version coexistence**: ViT-B/32 vs ViT-L/14 vs ViT-L/14@336px 三 model 输出 dim 不同 (512 vs 768)——同一 vector DB 跨 model version migration 路径 (per [embedding-update query](../evolution/tracking-queries.md))
+- ~~**Embedding versioning + multi-CLIP-version coexistence**: ViT-B/32 vs ViT-L/14 vs ViT-L/14@336px 三 model 输出 dim 不同 (512 vs 768)——同一 vector DB 跨 model version migration 路径 (per [embedding-update query](../evolution/tracking-queries.md))~~ **2026-05-11 ingest [kusupati-2022-matryoshka] 已部分解**: [Matryoshka Representation Learning](./matryoshka-embedding.md) (MRL) 用 ONE model 训练时显式优化 O(log d) 个 nested prefix——把 "多 variant 不同 dim 各自独立训练" 模式**取代为 "单 model 多 prefix dim"** 模式. **production 影响**: OpenAI text-embedding-3 / Cohere embed-v4 / Voyage-3 / Qwen3-VL-Embedding-8B 等当前 production embedding 全部 MRL-trained——客户在 vector DB 端可 (a) store 全维一次, (b) query 时按 latency budget 选 prefix dim. CLIP-style 多 variant 矩阵 (RN50 1024-d, RN101 512-d, ViT-B/32 512-d, ViT-L/14 768-d 各自独立训练) 是 pre-MRL 范式; post-MRL production 应用倾向**单一 MRL-trained model 跨 prefix dim**——这是 CLIP 之后 embedding-side 最大演化. **仍 open**: CLIP 自身 (2021) 不是 MRL-trained——后续 OpenCLIP / SigLIP variants 是否引入 MRL training? OpenCLIP-MRL / SigLIP-MRL 不存在公开. Vespa "matryoshka tensor" cell type 与 CLIP 直接 fit (per [systems/vespa.md](../systems/vespa.md))。
 - **CLIP-style joint space + spatial (geo) 三模融合**: 论文不涵盖, 但 production system (Bing / Google) 同时支持 vector + scalar + geo + 是否有 unified joint embedding training? Wiki 内 zero coverage
 - **Few-shot CLIP + zero-shot CLIP fusion**: paper Figure 6 zero-shot 反而比 1-shot linear probe 好——production retrieval 应该如何使用 user feedback (clicks / dwell time) 改进 CLIP-based ranking? wiki / 论文都不涵盖
 

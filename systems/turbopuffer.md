@@ -1,10 +1,10 @@
 ---
 title: Turbopuffer（object-storage-native 闭源 commercial SaaS）
 type: system
-sources: [turbopuffer-docs, xu-2023-spfresh, chen-2021-spann]
-related: [pinecone.md, milvus.md, qdrant.md, weaviate.md, vespa.md, spfresh.md, spann.md, diskann.md, ../concepts/lire.md, ../concepts/product-quantization.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/attribute-filtering.md, ../topics/index-selection.md]
+sources: [turbopuffer-docs, xu-2023-spfresh, chen-2021-spann, kusupati-2022-matryoshka]
+related: [pinecone.md, milvus.md, qdrant.md, weaviate.md, vespa.md, spfresh.md, spann.md, diskann.md, ../concepts/lire.md, ../concepts/product-quantization.md, ../concepts/matryoshka-embedding.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/attribute-filtering.md, ../topics/index-selection.md, ../topics/adaptive-retrieval-shortlist-rerank.md]
 created: 2026-05-11
-updated: 2026-05-11
+updated: 2026-05-11 (MRL as QAT philosophy underpinning)
 ---
 
 # Turbopuffer
@@ -264,5 +264,6 @@ Turbopuffer 不公开客户清单。公开提及的客户使用案例 (per docs 
 - **Object storage 之外的 storage 候选**：Turbopuffer 哲学是 object storage native——但 R2 / B2 / MinIO / Azure Blob 等其他 object storage 实测是否同等 viable？BYOC 路径技术上支持但 docs 不细谈非 S3/GCS
 - **OSS prospect**：tradeoffs 表明示"For the current phase... commercial-only model to maintain... rapid development. While we don't offer a free tier or open source version, you can run turbopuffer in your own cloud (BYOC)"——unlike Pinecone 的"永远闭源"姿态，Turbopuffer 措辞留 OSS 余地
 - **Continuous recall monitoring 算法**：1% live query traffic 自动 sample → run exhaustive search compare——具体实现 algorithm docs 未深入；与 [recall endpoint](sources/docs/turbopuffer/llms-full.txt §recall) 接口的语义关系
+- **Turbopuffer QAT philosophy 的算法基础 = [Matryoshka Representation Learning](../concepts/matryoshka-embedding.md) (NEW 2026-05-11 ingest)**: Turbopuffer docs §performance 推荐的 quantization path "voyage-4 / voyage-context-3 / embed-v4 / Qwen3-VL-Embedding-8B int8 output → f16 namespace, no precision loss"——这些 model 的 "int8 / 多 dim 输出无精度损失" 性质**完全依赖 MRL training + QAT training**: (a) **MRL** 让 prefix dim 0-cost truncate (e.g., voyage-3 1024-d 取前 512-d), (b) **QAT** 让 int8 output 等同 f32 精度. Turbopuffer 哲学 = **训练时 (model side) 解决 quantization + dim 选择, DBMS side 仅服务 cosine ANN**——是 wiki 内 "quantization 推到 embedding model side" 哲学的 production 落地. **Open**: Turbopuffer namespace cell type (f32 / f16) 是否在 future 暴露 dim truncation parameter 让客户运行时选 prefix dim? 当前 schema 固定 dim, docs 不暴露 query-time prefix truncate—— user 端可以 client-side truncate 后再 query 但 server-side cost optimization 路径 不明。详见 [concepts/matryoshka-embedding.md](../concepts/matryoshka-embedding.md) 与 [topics/adaptive-retrieval-shortlist-rerank.md](../topics/adaptive-retrieval-shortlist-rerank.md).
 
 Cited by: 待 query 引用

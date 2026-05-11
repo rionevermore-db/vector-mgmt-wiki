@@ -1,10 +1,10 @@
 ---
 title: RaBitQ（首个 unbiased + sharp error bound 的高维向量 quantization）
 type: concept
-sources: [gao-2024-rabitq]
-related: [product-quantization.md, scann.md, vgpq.md, hnsw.md, vamana.md, relaxed-monotonicity.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/vbase.md, ../systems/analyticdb-v.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/topk-vs-iterator-model.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
+sources: [gao-2024-rabitq, kusupati-2022-matryoshka]
+related: [product-quantization.md, scann.md, vgpq.md, hnsw.md, vamana.md, relaxed-monotonicity.md, matryoshka-embedding.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/vbase.md, ../systems/analyticdb-v.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/topk-vs-iterator-model.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-11 (MRL as parallel training-time compression axis)
 ---
 
 # RaBitQ
@@ -290,5 +290,6 @@ C++ 源码：[github.com/gaoj0017/RaBitQ](https://github.com/gaoj0017/RaBitQ)（
 - **量化 query 的 B_q 自适应**：B_q = 4 across 6 datasets 但 D=128 vs 960 跨 7.5×——是否真的 universal？[Theorem 3.3] B_q = Θ(log log D) 表明对极大 D 仍 valid，但实测仅到 D=960
 - **与 [ScaNN anisotropic loss](./scann.md) 联合**：RaBitQ codebook 是 distribution-uniform；ScaNN 是 score-aware。理论上是否可以 hybrid（先 RaBitQ 找候选 + ScaNN 精排）？未探索
 - **ε₀ = 1.9 vs 不同 use case**：要求 99.9% recall 时 ε₀ 应增大；要求低延迟时 ε₀ 应减小——但论文实测固定 1.9 在 6/6 数据集 work——这是否是因为 6 数据集 distribution 接近 normal？outlier-heavy 数据集行为未实测
+- **RaBitQ × [MRL](./matryoshka-embedding.md) 联合: post-hoc binary quantization on training-time prefix-truncated embedding (NEW 2026-05-11 ingest)**: RaBitQ 是 post-hoc 1-bit-per-dim quantization, 假设 D-维 vector + random rotation P 矩阵. MRL prefix `z_{1:m}` (m < D) 是 training-time truncated coarser representation. **关键 open**: (a) RaBitQ 在 MRL prefix 上是否 unbiased property 保留? P 矩阵 fixed for full D; prefix 仅取前 m 维——是否需要 separate P_m for each prefix length, 还是 P 矩阵的前 m × m 子矩阵自动适用? Paper 不验证. (b) 理论上 RaBitQ + MRL = **production state-of-the-art compression**: voyage-3 MRL-trained 1024-d → prefix 取 256-d → RaBitQ binary 32 bytes/vec (vs 4096 bytes raw, **128× compress, error bound preserved**). (c) **production embedding 全部 MRL-trained 时, RaBitQ 应该如何 retrain**: 全维 retrain or per-prefix retrain? OPEN. (d) Adaptive Retrieval (per [topics/adaptive-retrieval-shortlist-rerank.md](../topics/adaptive-retrieval-shortlist-rerank.md)) shortlist 用 MRL 16-d binary RaBitQ + rerank 用 MRL 1024-d float——双 train-time technique 叠加 production 实测 zero coverage.
 
 Cited by: [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)
