@@ -1,10 +1,10 @@
 ---
 title: Weaviate（Go 实现 AI-native primary vector DBMS）
 type: system
-sources: [weaviate-docs, vespa-docs]
-related: [milvus.md, qdrant.md, pinecone.md, vespa.md, faiss.md, vbase.md, analyticdb-v.md, pase.md, spfresh.md, freshdiskann.md, cagra.md, ../concepts/hnsw.md, ../concepts/acorn.md, ../concepts/filtered-vamana.md, ../concepts/rabitq.md, ../concepts/product-quantization.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../topics/attribute-filtering.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md]
+sources: [weaviate-docs, vespa-docs, turbopuffer-docs]
+related: [milvus.md, qdrant.md, pinecone.md, vespa.md, turbopuffer.md, faiss.md, vbase.md, analyticdb-v.md, pase.md, spfresh.md, freshdiskann.md, cagra.md, ../concepts/hnsw.md, ../concepts/acorn.md, ../concepts/filtered-vamana.md, ../concepts/rabitq.md, ../concepts/product-quantization.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../topics/attribute-filtering.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md]
 created: 2026-05-11
-updated: 2026-05-11 (Vespa peer cross-link)
+updated: 2026-05-11 (Turbopuffer peer cross-link)
 ---
 
 # Weaviate
@@ -337,5 +337,6 @@ Weaviate HFresh preview 是 HNSW base streaming——与 FreshDiskANN (Vamana ba
 - **gRPC vs Milvus gRPC 设计差异**：都用 gRPC + protocol 但 service 接口 / streaming 用法 wiki 未对比
 - **AI-native primary DB 的工业实证**：Weaviate llms.txt 反复强调"primary DB not just vector store"——实际客户中"replace Postgres + Pinecone with Weaviate" 案例 docs 不公开
 - **Weaviate vs [Vespa](./vespa.md) "primary DB" 哲学对比**：两者都自称 vector + 多 modality primary DB，但 lineage 与权衡不同。Weaviate "AI-native primary DB built around vectors"——2019 Go 起步，vector-first 但补 inverted index + agent stack (Query Agent / Engram)；Vespa "web search engine (Yahoo! 2003) + vector retrofit"——20 年 inverted index + ranking pipeline + tensor framework 沉淀，2017 OSS，后加 HNSW。**Ranking 成熟度差距明显**：Vespa 4-phase ranking（retrieval → first-phase → second-phase → global-phase）+ first-class tensor framework (ONNX/XGBoost/LightGBM native)——专为 LTR / 复杂 ranking pipeline 设计；Weaviate 用 BM25 + vector + 简单 fusion (α-blend)，ranking pipeline 更轻。**filter / hybrid search 路径不同**：Weaviate ACORN + "positive & negative correlation optimization"（payload-aware planner）；Vespa pre-filter / post-filter / Acorn-1 三 mode + YQL planner。Weaviate 优势：agent stack 集成（Query Agent / Engram memory）；Vespa 优势：ranking pipeline 复杂度上限。详见 [systems/vespa.md "4-phase ranking"](./vespa.md)。
+- **Weaviate vs [Turbopuffer](./turbopuffer.md) "AI-native" 同代不同 storage 哲学**：两者都自称 AI-native vector DBMS，但 storage 主从关系完全不同。Weaviate "vector + objects + inverted index 套件 + agent stack"——NVMe local primary，传统 LSM；Turbopuffer "object storage as primary"——S3 是 source of truth, compute fully stateless。**ANN 算法路径分歧**：Weaviate HNSW (graph-based) + RQ8 quantization default + HFresh streaming preview；Turbopuffer SPFresh (centroid-based) only。**两者都强调 multi-tenancy 但模型不同**：Weaviate "collection-level multi-tenancy + RBAC"——complex collection-tenant hierarchy；Turbopuffer **namespace as architectural primitive**（100M+ S3 prefix）——更 aggressive 的 namespace-as-tenant。**Agent / app stack 集成**：Weaviate Query Agent + Engram first-class；Turbopuffer 明示"focused on first-stage retrieval"，2nd stage rerank / agent logic 推到 application 层（`search.py` / `search.ts`）——**stack 边界相反**。**OSS vs closed**：Weaviate BSD-3-Clause OSS；Turbopuffer commercial-only with BYOC。详见 [systems/turbopuffer.md "对比"](./turbopuffer.md)。
 
 Cited by: 待 query 引用

@@ -1,10 +1,10 @@
 ---
 title: SPFresh（Incremental In-Place Update System）
 type: system
-sources: [xu-2023-spfresh, chen-2021-spann, singh-2021-freshdiskann]
-related: [spann.md, diskann.md, milvus.md, faiss.md, freshdiskann.md, ../concepts/lire.md, ../concepts/freshvamana.md, ../concepts/product-quantization.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
+sources: [xu-2023-spfresh, chen-2021-spann, singh-2021-freshdiskann, turbopuffer-docs]
+related: [spann.md, diskann.md, milvus.md, faiss.md, freshdiskann.md, turbopuffer.md, ../concepts/lire.md, ../concepts/freshvamana.md, ../concepts/product-quantization.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/disk-vs-memory-ann.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/freshdiskann-streaming-sift800m.md]
 created: 2026-05-07
-updated: 2026-05-09 (FreshDiskANN context)
+updated: 2026-05-11 (Turbopuffer = first OSS-known production deployment — SPFresh frontier closed)
 ---
 
 # SPFresh
@@ -178,6 +178,31 @@ Milvus v2.6.x 的 LSM segment 模型是另一种 dynamic data 解——周期 me
 ## 生产案例
 
 [xu-2023-spfresh] 论文不直接给 Microsoft Bing 等生产部署数据。但作者团队（Qi Chen 等）正是 [SPANN](./spann.md) @ Bing 的同一组——SPFresh 大概率会回流到 Bing 替代 SPANN 周期 rebuild 路径，但论文未明示。
+
+### Turbopuffer — 首个 OSS-known production deployment（frontier closed, 2026-05-11）
+
+[per sources/docs/turbopuffer/llms-full.txt §architecture §concepts §vector]
+
+> Vector indexes are based on [SPFresh](https://dl.acm.org/doi/10.1145/3600006.3613166). SPFresh is a centroid-based approximate nearest neighbour index... A centroid-based index works well for object storage as it minimizes roundtrips and write-amplification, compared to graph-based indexes like HNSW or DiskANN. — Turbopuffer architecture docs
+
+[Turbopuffer](./turbopuffer.md) 是 wiki 内**首个 OSS-known production deployment** of SPFresh。Microsoft Bing 内部部署 implied 但 closed；Turbopuffer 公开声明 SPFresh 作为唯一 vector index 算法 + 公开 production scale numbers（3.5T+ docs / 100B+ vectors queryable / 100M+ namespaces）。
+
+**Frontier closure timeline**：
+- 2021 — Microsoft SPANN paper (chen-2021-spann)，centroid-based ANN with rebuild
+- 2023 — Microsoft SPFresh paper (xu-2023-spfresh)，加 LIRE protocol 实现 in-place update
+- 2026 — Turbopuffer commercial SaaS production 公开声明 SPFresh as primary ANN——**仅 3 年从学术论文到 commercial production deployment**
+
+**Turbopuffer 给 SPFresh 的关键 adaptation**（具体 fork 程度闭源未公开）：
+- 原 paper 用 SPDK + raw SSD；Turbopuffer 跑在 **object storage** (S3/GCS) 之上——roundtrip 成本数量级不同（~100ms vs ~10µs）
+- 用 Rust 重写（paper 是 C++ + SPDK）
+- 集成 object-storage-native WAL + LSM tree 而非 paper 的 SPANN-style centroid + posting list
+
+**为什么 SPFresh 适合 Turbopuffer 哲学**（Turbopuffer docs 论点）：
+- Graph-based ANN (HNSW / DiskANN): traversal 需 ~log(N) roundtrips → cold query × 100ms per roundtrip 太慢
+- Centroid-based (SPFresh): 1 read centroid index + 1 batch fetch posting lists → minimal roundtrips → object-storage-friendly
+- LIRE protocol incremental update → 不需 rebuild → fit Turbopuffer 持续 writes 哲学
+
+**Open: Turbopuffer SPFresh adaptation 是否破坏 LIRE NPA**：原 LIRE 假设 raw SSD low-latency；object storage roundtrip × 100ms 下 LIRE rebalance trigger 频率是否仍可控？docs 未明示。详见 [systems/turbopuffer.md "Open Questions"](./turbopuffer.md)。
 
 ## Open Questions
 

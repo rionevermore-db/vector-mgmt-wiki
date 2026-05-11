@@ -1,10 +1,10 @@
 ---
 title: Qdrant（Rust 实现的开源 vector DBMS）
 type: system
-sources: [qdrant-docs, weaviate-docs, vespa-docs]
+sources: [qdrant-docs, weaviate-docs, vespa-docs, turbopuffer-docs]
 related: [faiss.md, milvus.md, pinecone.md, weaviate.md, spfresh.md, freshdiskann.md, cagra.md, vbase.md, analyticdb-v.md, pase.md, starling.md, ../concepts/hnsw.md, ../concepts/acorn.md, ../concepts/filtered-vamana.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../topics/attribute-filtering.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/gpu-vs-cpu-ann.md]
 created: 2026-05-11
-updated: 2026-05-11 (Vespa peer cross-link)
+updated: 2026-05-11 (Turbopuffer peer cross-link)
 ---
 
 # Qdrant
@@ -296,5 +296,6 @@ CAGRA 是 NVIDIA RAPIDS RAFT 的 GPU-native graph；Qdrant 是 CPU + Rust 路径
 - **Qdrant Edge deployment**: 资源约束下（commodity device）的 ANN 实证细节 docs 仅 high-level
 - **HNSW + Sparse vector hybrid 性能**: Qdrant first-class sparse vector，与 Milvus SPARSE_INVERTED_INDEX 同代——head-to-head 未实证
 - **Qdrant vs [Vespa](./vespa.md) HNSW + filter 哲学对比**：两者都是 ACORN production case（Qdrant v1.16.0 fallback + Vespa "Acorn-1" mode），但 filter 一等公民程度不同。Qdrant "do HNSW exceptionally well"——HNSW + payload-aware extra edges + ACORN fallback；Vespa "HNSW 是众多算子之一"——HNSW 嵌入 4-phase ranking pipeline，与 BM25 / weakAnd / tensor compute 同列为 retrieval operator。**filter integration 路径不同**：Qdrant 是 graph build-time aware（Filterable HNSW + tenant index）；Vespa 是 query-time orchestration（pre-filter / post-filter / Acorn-1 三种 mode 由 YQL planner 选）。Qdrant 索引视野窄但深（HNSW only + 多 quantization）；Vespa 索引视野广（HNSW + Streaming + BM25 + tensor framework）但每个不一定最深。详见 [systems/vespa.md "ACORN 与 filter integration"](./vespa.md)。
+- **Qdrant vs [Turbopuffer](./turbopuffer.md) Rust 语言相同但部署 + 算法路径完全不同**：两者都是 Rust 实现，但**仅此相同**。Qdrant = **OSS + 单 binary stateful** + HNSW only + multi-deployment-SKU (OSS / Cloud / Hybrid / Private / Edge)；Turbopuffer = **closed SaaS + stateless compute + object storage primary** + SPFresh only + 仅 SaaS（+ BYOC option）。**ANN 算法路径相反**：Qdrant HNSW (graph-based) + filter-aware edges + ACORN；Turbopuffer SPFresh (centroid-based)——选择驱动是 **storage 假设**：HNSW 要求 low-latency RAM (Qdrant 本地 NVMe + RAM)；SPFresh 适合 object storage（centroid index 小可 RAM-resident, posting list 单 batch fetch）。**Multi-tenancy 模型**：Qdrant tenant index / principal index payload-aware；Turbopuffer namespace = S3 prefix (100M+) 一等公民。**Update model**：Qdrant Collection Aliases atomic switch；Turbopuffer per-document atomic conditional writes + LIRE protocol incremental update。详见 [systems/turbopuffer.md "对比"](./turbopuffer.md)。
 
 Cited by: 待 query 引用
