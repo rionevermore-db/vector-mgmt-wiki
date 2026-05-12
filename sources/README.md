@@ -43,6 +43,10 @@
 | muennighoff-2023-mteb | MTEB: Massive Text Embedding Benchmark | Niklas Muennighoff, Nouamane Tazi, Loïc Magne, Nils Reimers | 2023 (EACL) / 2022 (arXiv) | paper | papers/muennighoff-2023-mteb.pdf | 2026-05-12 |
 | chen-2024-bge-m3 | BGE M3-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation | Jianlv Chen, Shitao Xiao, Peitian Zhang, Kun Luo, Defu Lian, Zheng Liu | 2024 (ACL Findings) / 2024 (arXiv) | paper | papers/chen-2024-bge-m3.pdf | 2026-05-12 |
 | ding-2011-blockmaxwand | Faster Top-k Document Retrieval Using Block-Max Indexes | Shuai Ding, Torsten Suel | 2011 (SIGIR) | paper | papers/ding-2011-blockmaxwand.pdf | 2026-05-12 |
+| jang-2023-cxl-anns | CXL-ANNS: Software-Hardware Collaborative Memory Disaggregation and Computation for Billion-Scale Approximate Nearest Neighbor Search | Junhyeok Jang, Hanjin Choi, Hanyeoreum Bae, Seungjun Lee, Miryeong Kwon, Myoungsoo Jung | 2023 (USENIX ATC) | paper | papers/jang-2023-cxl-anns.pdf | 2026-05-12 |
+| pan-2023-lm-diskann | LM-DiskANN: Low Memory Footprint in Disk-Native Dynamic Graph-Based ANN Indexing | Yu Pan, Jianxin Sun, Hongfeng Yu | 2023 (IEEE BigData) | paper | papers/pan-2023-lm-diskann.pdf | 2026-05-12 |
+| tatsuno-2024-aisaq | AiSAQ: All-in-Storage ANNS with Product Quantization for DRAM-free Information Retrieval | Kento Tatsuno + 4 others (Kioxia) | 2024 (arXiv) | paper | papers/tatsuno-2024-aisaq.pdf | 2026-05-12 |
+| gottesbueren-2024-graph-partitioning | Unleashing Graph Partitioning for Large-Scale Nearest Neighbor Search | Lars Gottesbüren, Laxman Dhulipala, Rajesh Jayaram, Jakub Lacki | 2024 (arXiv) / 2025 (PVLDB) | paper | papers/gottesbueren-2024-graph-partitioning.pdf | 2026-05-12 |
 
 ## 命名约定
 
