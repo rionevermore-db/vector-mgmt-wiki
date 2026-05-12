@@ -49,6 +49,9 @@
 | gottesbueren-2024-graph-partitioning | Unleashing Graph Partitioning for Large-Scale Nearest Neighbor Search | Lars Gottesbüren, Laxman Dhulipala, Rajesh Jayaram, Jakub Lacki | 2024 (arXiv) / 2025 (PVLDB) | paper | papers/gottesbueren-2024-graph-partitioning.pdf | 2026-05-12 |
 | zhai-2023-siglip | Sigmoid Loss for Language Image Pre-Training | Xiaohua Zhai, Basil Mustafa, Alexander Kolesnikov, Lucas Beyer | 2023 (ICCV) / 2023 (arXiv) | paper | papers/zhai-2023-siglip.pdf | 2026-05-12 |
 | thakur-2021-beir | BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models | Nandan Thakur, Nils Reimers, Andreas Rücklé, Abhishek Srivastava, Iryna Gurevych | 2021 (NeurIPS Datasets & Benchmarks) / 2021 (arXiv) | paper | papers/thakur-2021-beir.pdf | 2026-05-12 |
+| nogueira-2019-doc2query | Document Expansion by Query Prediction (doc2query / docTTTTTquery / doc2query-T5) | Rodrigo Nogueira, Wei Yang, Jimmy Lin, Kyunghyun Cho | 2019 (arXiv) | paper | papers/nogueira-2019-doc2query.pdf | 2026-05-12 |
+| mallia-2021-deepimpact | Learning Passage Impacts for Inverted Indexes (DeepImpact) | Antonio Mallia, Omar Khattab, Torsten Suel, Nicola Tonellotto | 2021 (SIGIR) | paper | papers/mallia-2021-deepimpact.pdf | 2026-05-12 |
+| gao-2021-coil | COIL: Revisit Exact Lexical Match in Information Retrieval with Contextualized Inverted List | Luyu Gao, Zhuyun Dai, Jamie Callan | 2021 (NAACL) | paper | papers/gao-2021-coil.pdf | 2026-05-12 |
 
 ## 命名约定
 
