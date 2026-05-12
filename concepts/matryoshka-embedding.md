@@ -1,10 +1,10 @@
 ---
 title: Matryoshka Representation Learning（MRL，嵌套多粒度表征）
 type: concept
-sources: [kusupati-2022-matryoshka]
-related: [clip.md, product-quantization.md, rabitq.md, scann.md, ../systems/vespa.md, ../systems/turbopuffer.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../topics/multimodal-embedding-retrieval.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md]
+sources: [kusupati-2022-matryoshka, formal-2021-splade-v2]
+related: [clip.md, product-quantization.md, rabitq.md, scann.md, splade-sparse-retrieval.md, ../systems/vespa.md, ../systems/turbopuffer.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../topics/multimodal-embedding-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md]
 created: 2026-05-11
-updated: 2026-05-11
+updated: 2026-05-12 (SPLADE as sparse-side neighbor)
 ---
 
 # Matryoshka Representation Learning (MRL)

@@ -35,6 +35,7 @@
 | adams-2025-distributedann | DistributedANN: Efficient Scaling of a Single DiskANN Graph Across Thousands of Computers | Philip Adams, Menghao Li, Shi Zhang, Li Tan, Qi Chen, Mingqin Li, Zengzhong Li, Knut Risvik, Harsha Vardhan Simhadri | 2025 (arXiv) / 2025 (ICML Workshop on Vector DBs) | paper | papers/adams-2025-distributedann.pdf | 2026-05-11 |
 | radford-2021-clip | Learning Transferable Visual Models From Natural Language Supervision (CLIP) | Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, Ilya Sutskever | 2021 (arXiv) / 2021 (ICML) | paper | papers/radford-2021-clip.pdf | 2026-05-11 |
 | kusupati-2022-matryoshka | Matryoshka Representation Learning | Aditya Kusupati, Gantavya Bhatt, Aniket Rege, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi | 2022 (NeurIPS) / 2024 (arXiv v4) | paper | papers/kusupati-2022-matryoshka.pdf | 2026-05-11 |
+| formal-2021-splade-v2 | SPLADE v2: Sparse Lexical and Expansion Model for Information Retrieval | Thibault Formal, Benjamin Piwowarski, Carlos Lassance, Stéphane Clinchant | 2021 (arXiv) | paper | papers/formal-2021-splade-v2.pdf | 2026-05-12 |
 
 ## 命名约定
 
