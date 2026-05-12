@@ -1,10 +1,10 @@
 ---
 title: VBASE（PostgreSQL 上的统一 vector + relational 查询引擎）
 type: system
-sources: [zhang-2023-vbase]
-related: [milvus.md, pase.md, analyticdb-v.md, spann.md, faiss.md, starling.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ../topics/topk-vs-iterator-model.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/vector-range-query.md, ../topics/index-selection.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
+sources: [zhang-2023-vbase, pgvector-docs]
+related: [milvus.md, pase.md, pgvector.md, analyticdb-v.md, spann.md, faiss.md, starling.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ../topics/topk-vs-iterator-model.md, ../topics/attribute-filtering.md, ../topics/multi-vector-queries.md, ../topics/vector-range-query.md, ../topics/index-selection.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-08
-updated: 2026-05-09 (Starling)
+updated: 2026-05-12 (pgvector triangulates Postgres-extension path)
 ---
 
 # VBASE

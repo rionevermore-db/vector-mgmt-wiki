@@ -36,6 +36,7 @@
 | radford-2021-clip | Learning Transferable Visual Models From Natural Language Supervision (CLIP) | Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, Ilya Sutskever | 2021 (arXiv) / 2021 (ICML) | paper | papers/radford-2021-clip.pdf | 2026-05-11 |
 | kusupati-2022-matryoshka | Matryoshka Representation Learning | Aditya Kusupati, Gantavya Bhatt, Aniket Rege, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi | 2022 (NeurIPS) / 2024 (arXiv v4) | paper | papers/kusupati-2022-matryoshka.pdf | 2026-05-11 |
 | formal-2021-splade-v2 | SPLADE v2: Sparse Lexical and Expansion Model for Information Retrieval | Thibault Formal, Benjamin Piwowarski, Carlos Lassance, Stéphane Clinchant | 2021 (arXiv) | paper | papers/formal-2021-splade-v2.pdf | 2026-05-12 |
+| pgvector-docs | pgvector 官方文档 (GitHub README.md 1357 行 / 42 KB; canonical doc; 0.8.2; PostgreSQL 13+) | pgvector community (Andrew Kane primary maintainer) | 2026-05-12 fetch | docs | docs/pgvector/README.md | 2026-05-12 |
 
 ## 命名约定
 

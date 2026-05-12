@@ -1,10 +1,10 @@
 ---
 title: PASE（PostgreSQL ANN Search Extension）
 type: system
-sources: [yang-2020-pase, wang-2021-milvus]
-related: [analyticdb-v.md, milvus.md, faiss.md, vbase.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/relaxed-monotonicity.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/vbase-8queries-recipe1m.md]
+sources: [yang-2020-pase, wang-2021-milvus, pgvector-docs]
+related: [analyticdb-v.md, milvus.md, faiss.md, vbase.md, pgvector.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/filtered-vamana.md, ../concepts/relaxed-monotonicity.md, ../topics/attribute-filtering.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/index-selection.md, ../topics/topk-vs-iterator-model.md, ../topics/vector-range-query.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-08
-updated: 2026-05-08 (VBASE)
+updated: 2026-05-12 (pgvector triangulates Postgres-extension path)
 ---
 
 # PASE
