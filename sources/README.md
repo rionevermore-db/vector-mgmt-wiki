@@ -58,6 +58,9 @@
 | wu-2025-pathfinder | PathFinder: Efficiently Supporting Conjunctions and Disjunctions for Filtered Approximate Nearest Neighbor Search | Tianming Wu, Dixin Tang (UT Austin) | 2025 (PVLDB 2026 submission, arXiv 2511.00995) | paper | papers/wu-2025-pathfinder.pdf | 2026-05-12 |
 | liu-2025-trinity | Trinity: Disaggregating Vector Search for Prefill-Decode Disaggregation in LLM Serving | Yi Liu, Chen Qian (UC Santa Cruz) | 2025 (arXiv 2512.02281) | paper | papers/liu-2025-trinity.pdf | 2026-05-12 |
 | xu-2025-spire | Scalable Distributed Vector Search via Accuracy Preserving Index Construction (SPIRE) | Yuming Xu, Qianxi Zhang, Qi Chen, Baotong Lu, Menghao Li, Philip Adams, Mingqin Li, Zengzhong Li, Jing Liu, Cheng Li, Fan Yang (USTC + Microsoft Research + Microsoft + Shopify + MS AI) | 2025 (arXiv 2512.17264) | paper | papers/xu-2025-spire.pdf | 2026-05-12 |
+| wang-2023-e5-mistral | Improving Text Embeddings with Large Language Models (E5-Mistral) | Liang Wang, Nan Yang, Xiaolong Huang, Linjun Yang, Rangan Majumder, Furu Wei (Microsoft) | 2023 (arXiv 2401.00368) | paper | papers/wang-2023-e5-mistral.pdf | 2026-05-12 |
+| muennighoff-2024-gritlm | Generative Representational Instruction Tuning (GritLM) | Niklas Muennighoff, Hongjin Su, Liang Wang, Nan Yang, Furu Wei, Tao Yu, Amanpreet Singh, Douwe Kiela (ContextualAI + Microsoft + HKU) | 2024 (arXiv 2402.09906) | paper | papers/muennighoff-2024-gritlm.pdf | 2026-05-12 |
+| behnamghader-2024-llm2vec | LLM2Vec: Large Language Models Are Secretly Powerful Text Encoders | Parishad BehnamGhader, Vaibhav Adlakha, Marius Mosbach, Dzmitry Bahdanau, Nicolas Chapados, Siva Reddy (McGill + Mila + ServiceNow) | 2024 (arXiv 2404.05961) | paper | papers/behnamghader-2024-llm2vec.pdf | 2026-05-12 |
 
 ## 命名约定
 
