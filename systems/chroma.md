@@ -1,10 +1,10 @@
 ---
 title: Chroma（RAG-dev-experience leader vector DB, OSS Core + Chroma Cloud）
 type: system
-sources: [chroma-docs]
-related: [pgvector.md, turbopuffer.md, weaviate.md, pinecone.md, milvus.md, qdrant.md, spann.md, spfresh.md, ../concepts/hnsw.md, ../concepts/splade-sparse-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/multimodal-embedding-retrieval.md]
+sources: [chroma-docs, lancedb-docs]
+related: [pgvector.md, turbopuffer.md, weaviate.md, pinecone.md, milvus.md, qdrant.md, lancedb.md, spann.md, spfresh.md, ../concepts/hnsw.md, ../concepts/splade-sparse-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/multimodal-embedding-retrieval.md]
 created: 2026-05-12
-updated: 2026-05-12
+updated: 2026-05-12 (LanceDB peer cross-link)
 ---
 
 # Chroma

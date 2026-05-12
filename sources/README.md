@@ -38,6 +38,7 @@
 | formal-2021-splade-v2 | SPLADE v2: Sparse Lexical and Expansion Model for Information Retrieval | Thibault Formal, Benjamin Piwowarski, Carlos Lassance, Stéphane Clinchant | 2021 (arXiv) | paper | papers/formal-2021-splade-v2.pdf | 2026-05-12 |
 | pgvector-docs | pgvector 官方文档 (GitHub README.md 1357 行 / 42 KB; canonical doc; 0.8.2; PostgreSQL 13+) | pgvector community (Andrew Kane primary maintainer) | 2026-05-12 fetch | docs | docs/pgvector/README.md | 2026-05-12 |
 | chroma-docs | Chroma 官方文档 (llms-full.txt 21716 行 / 810 KB; Chroma Core OSS Apache-2.0 + Chroma Cloud Distributed Chroma) | Chroma (Anton Troynikov + Jeff Huber 2022) | 2026-05-12 fetch | docs | docs/chroma/llms-full.txt | 2026-05-12 |
+| lancedb-docs | LanceDB 官方文档 (GitHub READMEs LanceDB + Lance format; "multimodal lakehouse for AI", OSS + Enterprise) | LanceDB Inc. (Chang She + Lei Xu 2022) | 2026-05-12 fetch | docs | docs/lancedb/{README.md, lance-format-README.md} | 2026-05-12 |
 
 ## 命名约定
 
