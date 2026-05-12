@@ -41,6 +41,7 @@
 | lancedb-docs | LanceDB 官方文档 (GitHub READMEs LanceDB + Lance format; "multimodal lakehouse for AI", OSS + Enterprise) | LanceDB Inc. (Chang She + Lei Xu 2022) | 2026-05-12 fetch | docs | docs/lancedb/{README.md, lance-format-README.md} | 2026-05-12 |
 | santhanam-2022-colbertv2 | ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction | Keshav Santhanam, Omar Khattab, Jon Saad-Falcon, Christopher Potts, Matei Zaharia | 2022 (NAACL) / 2021 (arXiv v1) / 2022 (arXiv v3) | paper | papers/santhanam-2022-colbertv2.pdf | 2026-05-12 |
 | muennighoff-2023-mteb | MTEB: Massive Text Embedding Benchmark | Niklas Muennighoff, Nouamane Tazi, Loïc Magne, Nils Reimers | 2023 (EACL) / 2022 (arXiv) | paper | papers/muennighoff-2023-mteb.pdf | 2026-05-12 |
+| chen-2024-bge-m3 | BGE M3-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation | Jianlv Chen, Shitao Xiao, Peitian Zhang, Kun Luo, Defu Lian, Zheng Liu | 2024 (ACL Findings) / 2024 (arXiv) | paper | papers/chen-2024-bge-m3.pdf | 2026-05-12 |
 
 ## 命名约定
 
