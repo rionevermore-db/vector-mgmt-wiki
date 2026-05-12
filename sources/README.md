@@ -47,6 +47,7 @@
 | pan-2023-lm-diskann | LM-DiskANN: Low Memory Footprint in Disk-Native Dynamic Graph-Based ANN Indexing | Yu Pan, Jianxin Sun, Hongfeng Yu | 2023 (IEEE BigData) | paper | papers/pan-2023-lm-diskann.pdf | 2026-05-12 |
 | tatsuno-2024-aisaq | AiSAQ: All-in-Storage ANNS with Product Quantization for DRAM-free Information Retrieval | Kento Tatsuno + 4 others (Kioxia) | 2024 (arXiv) | paper | papers/tatsuno-2024-aisaq.pdf | 2026-05-12 |
 | gottesbueren-2024-graph-partitioning | Unleashing Graph Partitioning for Large-Scale Nearest Neighbor Search | Lars Gottesbüren, Laxman Dhulipala, Rajesh Jayaram, Jakub Lacki | 2024 (arXiv) / 2025 (PVLDB) | paper | papers/gottesbueren-2024-graph-partitioning.pdf | 2026-05-12 |
+| zhai-2023-siglip | Sigmoid Loss for Language Image Pre-Training | Xiaohua Zhai, Basil Mustafa, Alexander Kolesnikov, Lucas Beyer | 2023 (ICCV) / 2023 (arXiv) | paper | papers/zhai-2023-siglip.pdf | 2026-05-12 |
 
 ## 命名约定
 
