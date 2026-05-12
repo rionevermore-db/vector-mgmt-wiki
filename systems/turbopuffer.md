@@ -1,10 +1,10 @@
 ---
 title: Turbopuffer（object-storage-native 闭源 commercial SaaS）
 type: system
-sources: [turbopuffer-docs, xu-2023-spfresh, chen-2021-spann, kusupati-2022-matryoshka, formal-2021-splade-v2]
-related: [pinecone.md, milvus.md, qdrant.md, weaviate.md, vespa.md, spfresh.md, spann.md, diskann.md, ../concepts/lire.md, ../concepts/product-quantization.md, ../concepts/matryoshka-embedding.md, ../concepts/splade-sparse-retrieval.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/attribute-filtering.md, ../topics/index-selection.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../topics/sparse-dense-hybrid-retrieval.md]
+sources: [turbopuffer-docs, xu-2023-spfresh, chen-2021-spann, kusupati-2022-matryoshka, formal-2021-splade-v2, chroma-docs]
+related: [pinecone.md, milvus.md, qdrant.md, weaviate.md, vespa.md, chroma.md, spfresh.md, spann.md, diskann.md, ../concepts/lire.md, ../concepts/product-quantization.md, ../concepts/matryoshka-embedding.md, ../concepts/splade-sparse-retrieval.md, ../topics/disk-vs-memory-ann.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/attribute-filtering.md, ../topics/index-selection.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../topics/sparse-dense-hybrid-retrieval.md]
 created: 2026-05-11
-updated: 2026-05-12 (SPLADE as sparse-side hybrid candidate)
+updated: 2026-05-12 (Chroma as object-storage-primary peer)
 ---
 
 # Turbopuffer

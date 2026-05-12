@@ -1,10 +1,10 @@
 ---
 title: Weaviate（Go 实现 AI-native primary vector DBMS）
 type: system
-sources: [weaviate-docs, vespa-docs, turbopuffer-docs, formal-2021-splade-v2]
-related: [milvus.md, qdrant.md, pinecone.md, vespa.md, turbopuffer.md, faiss.md, vbase.md, analyticdb-v.md, pase.md, spfresh.md, freshdiskann.md, cagra.md, ../concepts/hnsw.md, ../concepts/acorn.md, ../concepts/filtered-vamana.md, ../concepts/rabitq.md, ../concepts/product-quantization.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../concepts/splade-sparse-retrieval.md, ../topics/attribute-filtering.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/sparse-dense-hybrid-retrieval.md]
+sources: [weaviate-docs, vespa-docs, turbopuffer-docs, formal-2021-splade-v2, chroma-docs]
+related: [milvus.md, qdrant.md, pinecone.md, vespa.md, turbopuffer.md, chroma.md, faiss.md, vbase.md, analyticdb-v.md, pase.md, spfresh.md, freshdiskann.md, cagra.md, ../concepts/hnsw.md, ../concepts/acorn.md, ../concepts/filtered-vamana.md, ../concepts/rabitq.md, ../concepts/product-quantization.md, ../concepts/relaxed-monotonicity.md, ../concepts/freshvamana.md, ../concepts/splade-sparse-retrieval.md, ../topics/attribute-filtering.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../topics/topk-vs-iterator-model.md, ../topics/sparse-dense-hybrid-retrieval.md]
 created: 2026-05-11
-updated: 2026-05-12 (SPLADE as sparse-side hybrid next-gen)
+updated: 2026-05-12 (Chroma as AI-native peer + Rrf API comparison)
 ---
 
 # Weaviate
