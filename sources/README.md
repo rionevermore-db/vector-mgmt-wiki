@@ -52,6 +52,9 @@
 | nogueira-2019-doc2query | Document Expansion by Query Prediction (doc2query / docTTTTTquery / doc2query-T5) | Rodrigo Nogueira, Wei Yang, Jimmy Lin, Kyunghyun Cho | 2019 (arXiv) | paper | papers/nogueira-2019-doc2query.pdf | 2026-05-12 |
 | mallia-2021-deepimpact | Learning Passage Impacts for Inverted Indexes (DeepImpact) | Antonio Mallia, Omar Khattab, Torsten Suel, Nicola Tonellotto | 2021 (SIGIR) | paper | papers/mallia-2021-deepimpact.pdf | 2026-05-12 |
 | gao-2021-coil | COIL: Revisit Exact Lexical Match in Information Retrieval with Contextualized Inverted List | Luyu Gao, Zhuyun Dai, Jamie Callan | 2021 (NAACL) | paper | papers/gao-2021-coil.pdf | 2026-05-12 |
+| lee-2024-nv-embed | NV-Embed: Improved Techniques for Training LLMs as Generalist Embedding Models | Chankyu Lee, Rajarshi Roy, Mengyao Xu, Jonathan Raiman, Mohammad Shoeybi, Bryan Catanzaro, Wei Ping | 2024 (ICLR 2025) | paper | papers/lee-2024-nv-embed.pdf | 2026-05-12 |
+| lee-2024-gecko | Gecko: Versatile Text Embeddings Distilled from Large Language Models | Jinhyuk Lee, Zhuyun Dai, Xiaoqi Ren, Blair Chen, Daniel Cer, et al. (Google DeepMind) | 2024 (arXiv) | paper | papers/lee-2024-gecko.pdf | 2026-05-12 |
+| li-2023-gte | Towards General Text Embeddings with Multi-stage Contrastive Learning (GTE) | Zehan Li, Xin Zhang, Yanzhao Zhang, Dingkun Long, Pengjun Xie, Meishan Zhang (Alibaba) | 2023 (arXiv) | paper | papers/li-2023-gte.pdf | 2026-05-12 |
 
 ## 命名约定
 
