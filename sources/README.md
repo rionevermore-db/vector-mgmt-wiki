@@ -70,6 +70,9 @@
 | opensearch-docs | OpenSearch k-NN plugin 官方文档 (WebFetch summary + 公知) | OpenSearch Project (AWS-fork) | 2021+ | docs | docs/opensearch/ | 2026-05-12 |
 | redis-docs | Redis Stack vector search 官方文档 (WebFetch partial + 公知) | Redis Inc. | 2022+ (Redis Stack) | docs | docs/redis/ | 2026-05-12 |
 | mongodb-atlas-docs | MongoDB Atlas Vector Search 官方文档 (WebFetch summary) | MongoDB Inc. | 2023+ (Atlas Vector Search GA) | docs | docs/mongodb-atlas/ | 2026-05-12 |
+| zuo-2024-serf | SeRF: Segment Graph for Range-Filtering Approximate Nearest Neighbor Search | Chaoji Zuo, Miao Qiao, Wenchao Zhou, Feifei Li, Dong Deng (SJTU + Microsoft + Alibaba) | 2024 (SIGMOD) | paper | papers/zuo-2024-serf.pdf | 2026-05-12 |
+| xu-2024-irangegraph | iRangeGraph: Improvising Range-dedicated Graphs for Range-filtering Nearest Neighbor Search | Yuexuan Xu et al. | 2024 (PVLDB / Proc. ACM Mgmt. Data, arXiv 2409.02571) | paper | papers/xu-2024-irangegraph.pdf | 2026-05-12 |
+| liang-2024-unify | UNIFY: Unified Index for Range Filtered Approximate Nearest Neighbors Search | Anqi Liang, Pengcheng Zhang, Bin Yao, Zhongpu Chen, Yitong Song, Guangxu Cheng (SJTU + Tencent + SWUFE) | 2024 (PVLDB 18(4), arXiv 2412.02448) | paper | papers/liang-2024-unify.pdf | 2026-05-12 |
 
 ## 命名约定
 
