@@ -11,4 +11,6 @@ notes: |
 
 # Databricks Vector Search docs snapshot
 
-- `vector-search-overview.md` — landing page, 架构 + HNSW + Delta integration + scale limit
+- `vector-search-overview.md` — landing page (docs.databricks.com WebFetch summary)
+- `vector-search-detailed.md` — **完整架构** (Azure docs raw markdown source-of-truth at MicrosoftDocs/databricks-pr GitHub): HNSW + L2 + RRF 公式 + 4 类 index 选项 + 完整 limit table + Storage-optimized 约束 + 加密 + Unity Catalog
+- `vector-search-creation.md` — Delta Sync vs Direct Access creation + endpoint types + target_qps

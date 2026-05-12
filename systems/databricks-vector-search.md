@@ -128,10 +128,76 @@ updated: 2026-05-12
 4. **2-tier endpoint design (Standard 320M vs Storage-optimized 1B)**——明确把 "high QPS small index" 和 "low QPS large index" 作 product axis, 与 Pinecone p1/p2/s1 pod axis 是同类设计但 Databricks 公开数字.
 5. **RRF rrf_param=60 = wiki 内首个具体 RRF 参数 production data point**——之前 wiki 提到 RRF 但无具体常数. Databricks 验证 60 是 production-tested default.
 
+## RRF 公式 (公开, Ingest 第二轮补充)
+
+[per sources/docs/databricks/vector-search-detailed.md]
+
+```
+RRF(d) = 1 / (rrf_param + rank(d))      # rrf_param = 60
+```
+
+> "Based on the literature, rrf_param is set to 60"——是 wiki 内 **first vendor 公开 RRF 完整数学公式 + 常数选择 justification** (vs 其他 vendor 仅说"用 RRF"无 detail).
+
+Normalization: max score = 1 (统一区间).
+
+## BM25 tokenization (公开)
+
+> "All text or string columns are searched, including the source text embedding and metadata columns... tokenization function splits at word boundaries, removes punctuation, and converts all text to lowercase."
+
+## 4 类 Index 选项 (Ingest 第二轮)
+
+[per sources/docs/databricks/vector-search-detailed.md]
+
+1. **Delta Sync + Databricks-managed embeddings** — source Delta + auto-embed + auto-sync
+2. **Delta Sync + self-managed embeddings** — pre-calc embedding column, auto-sync. **不可转 managed** (须重建)
+3. **Direct Vector Access** — REST API manual update. **上限仅 ~2M @ 768d** (与 320M Standard / 1B Storage-optimized 形成 1-2 数量级差距, 是 dev/test 用途)
+4. **Full-text search index (Beta)** — storage-optimized 上的 **dedicated BM25-only index, no embeddings**——wiki 内 **first vendor "vector DB 内嵌纯 BM25 index"**, 是混合架构的灵活组件
+
+## 完整 endpoint capacity (Ingest 第二轮)
+
+| Endpoint | 768d | 1536d | 3072d | 4096d (max) |
+|---|---|---|---|---|
+| Standard | 320M | 160M | 80M | ~60M (linear scaling) |
+| Direct Vector Access | ~2M | — | — | — |
+| Storage-optimized | ~1B | — | — | — |
+
+**Linear scaling**: vectors-per-endpoint × dim ≈ constant. 768d → 4096d (5.3×) → capacity 1/5.3.
+
+## 完整 query API limits
+
+| Resource | Limit |
+|---|---|
+| Query text length | 32764 chars |
+| Tokens in hybrid query | 1024 words |
+| Filter conditions per clause | 1024 elements |
+| Max results (ANN) | **10,000** |
+| Max results (hybrid) | **200** |
+| Max results (full-text only) | 200 |
+| Response size | 10 MB |
+
+**Hybrid 上限 200 vs ANN 上限 10,000**: hybrid keyword-similarity 在大 top-K 场景受限——production 长 result list 需 dual-path 选 ANN-only + 应用层 BM25 rerank.
+
+## Storage-optimized 限制 (Beta)
+
+- **Continuous sync 不支持** — 仅 Triggered
+- **Columns to sync 不支持**
+- **Embedding dim 必须 div by 16** — 暗示底层用 SIMD 友好 layout (e.g. AVX-512 + PQ-style block code)
+- **Incremental update partial**: 每 sync 部分重建; 行 unchanged → embedding reused
+- **1B embeddings sync < 8 hours** (具体数据点 = wiki 内 first vendor 公开 large-scale incremental sync 时间)
+- FedRAMP / CMK 不支持
+
+## 加密 + Auth
+
+- AES-256 at rest, TLS 1.2+ in transit
+- **Service principal token vs PAT**——SP **100ms faster per query** (relative). production 应选 SP
+- **CMK supported on endpoints created on or after 2024-05-08**
+- Unity Catalog enforce governance, row/column level permission 不支持 (用 filter API 实现 application ACL)
+
 ## Open Questions
 
-- **Storage-optimized 内部架构**: 是 SPANN-style hierarchical? DiskANN-style proximity graph + SSD? Databricks 未明示. 10-20× 索引快暗示 IVF-like 而非 graph build.
-- **CDF lag 实测**: source Delta table commit → vector index visible 的实测延迟? Production RAG freshness-critical 应用关键数字.
-- **HNSW 参数 (M, efConstruction)**: 是否暴露? Standard endpoint 一刀切 vs user-tunable?
-- **跨 endpoint hybrid (e.g., 一个 endpoint 做 sparse, 一个做 dense)**: 是否支持 cross-endpoint fusion? RRF 仅 single-endpoint 内 hybrid?
-- **与 Mosaic AI Quality Lab integration**: Mosaic AI Agent Framework + Vector Search 共同使用时, 哪些 evaluation tooling 自动 wire up?
+- **Storage-optimized 内部架构**: 仍是 HNSW 还是 IVF + PQ? "div by 16" 暗示 PQ-style block, "10-20× faster indexing" 暗示 IVF-clustering. Databricks 未明示, 但 architectural 推测从 Standard HNSW shift 到 IVF-PQ hierarchical.
+- **CDF lag 实测**: source Delta table commit → vector index visible 的实测延迟? Production RAG freshness-critical 应用关键数字. Continuous sync 文档说"seconds"但缺具体 SLA.
+- **HNSW 参数 (M, efConstruction)**: 是否暴露? Standard endpoint 一刀切 vs user-tunable? Doc 未明示, 推测 vendor-managed.
+- **跨 endpoint hybrid**: 是否支持 cross-endpoint fusion? RRF 仅 single-endpoint 内.
+- **Mosaic AI Quality Lab integration**: Mosaic AI Agent Framework + Vector Search 共同使用时, 哪些 evaluation tooling 自动 wire up?
+- **Hybrid 上限 200 vs ANN 10000 的 architectural reason**: BM25 inverted index per-segment 上限 ≠ HNSW 上限, 还是 fusion sort 复杂度限制? Production 长 result list use case 需 workaround.

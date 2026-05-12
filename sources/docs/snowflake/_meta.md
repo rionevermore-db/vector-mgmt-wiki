@@ -13,3 +13,5 @@ notes: |
 # Snowflake Cortex Search docs snapshot
 
 - `cortex-search-overview.md` — landing page, 架构 + 关键组件 + scale limit
+- `create-cortex-search-sql.md` — **CREATE CORTEX SEARCH SERVICE SQL** full syntax (single-index + multi-index pattern), embedding model 选项, **EMBEDDING_MODEL 不可 ALTER 约束**, refresh modes
+- `query-cortex-search.md` — REST API query format, **hybrid weight `scoring_config.weights` 公开** (texts/vectors/reranker relative), filter operators (@eq/@gte/@lte/@and/@or/@not), limits

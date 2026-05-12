@@ -125,6 +125,66 @@ updated: 2026-05-12
 3. **黑盒 vector index algorithm**——Snowflake 不公开 HNSW/IVF 选择, 与 Pinecone 公开 pod-based 架构 / Databricks 公开 HNSW + BM25 + RRF 形成对比. 这是 **closed-SaaS 与 open-system 在 transparency 上的 axis difference**.
 4. **Snowflake Arctic Embed family**——`arctic-embed-m-v1.5` / `arctic-embed-l-v2.0` 是 Snowflake 自研 embedding model, OSS HF available. 与 NV-Embed / E5-Mistral / BGE-M3 是 [embedding model paradigm](../concepts/modern-embedding-paradigms.md) 选项之一, wiki 未单独 page 但 Cortex Search 默认使用是重要 production deployment.
 
+## Extended SQL syntax + Query API (Ingest 第二轮补充)
+
+[per sources/docs/snowflake/create-cortex-search-sql.md + query-cortex-search.md]
+
+### Two index patterns
+
+**Single-Index** (传统):
+```sql
+CREATE CORTEX SEARCH SERVICE <name>
+  ON <search_column>
+  ATTRIBUTES <col_name>, ...
+  WAREHOUSE = <warehouse>
+  TARGET_LAG = '<num> seconds|minutes|hours|days'
+  EMBEDDING_MODEL = <model_name>  -- default snowflake-arctic-embed-m-v1.5
+AS <query>;
+```
+
+**Multi-Index** (text + vector 多索引):
+```sql
+CREATE CORTEX SEARCH SERVICE <name>
+  TEXT INDEXES <text_col>, ...
+  VECTOR INDEXES <col_spec>, ...
+  ...
+AS <query>;
+```
+
+### Hybrid weighting 公开 (REST API)
+
+```json
+"scoring_config": {
+  "weights": {
+    "texts": 3, "vectors": 2, "reranker": 1
+  }
+}
+```
+
+> "Weights are applied relative to each other"——`{3,2,1}` == `{30,20,10}`. 是 wiki 内 **first vendor 公开 3-way hybrid weighting** (text vs vector vs reranker 三组件 relative weight, 之前 Databricks RRF 是 2-way).
+
+### Filter operators
+
+`@eq` / `@contains` / `@gte` / `@lte` / `@primarykey` + 逻辑 `@and` / `@or` / `@not`.
+
+```json
+{"@and": [{"@gte": {"score": 10.5}}, {"@lte": {"score": 12.5}}]}
+```
+
+### Query limits
+
+- `limit`: max 1000, default 10
+- Response: REST/Python 10 MB; SQL SEARCH_PREVIEW 300 KB
+- `reranker: "none"` 禁用 rerank
+- `multi_index_query`: 限制 search index 子集——降 cost
+- `numeric_boosts` / `time_decays`: column-level boost 与时间衰减
+
+### 关键约束 — EMBEDDING_MODEL 不可 ALTER
+
+> "EMBEDDING_MODEL...cannot be altered after you create the Cortex Search Service. To modify the property, recreate the Cortex Search Service"
+
+**talk SIGMOD 2026 cross-model migration 主题直接相关**: Snowflake Cortex 是 vendor-locked—**升级 embedding model 必须 recreate 整个 service**——是 vendor lock-in 在 production 的具体形式. Path A (auto-confirm 升级) 在此 vendor 不可能.
+
 ## Open Questions
 
 - **底层 vector index 算法**: HNSW? IVF + PQ? 数据湖原生暗示 Parquet-block 友好 layout (e.g. SPIRE-style hierarchical), 但 100M 上限暗示 single-node HNSW more likely. Snowflake 未公开.
@@ -132,3 +192,4 @@ updated: 2026-05-12
 - **Snowflake Arctic Embed 与 NV-Embed / BGE-M3 性能 head-to-head**: arctic-embed-m-v1.5 在 MTEB 上排名? OSS leaderboard 数据点不足.
 - **100M 上限的 architectural origin**: 是 serving infra 单 node memory bound 还是 materialized table 单文件大小限制?
 - **incremental refresh 延迟**: Source table 更新 → index 同步的 lag, 影响 freshness-sensitive RAG 选型.
+- **EMBEDDING_MODEL 不可 ALTER 的 architectural reason**: 是 materialized vector 与 model 1-to-1 coupling 还是 service metadata 设计限制? 影响 multi-tenant SaaS 上做 RAG 的用户是否需要每 model 升级时 deploy 新 service.
