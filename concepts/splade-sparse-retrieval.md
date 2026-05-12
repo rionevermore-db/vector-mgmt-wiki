@@ -1,10 +1,10 @@
 ---
 title: SPLADE（Sparse Lexical and Expansion Model）
 type: concept
-sources: [formal-2021-splade-v2]
-related: [clip.md, matryoshka-embedding.md, product-quantization.md, scann.md, ../systems/vespa.md, ../systems/weaviate.md, ../systems/turbopuffer.md, ../systems/pinecone.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/multi-vector-queries.md, ../topics/adaptive-retrieval-shortlist-rerank.md]
+sources: [formal-2021-splade-v2, santhanam-2022-colbertv2]
+related: [clip.md, matryoshka-embedding.md, colbertv2.md, product-quantization.md, scann.md, ../systems/vespa.md, ../systems/weaviate.md, ../systems/turbopuffer.md, ../systems/pinecone.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/multi-vector-queries.md, ../topics/adaptive-retrieval-shortlist-rerank.md]
 created: 2026-05-12
-updated: 2026-05-12
+updated: 2026-05-12 (ColBERTv2 as late-interaction sibling in 3-way retrieval)
 ---
 
 # SPLADE (Sparse Lexical and Expansion Model)
