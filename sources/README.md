@@ -64,6 +64,12 @@
 | dang-2025-batann | Passing the Baton: High Throughput Distributed Disk-Based Vector Search with BatANN | Nam Anh Dang, Ben Landrum, Ken Birman (Cornell) | 2025 (arXiv 2512.09331) | paper | papers/dang-2025-batann.pdf | 2026-05-12 |
 | liu-2025-spi | Towards Hyper-Efficient RAG Systems in VecDBs: Distributed Parallel Multi-Resolution Vector Search (Semantic Pyramid Indexing / SPI) | Dong Liu, Yanxuan Yu | 2025 (arXiv 2511.16681) | paper | papers/liu-2025-spi.pdf | 2026-05-12 |
 | yin-2025-gorgeous | Gorgeous: Revisiting the Data Layout for Disk-Resident High-Dimensional Vector Search | Peiqi Yin et al. | 2025 (arXiv 2508.15290) | paper | papers/yin-2025-gorgeous.pdf | 2026-05-12 |
+| snowflake-docs | Snowflake Cortex Search 官方文档 (WebFetch summary) | Snowflake Inc. | 2024-2025 | docs | docs/snowflake/ | 2026-05-12 |
+| databricks-docs | Databricks Vector Search 官方文档 (WebFetch summary) | Databricks Inc. | 2024-2025 | docs | docs/databricks/ | 2026-05-12 |
+| elasticsearch-docs | Elasticsearch kNN + dense_vector 官方文档 (WebFetch summary) | Elastic N.V. | 2022+ (ES 8.0 GA) | docs | docs/elasticsearch/ | 2026-05-12 |
+| opensearch-docs | OpenSearch k-NN plugin 官方文档 (WebFetch summary + 公知) | OpenSearch Project (AWS-fork) | 2021+ | docs | docs/opensearch/ | 2026-05-12 |
+| redis-docs | Redis Stack vector search 官方文档 (WebFetch partial + 公知) | Redis Inc. | 2022+ (Redis Stack) | docs | docs/redis/ | 2026-05-12 |
+| mongodb-atlas-docs | MongoDB Atlas Vector Search 官方文档 (WebFetch summary) | MongoDB Inc. | 2023+ (Atlas Vector Search GA) | docs | docs/mongodb-atlas/ | 2026-05-12 |
 
 ## 命名约定
 
