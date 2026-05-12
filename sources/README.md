@@ -40,6 +40,7 @@
 | chroma-docs | Chroma 官方文档 (llms-full.txt 21716 行 / 810 KB; Chroma Core OSS Apache-2.0 + Chroma Cloud Distributed Chroma) | Chroma (Anton Troynikov + Jeff Huber 2022) | 2026-05-12 fetch | docs | docs/chroma/llms-full.txt | 2026-05-12 |
 | lancedb-docs | LanceDB 官方文档 (GitHub READMEs LanceDB + Lance format; "multimodal lakehouse for AI", OSS + Enterprise) | LanceDB Inc. (Chang She + Lei Xu 2022) | 2026-05-12 fetch | docs | docs/lancedb/{README.md, lance-format-README.md} | 2026-05-12 |
 | santhanam-2022-colbertv2 | ColBERTv2: Effective and Efficient Retrieval via Lightweight Late Interaction | Keshav Santhanam, Omar Khattab, Jon Saad-Falcon, Christopher Potts, Matei Zaharia | 2022 (NAACL) / 2021 (arXiv v1) / 2022 (arXiv v3) | paper | papers/santhanam-2022-colbertv2.pdf | 2026-05-12 |
+| muennighoff-2023-mteb | MTEB: Massive Text Embedding Benchmark | Niklas Muennighoff, Nouamane Tazi, Loïc Magne, Nils Reimers | 2023 (EACL) / 2022 (arXiv) | paper | papers/muennighoff-2023-mteb.pdf | 2026-05-12 |
 
 ## 命名约定
 

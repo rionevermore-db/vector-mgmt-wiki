@@ -71,6 +71,7 @@
 
 ## Benchmarks（测评）
 
+- [MTEB: Massive Text Embedding Benchmark](./benchmarks/mteb-massive-text-embedding-benchmark.md) — Muennighoff et al. 2023 EACL；行业标准 text embedding evaluation；8 task × 58 datasets × 112 languages × 33 model 系统化对比；public leaderboard (github.com/embeddings-benchmark/mteb) 是 production embedding model 选择事实标准；**wiki 内首个 embedding model selection benchmark**, 填补"选哪个 embedding"客观依据；OpenAI text-emb-3 / Cohere v3-v4 / Voyage / BGE / NV-Embed / Linq 等 production embedding 全部 MTEB 评测；"no model dominates all tasks" 关键 finding——production embedding model 选择是 task-aware
 - [HNSW vs Faiss PQ on 200M SIFT](./benchmarks/hnsw-vs-faiss-200m-sift.md) — HNSW 论文 §5.4：HNSW 速度赢、Faiss 内存赢
 - [PQ on SIFT/GIST recall + 2B SIFT](./benchmarks/pq-sift-recall.md) — PQ 论文 §V：ADC 完胜 SH/HE，IVFADC 比 ADC 快约 2×，可扩展到 2B 向量
 - [NSG vs Graph ANNs on Million-Scale](./benchmarks/nsg-vs-graph-anns-million.md) — NSG 论文 §4.1：NSG 在四个百万级数据集上击败 HNSW / FANNG / KGraph 等
