@@ -61,6 +61,9 @@
 | wang-2023-e5-mistral | Improving Text Embeddings with Large Language Models (E5-Mistral) | Liang Wang, Nan Yang, Xiaolong Huang, Linjun Yang, Rangan Majumder, Furu Wei (Microsoft) | 2023 (arXiv 2401.00368) | paper | papers/wang-2023-e5-mistral.pdf | 2026-05-12 |
 | muennighoff-2024-gritlm | Generative Representational Instruction Tuning (GritLM) | Niklas Muennighoff, Hongjin Su, Liang Wang, Nan Yang, Furu Wei, Tao Yu, Amanpreet Singh, Douwe Kiela (ContextualAI + Microsoft + HKU) | 2024 (arXiv 2402.09906) | paper | papers/muennighoff-2024-gritlm.pdf | 2026-05-12 |
 | behnamghader-2024-llm2vec | LLM2Vec: Large Language Models Are Secretly Powerful Text Encoders | Parishad BehnamGhader, Vaibhav Adlakha, Marius Mosbach, Dzmitry Bahdanau, Nicolas Chapados, Siva Reddy (McGill + Mila + ServiceNow) | 2024 (arXiv 2404.05961) | paper | papers/behnamghader-2024-llm2vec.pdf | 2026-05-12 |
+| dang-2025-batann | Passing the Baton: High Throughput Distributed Disk-Based Vector Search with BatANN | Nam Anh Dang, Ben Landrum, Ken Birman (Cornell) | 2025 (arXiv 2512.09331) | paper | papers/dang-2025-batann.pdf | 2026-05-12 |
+| liu-2025-spi | Towards Hyper-Efficient RAG Systems in VecDBs: Distributed Parallel Multi-Resolution Vector Search (Semantic Pyramid Indexing / SPI) | Dong Liu, Yanxuan Yu | 2025 (arXiv 2511.16681) | paper | papers/liu-2025-spi.pdf | 2026-05-12 |
+| yin-2025-gorgeous | Gorgeous: Revisiting the Data Layout for Disk-Resident High-Dimensional Vector Search | Peiqi Yin et al. | 2025 (arXiv 2508.15290) | paper | papers/yin-2025-gorgeous.pdf | 2026-05-12 |
 
 ## 命名约定
 
