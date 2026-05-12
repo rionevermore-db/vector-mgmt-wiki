@@ -55,6 +55,9 @@
 | lee-2024-nv-embed | NV-Embed: Improved Techniques for Training LLMs as Generalist Embedding Models | Chankyu Lee, Rajarshi Roy, Mengyao Xu, Jonathan Raiman, Mohammad Shoeybi, Bryan Catanzaro, Wei Ping | 2024 (ICLR 2025) | paper | papers/lee-2024-nv-embed.pdf | 2026-05-12 |
 | lee-2024-gecko | Gecko: Versatile Text Embeddings Distilled from Large Language Models | Jinhyuk Lee, Zhuyun Dai, Xiaoqi Ren, Blair Chen, Daniel Cer, et al. (Google DeepMind) | 2024 (arXiv) | paper | papers/lee-2024-gecko.pdf | 2026-05-12 |
 | li-2023-gte | Towards General Text Embeddings with Multi-stage Contrastive Learning (GTE) | Zehan Li, Xin Zhang, Yanzhao Zhang, Dingkun Long, Pengjun Xie, Meishan Zhang (Alibaba) | 2023 (arXiv) | paper | papers/li-2023-gte.pdf | 2026-05-12 |
+| wu-2025-pathfinder | PathFinder: Efficiently Supporting Conjunctions and Disjunctions for Filtered Approximate Nearest Neighbor Search | Tianming Wu, Dixin Tang (UT Austin) | 2025 (PVLDB 2026 submission, arXiv 2511.00995) | paper | papers/wu-2025-pathfinder.pdf | 2026-05-12 |
+| liu-2025-trinity | Trinity: Disaggregating Vector Search for Prefill-Decode Disaggregation in LLM Serving | Yi Liu, Chen Qian (UC Santa Cruz) | 2025 (arXiv 2512.02281) | paper | papers/liu-2025-trinity.pdf | 2026-05-12 |
+| xu-2025-spire | Scalable Distributed Vector Search via Accuracy Preserving Index Construction (SPIRE) | Yuming Xu, Qianxi Zhang, Qi Chen, Baotong Lu, Menghao Li, Philip Adams, Mingqin Li, Zengzhong Li, Jing Liu, Cheng Li, Fan Yang (USTC + Microsoft Research + Microsoft + Shopify + MS AI) | 2025 (arXiv 2512.17264) | paper | papers/xu-2025-spire.pdf | 2026-05-12 |
 
 ## 命名约定
 
