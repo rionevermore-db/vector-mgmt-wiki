@@ -73,6 +73,9 @@
 | zuo-2024-serf | SeRF: Segment Graph for Range-Filtering Approximate Nearest Neighbor Search | Chaoji Zuo, Miao Qiao, Wenchao Zhou, Feifei Li, Dong Deng (SJTU + Microsoft + Alibaba) | 2024 (SIGMOD) | paper | papers/zuo-2024-serf.pdf | 2026-05-12 |
 | xu-2024-irangegraph | iRangeGraph: Improvising Range-dedicated Graphs for Range-filtering Nearest Neighbor Search | Yuexuan Xu et al. | 2024 (PVLDB / Proc. ACM Mgmt. Data, arXiv 2409.02571) | paper | papers/xu-2024-irangegraph.pdf | 2026-05-12 |
 | liang-2024-unify | UNIFY: Unified Index for Range Filtered Approximate Nearest Neighbors Search | Anqi Liang, Pengcheng Zhang, Bin Yao, Zhongpu Chen, Yitong Song, Guangxu Cheng (SJTU + Tencent + SWUFE) | 2024 (PVLDB 18(4), arXiv 2412.02448) | paper | papers/liang-2024-unify.pdf | 2026-05-12 |
+| jia-2021-align | Scaling Up Visual and Vision-Language Representation Learning With Noisy Text Supervision (ALIGN) | Chao Jia, Yinfei Yang, Ye Xia, Yi-Ting Chen, Zarana Parekh, Hieu Pham, Quoc V. Le, Yunhsuan Sung, Zhen Li, Tom Duerig (Google Research) | 2021 (ICML, arXiv 2102.05918) | paper | papers/jia-2021-align.pdf | 2026-05-13 |
+| li-2023-blip2 | BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models | Junnan Li, Dongxu Li, Silvio Savarese, Steven Hoi (Salesforce Research) | 2023 (arXiv 2301.12597) | paper | papers/li-2023-blip2.pdf | 2026-05-13 |
+| girdhar-2023-imagebind | ImageBind: One Embedding Space To Bind Them All | Rohit Girdhar, Alaaeldin El-Nouby, Zhuang Liu, Mannat Singh, Kalyan Vasudev Alwala, Armand Joulin, Ishan Misra (FAIR, Meta AI) | 2023 (CVPR, arXiv 2305.05665) | paper | papers/girdhar-2023-imagebind.pdf | 2026-05-13 |
 
 ## 命名约定
 
