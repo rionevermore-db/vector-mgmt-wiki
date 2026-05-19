@@ -2,9 +2,9 @@
 title: DistributedANN-Cited 4 Frontier Papers（CXL-ANNS / LM-DiskANN / AiSAQ / Graph Partitioning）
 type: concept
 sources: [jang-2023-cxl-anns, pan-2023-lm-diskann, tatsuno-2024-aisaq, gottesbueren-2024-graph-partitioning, adams-2025-distributedann]
-related: [../systems/distributedann.md, ../systems/diskann.md, ../systems/spann.md, ../systems/spfresh.md, ../systems/freshdiskann.md, ../systems/turbopuffer.md, ../systems/chroma.md, vamana.md, hnsw.md, product-quantization.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md]
+related: [../systems/distributedann.md, ../systems/diskann.md, ../systems/spann.md, ../systems/spfresh.md, ../systems/freshdiskann.md, ../systems/turbopuffer.md, ../systems/chroma.md, ../systems/cxl-anns.md, vamana.md, hnsw.md, product-quantization.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md]
 created: 2026-05-12
-updated: 2026-05-12
+updated: 2026-05-19 (CXL-ANNS deepen → 独立 systems/cxl-anns.md, 本段收窄为指针)
 ---
 
 # DistributedANN-Cited 4 Frontier Papers
@@ -15,18 +15,9 @@ updated: 2026-05-12
 
 ### 1. CXL-ANNS (Jang 2023 USENIX ATC, KAIST + Panmnesia)
 
-[per jang-2023-cxl-anns]
+> **已 deepen 为独立 system page**：[systems/cxl-anns.md](../systems/cxl-anns.md)（2026-05-19 一手论文 deepen-ingest）。本段保留为指针，详细技术深度（CXL 三 sub-protocol / Type-3 HDM、4 个机制、FPGA+gem5 原型、分层 eval、§7 anti-GPU 反论）见该 page。
 
-**Problem**: Billion-scale ANN search 需 huge DRAM. DRAM expensive + 单机有限.
-
-**Approach**: CXL (Compute Express Link) memory disaggregation
-- Host DRAM 小, CXL memory pool 大 (跨多设备 disaggregated DRAM)
-- 关键 datasets 放 CXL memory
-- 软硬件协同: cache frequently visited nodes locally + prefetch likely-next + parallel collaborative search
-
-**Results**: **111.1× higher QPS / 93.3% lower latency vs SOTA** (paper §6)
-
-→ wiki 内**首个 hardware-level memory disaggregation ANN paper**——新 hardware tier (CXL memory pool) 引入.
+**一句话**：把全量 billion-point 数据集放进 **CXL 解耦内存池**（不压缩、不下放 SSD）→ billion-scale **无精度损失**，用 relationship-aware caching + ANNS-aware prefetch + EP-side 近数据距离计算 + 依赖松弛把 CXL far-memory（naive 比 oracle 慢 3.9×）藏掉，最终 **111.1× higher QPS / 93.3% lower latency vs SOTA**（PQ/DiskANN/HM-ANN），且比无限 DRAM oracle 还快 3.8× throughput。wiki 内**首个 hardware-level memory disaggregation ANN 系统**；§7 显式论证 GPU 对 ANN 距离计算不经济——对 [CAGRA](../systems/cagra.md) GPU-native 路线的哲学反论。[jang-2023-cxl-anns]
 
 ### 2. LM-DiskANN (Pan 2023 IEEE BigData, Univ. Nebraska-Lincoln)
 

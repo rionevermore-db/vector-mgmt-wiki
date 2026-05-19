@@ -1,10 +1,10 @@
 ---
 title: GPU vs CPU ANN（实现差异与算法设计偏好）
 type: topic
-sources: [johnson-2017-faiss-gpu, malkov-2016-hnsw, fu-2017-nsg, jegou-2011-pq, guo-2019-scann, ootomo-2023-cagra]
-related: [../concepts/warpselect.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/cagra-graph.md, ../concepts/vamana.md, ../systems/cagra.md, ../systems/faiss.md, ../systems/milvus.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/cagra-vs-hnsw-ggnn-ganns.md]
+sources: [johnson-2017-faiss-gpu, malkov-2016-hnsw, fu-2017-nsg, jegou-2011-pq, guo-2019-scann, ootomo-2023-cagra, jang-2023-cxl-anns]
+related: [../concepts/warpselect.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/scann.md, ../concepts/cagra-graph.md, ../concepts/vamana.md, ../systems/cagra.md, ../systems/cxl-anns.md, ../systems/faiss.md, ../systems/milvus.md, ../benchmarks/faiss-gpu-sift1b-deep1b.md, ../benchmarks/cagra-vs-hnsw-ggnn-ganns.md]
 created: 2026-05-07
-updated: 2026-05-09 (CAGRA — graph-on-GPU now solved)
+updated: 2026-05-19 (CXL-ANNS §7 anti-GPU 反论加入)
 ---
 
 # GPU vs CPU ANN
@@ -126,6 +126,26 @@ CPU graph 与 GPU graph 不是**取代关系**，是**目标 hardware 不同的�
 
 → **不同 workload 选不同路径**：CPU graph 适合 streaming + filter-heavy + 极致内存 budget；GPU graph 适合 high-throughput + low-latency + 静态索引 + dataset 装得进 GPU memory。
 
+## 第三条路线：近数据计算 vs 加速器卸载（CXL-ANNS §7 反论，NEW 2026-05-19）
+
+[per systems/cxl-anns.md; jang-2023-cxl-anns §7]
+
+之前本 page 的 framing 是 "CPU graph vs GPU graph 双路径"。[CXL-ANNS](../systems/cxl-anns.md)（KAIST + Panmnesia, USENIX ATC 2023）引入**第三条 hardware 路线——CXL 解耦内存池 + EP-side 近数据距离计算**，并在 §7 **显式论证 GPU 对 billion-scale ANN 不经济**，与 [CAGRA](../systems/cagra.md) 的 GPU-native 命题正面对撞：
+
+| 论点 | CXL-ANNS §7（近数据计算派） | [CAGRA](../systems/cagra.md)（GPU-native 派） |
+|---|---|---|
+| 数据移动 | GPU 必与 host SW/HW 层交互 → data transfer 开销不可避免 | dataset 驻留 GPU device memory，避免 host 往返 |
+| 距离计算硬件需求 | ANNS 距离计算只需"少量简单 lightweight 向量单元" → GPU 高端算力**用不上、不经济** | GPU 高并行 + 高带宽正适合 batch 距离计算 |
+| 内存容量 | CPU+GPU 内存**装不下整个 billion-scale ANNS 数据+任务** | 单 A100 ~100M（fp32）；更大需 multi-GPU / PQ |
+| 解法 | 把简单距离计算搬到 **CXL Type-3 EP 内的 DSA**（near-data）→ 数据传输削 73.4×，距离计算降 119.4× | GPU-native graph（fixed degree + 非分层 + rank-based reorder）让 graph ANN 在 GPU 上也最优 |
+
+**关键洞见**：ANN 距离计算是 **memory-bandwidth-bound 而非 compute-bound**（[disk-vs-memory-ann.md](./disk-vs-memory-ann.md) 同结论；CXL-ANNS 实测距离计算占 81.8% 时间但计算量低）。这导出两种对立工程哲学：
+
+- **加速器卸载派（CAGRA / Faiss-GPU）**：把数据搬到高带宽 HBM + 高算力 GPU，用并行吃掉带宽瓶颈——前提是 dataset 装得进 GPU memory
+- **近数据计算派（CXL-ANNS / [DistributedANN](../systems/distributedann.md) node scoring）**：把简单距离计算搬到数据所在的内存设备，消除数据移动本身——前提是有 CXL 解耦内存 / distributed KV near-data 硬件
+
+→ **不是谁取代谁**，是 **dataset 是否装得进加速器内存 + 是否有 CXL 硬件** 决定路线。billion-scale 全精度无损 + 有 CXL 内存池 → CXL-ANNS；dataset 进得了 GPU + 要极致 throughput/latency → CAGRA。详见 [systems/cxl-anns.md](../systems/cxl-anns.md) 与 [systems/cagra.md](../systems/cagra.md)。
+
 ## 关键 Open Questions（updated 2026-05-09）
 
 - ~~**Graph methods 能否 GPU 化？** 论文未尝试。后续工作（GGNN、CAGRA、SONG）专门做 GPU graph ANN，但 wiki 尚未 ingest。~~ **2026-05-09 ingest [ootomo-2023-cagra] 已解** — CAGRA 是 GPU-native graph 完整工业方案
@@ -135,6 +155,7 @@ CPU graph 与 GPU graph 不是**取代关系**，是**目标 hardware 不同的�
 - **CAGRA + streaming (FreshCAGRA)**：fixed-degree graph 的 streaming 比 variable-degree 难——open
 - **CAGRA + filter / multi-vector / range / Join**：完全 open
 - **CAGRA + Faiss 集成**：Faiss 论文 §A.3 提为 emerging direction；当前 Faiss release 不集成 RAFT
-- **AI 加速器（TPU、Trainium、NPU）上的 ANN**：与 GPU 的差异未在 wiki 任何 source 覆盖
+- **AI 加速器（TPU、Trainium、NPU）上的 ANN**：与 GPU 的差异未在 wiki 任何 source 覆盖；但 [CXL-ANNS §7](../systems/cxl-anns.md) 提供一个反向论据——ANN 距离计算太简单，专用高算力加速器（含 GPU/NPU）普遍**不经济**，near-data 简单算术单元可能更优
+- **CXL 近数据计算 vs GPU 卸载的经济阈值**：[CXL-ANNS](../systems/cxl-anns.md) 主张 near-data 削数据移动优于 GPU 卸载；何时 CXL 内存池硬件投资划算 vs GPU——workload + 硬件可得性 specific，wiki 无实证对比
 - **CPU SIMD（AVX-512、SVE2）的天花板**：单 socket CPU 用极致 SIMD 能否追上单 GPU？wiki 未覆盖
 - **GPU CAGRA vs CPU HNSW 的"经济阈值"**：何时 GPU 投资划算？workload-specific，论文未深入

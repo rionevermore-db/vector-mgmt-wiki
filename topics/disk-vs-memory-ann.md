@@ -1,10 +1,10 @@
 ---
 title: Disk vs Memory ANN（SSD 与 DRAM 的 ANN 路线）
 type: topic
-sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library, wang-2024-starling]
-related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../concepts/lire.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/block-shuffling.md, ../concepts/rabitq.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/starling.md, ../systems/vbase.md, ./in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
+sources: [subramanya-2019-diskann, chen-2021-spann, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, douze-2024-faiss-library, wang-2024-starling, jang-2023-cxl-anns]
+related: [../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/woodpecker.md, ../concepts/lire.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/manu-ssd-hierarchical-kmeans.md, ../concepts/vgpq.md, ../concepts/block-shuffling.md, ../concepts/rabitq.md, ../systems/diskann.md, ../systems/spann.md, ../systems/faiss.md, ../systems/milvus.md, ../systems/spfresh.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/starling.md, ../systems/vbase.md, ../systems/cxl-anns.md, ../systems/distributedann.md, ./in-place-vs-out-of-place-updates.md, ../benchmarks/diskann-sift1b.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/faiss-trillion-scale.md, ../benchmarks/spfresh-vs-diskann-spann-update.md, ../benchmarks/manu-vs-elasticsearch-vearch-vald-vespa.md, ../benchmarks/analyticdb-v-vs-twostep.md, ../benchmarks/pase-vs-cube-freddy.md, ../benchmarks/starling-vs-diskann-spann-on-segment.md]
 created: 2026-05-07
-updated: 2026-05-09 (Starling)
+updated: 2026-05-19 (CXL-ANNS — CXL 解耦内存作为第三条 scale 轴, 关闭 CXL 中间层 Open Q)
 ---
 
 # Disk vs Memory ANN
@@ -126,6 +126,37 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 | DRAM + SSD | **必须 batch I/O + 减少 hop** → DiskANN |
 | HBM (GPU) | brute force + fused k-selection ([WarpSelect](../concepts/warpselect.md)) |
 | 网络存储 | 几乎无 ANN 方案能正常工作（除非完全 batch） |
+| **CXL 解耦内存池** | **全量 graph+向量驻留（不压缩不下放），但需 caching+prefetch 藏 far-memory 延迟 + near-data 距离计算** → [CXL-ANNS](../systems/cxl-anns.md) |
+
+## 关键洞见 6：CXL 解耦内存——第三条 scale 轴（NEW 2026-05-19）
+
+[per systems/cxl-anns.md; jang-2023-cxl-anns §3.1, §6.2]
+
+此前 wiki 内 billion-scale 的两条路线都**牺牲精度或延迟**：
+
+1. **量化压缩 + 全内存**（[Faiss IVFPQ](../systems/faiss.md)）：recall 卡 60-70%
+2. **hierarchical SSD/PMEM**（[DiskANN](../systems/diskann.md) / SPANN / HM-ANN）：storage 访问占 query latency 87.6%（CXL-ANNS 实测），DiskANN/HM-ANN 比无限-DRAM oracle 差 29.4×/64.6× latency
+
+[CXL-ANNS](../systems/cxl-anns.md)（KAIST + Panmnesia, USENIX ATC 2023）给出**第三条 scale 轴——不换更慢介质，而是换"更多内存设备"**：把全量 billion-point 数据集（graph + embedding table，不压缩）放进 **CXL 解耦内存池**（Type-3 EP，协议上限 4095 EP / 4 PB）。
+
+**核心矛盾与解法**：
+
+| | naive CXL 内存池（`Base`） | CXL-ANNS（4 机制后） |
+|---|---|---|
+| vs oracle latency | **慢 3.9×**（每访问要 RC memory⇄flit 转换；graph traverse +2.6×、distance calc +4.3×） | **低 68% latency / 高 3.8× throughput** |
+| vs SOTA billion-scale | — | **111.1× QPS / 93.3% lower latency**（vs PQ/DiskANN/HM-ANN） |
+
+4 机制：(1) relationship-aware caching（按 entry-node hop 距离缓存 2-3 跳内热点）；(2) ANNS-aware prefetch（82.3% 访问来自 candidate array → 提前一轮取）；(3) **EP-side 近数据距离计算 + vector sharding**（DSA 在内存侧算距离，数据传输削 73.4×、距离计算降 119.4×）；(4) urgent/deferrable 依赖松弛（CXL CPU 不再 42% 空等）。
+
+**对 disk-vs-memory landscape 的意义**——现在有**三条 scale 轴**：
+
+| 轴 | 代表 | 换什么 | 代价 |
+|---|---|---|---|
+| 慢介质（SSD/PMEM） | DiskANN / SPANN | 内存 → SSD（量化导航 + SSD re-rank） | latency ↑（storage 87.6%） |
+| 分布式 | [DistributedANN](../systems/distributedann.md) | 单机 → 1000+ 机器（single graph + KV store） | latency ↑（26 vs 16ms p50） |
+| **解耦内存（CXL）** | **[CXL-ANNS](../systems/cxl-anns.md)** | **单机 DRAM → CXL 内存池（全精度不压缩）** | **需 CXL 硬件 + 软硬协同藏 far-memory** |
+
+→ CXL 路线的独特点：**唯一同时做到 billion-scale + 全精度无损 + 比 oracle 还低延迟**——但前提是有 CXL 2.0+ 解耦内存硬件（论文用 16nm FPGA 原型 + gem5 验证，无商用实测）。瓶颈也从"存储容量"转移到"EP-side PE 算力"——scale-out 是加 EP/host 而非加 SSD。详见 [systems/cxl-anns.md](../systems/cxl-anns.md)。
 
 ## 工业方案适用边界
 
@@ -167,7 +198,7 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 
 - **GPU + SSD 混合**：当前 [Faiss-GPU](../systems/faiss.md) 是全 HBM，[DiskANN](../systems/diskann.md) 是 CPU + SSD。两者结合（PQ in HBM + graph on NVMe）未在文献覆盖。
 - **网络存储 ANN**：所有"disk-resident"分析假设本地 NVMe；远程块设备 / 对象存储下 latency 完全不同。
-- **持久内存（CXL、Optane）作为中间层**：DRAM 与 SSD 之间出现新的存储层；ANN 算法适配未在 wiki 任何 source 覆盖。
+- ~~**持久内存（CXL、Optane）作为中间层**：DRAM 与 SSD 之间出现新的存储层；ANN 算法适配未在 wiki 任何 source 覆盖。~~ **2026-05-19 ingest [jang-2023-cxl-anns] 部分解** — [CXL-ANNS](../systems/cxl-anns.md) 覆盖 CXL 解耦内存作为 ANN scale 轴（caching+prefetch+near-data 算距离藏 far-memory）。**仍 open**：Optane PMEM 作为中间层的 ANN 适配（CXL-ANNS 把 PMEM 当 hierarchical baseline 而非自身介质）；CXL.mem 与 PMEM 作为内存层级的边界未系统化。
 - **SSD 寿命与 wear leveling**：高 QPS ANN 服务对 SSD 是持续随机读负载；写入压力低但寿命经济性需要量化。
 - **CAGRA / GGNN 等 GPU graph 索引**：把图算法移到 GPU，是与 SSD 路线平行的另一种 scale-out 思路。wiki 尚未 ingest。
 - **DiskANN vs SPANN 的最终归宿**：两条路线各自有边界（DiskANN 在高 latency budget 下追平、SPANN 在 query 难度极不均时退化）；最终是融合方案（HBC + graph）还是路线分化是开放问题。

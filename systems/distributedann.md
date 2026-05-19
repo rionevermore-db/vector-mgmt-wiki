@@ -2,9 +2,9 @@
 title: DistributedANN（首个公开 Microsoft Bing production vector search 架构）
 type: system
 sources: [adams-2025-distributedann, subramanya-2019-diskann, chen-2021-spann, singh-2021-freshdiskann, xu-2023-spfresh]
-related: [diskann.md, spann.md, freshdiskann.md, spfresh.md, starling.md, milvus.md, faiss.md, ../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/freshvamana.md, ../concepts/lire.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md]
+related: [diskann.md, spann.md, freshdiskann.md, spfresh.md, starling.md, milvus.md, faiss.md, cxl-anns.md, ../concepts/vamana.md, ../concepts/product-quantization.md, ../concepts/freshvamana.md, ../concepts/lire.md, ../concepts/distributedann-cited-frontier.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/in-place-vs-out-of-place-updates.md, ../benchmarks/spann-vs-diskann-billion.md, ../benchmarks/spfresh-vs-diskann-spann-update.md]
 created: 2026-05-11
-updated: 2026-05-11
+updated: 2026-05-19 (cross-link CXL-ANNS — 同 near-data computation 削内存带宽瓶颈, 不同 scale 路径)
 ---
 
 # DistributedANN
