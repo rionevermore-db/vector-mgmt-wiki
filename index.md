@@ -119,6 +119,7 @@
 
 - [Index Architecture: Global vs Routed (千亿/万亿)](./queries/index-architecture-global-vs-routed.md) — 工业主流走 (c) 层次路由；Meta 1.5T 部署给出具体形态。含 with vs without wiki 对比附录
 - [千亿/万亿 + 16 节点私有云分片](./queries/giga-scale-sharding.md) — 100B 走 SPANN 簇感知分片 + 16 节点 ~30-50ms P99 贴边可达；1T @ 50ms 在 wiki source 内 zero example。tracking-queries #1 主追踪 query
+- [IVF-PQ vs HNSW 在 CPU 上的 build 成本](./queries/ivf-pq-vs-hnsw-cpu-build-cost.md) — 100M / nlist=10000 / k-means 训练 7+ 小时不算严重异常（malkov-2016 §5.4 Table 3, 200M SIFT, Faiss IVFADC CPU = 11-12 h）；CPU 上 IVF-PQ build 比 HNSW 慢 5-15× 是已知 trade-off 换 memory 2-3×。含 with vs without wiki 错误自信对比
 
 ## Sources（原始资料速查）
 

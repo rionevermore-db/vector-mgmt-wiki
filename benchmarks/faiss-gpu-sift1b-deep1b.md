@@ -89,3 +89,5 @@ updated: 2026-05-07
 - **场景局限**：
   - L2-NN（不是 MIPS）；MIPS 任务的 GPU 化未在本论文涵盖（[ScaNN](../concepts/scann.md) 后续工作）。
   - 距离矩阵需装进 GPU 内存；query batch 大于 GPU memory 时需 tiling，§5.1 简述但未细测。
+
+Cited by: [queries/ivf-pq-vs-hnsw-cpu-build-cost.md](../queries/ivf-pq-vs-hnsw-cpu-build-cost.md)

@@ -159,3 +159,5 @@ CPU graph 与 GPU graph 不是**取代关系**，是**目标 hardware 不同的�
 - **CXL 近数据计算 vs GPU 卸载的经济阈值**：[CXL-ANNS](../systems/cxl-anns.md) 主张 near-data 削数据移动优于 GPU 卸载；何时 CXL 内存池硬件投资划算 vs GPU——workload + 硬件可得性 specific，wiki 无实证对比
 - **CPU SIMD（AVX-512、SVE2）的天花板**：单 socket CPU 用极致 SIMD 能否追上单 GPU？wiki 未覆盖
 - **GPU CAGRA vs CPU HNSW 的"经济阈值"**：何时 GPU 投资划算？workload-specific，论文未深入
+
+Cited by: [queries/ivf-pq-vs-hnsw-cpu-build-cost.md](../queries/ivf-pq-vs-hnsw-cpu-build-cost.md)

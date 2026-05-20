@@ -52,3 +52,5 @@ Fig 15 内嵌子图：HNSW 查询时间随数据集大小（10M → 200M）增�
 - **潜在偏向**：HNSW 用了"特殊精简构建"，未走标准 nmslib 路径——意味着部分加速来自工程优化（手写整数距离、避免 BLAS 开销）而非算法本身。Faiss 未做对应级别的定制。
 - **复现难度**：中。Faiss 参数公开，HNSW 的"special build"在论文写作时未直接开源，需自行实现整数距离 + 非向量化代码。
 - **场景局限**：单线程、单机、1-NN。多线程吞吐 + 分布式场景（HNSW 弱项 [malkov-2016-hnsw §6]）未参评；K>1 的召回曲线在论文其他章节有，但 §5.4 这套实验只测 1-NN。
+
+Cited by: [queries/ivf-pq-vs-hnsw-cpu-build-cost.md](../queries/ivf-pq-vs-hnsw-cpu-build-cost.md)

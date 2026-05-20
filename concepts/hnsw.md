@@ -96,3 +96,4 @@ Yu. A. Malkov 与 D. A. Yashunin（2016 arXiv 预印，2020 IEEE TPAMI / Informa
 - **HNSW 在 Qdrant 中的 Filterable HNSW 变体**：[per sources/docs/qdrant/manage-data/indexing.md "Filterable HNSW Index"] [Qdrant](../systems/qdrant.md) 从 v1.0 起在 HNSW graph 上**为每个 indexed payload field 添加 extra edges**——实现 filter-aware build (HNSW base 路径)。v1.16.0 集成 [ACORN](./acorn.md) algorithm 作为 fallback（多 strict filter combination 时使用 2-hop neighbor expansion）。这是 wiki 内 HNSW + filter-aware build 的工业实现路径（与 [FilteredVamana](./filtered-vamana.md) Vamana base 路径并列）。
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)
+Cited by: [queries/ivf-pq-vs-hnsw-cpu-build-cost.md](../queries/ivf-pq-vs-hnsw-cpu-build-cost.md)

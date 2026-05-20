@@ -129,6 +129,39 @@ PQ 论文优化 reconstruction error `||x − x̃||²`，隐含假设所有 (q, 
 
 详见 [Faiss-GPU on SIFT1B / DEEP1B / YFCC100M](../benchmarks/faiss-gpu-sift1b-deep1b.md) 与 [topics/gpu-vs-cpu-ann.md](../topics/gpu-vs-cpu-ann.md)。
 
+## Build cost on CPU（IVFADC 在 CPU 上的训练 + 编码代价）
+
+[per benchmarks/hnsw-vs-faiss-200m-sift.md Table 3, malkov-2016-hnsw §5.4]
+
+PQ + IVF 在 CPU 上的 build 比 HNSW 慢 5-15× 是已知 trade-off——换 memory footprint 小 2-3×。200M SIFT (128-d, 4×Xeon E5-4650 v2, 32 核 Ivy Bridge-EP) 实测：
+
+| 方案 | Build time | Peak memory |
+|---|---|---|
+| HNSW efC=40 | **42 min** | 64 GB |
+| HNSW efC=500 | 5.6 h | 64 GB |
+| **Faiss OPQ + IMI2×14 + PQ32** | **11 h** | 23.5 GB |
+| **Faiss OPQ + IMI2×14 + PQ64** | **12 h** | 30 GB |
+
+### build 时间分解（CPU 上）
+
+1. **Coarse quantizer k-means 训练**：samples · k' · D · iter，串行 25 iter 不可避免——主要瓶颈
+2. **PQ codebook 训练**：samples · 256 · D · iter（m 个子量化器各 k-means），通常远小于 coarse 阶段
+3. **全量数据 assign + encode**：N · k' · D（assign）+ N · m · D/m（encode），可线性 scale 到 CPU 多核
+
+> [推测] **K-means 训练样本截断**：用全量 N 训 vs 用 1-2M sample 子集，wall-clock 差 10-30 倍。jegou-2011-pq 经典实验 `k*=256` 表明 codebook 不需要全量训，但论文未做 sample size × recall ablation——具体阈值开放。
+
+> [推测] **HNSW-as-coarse-quantizer 加速 assign**：用 HNSW 替代 flat scan 做 N·k' assign，把 O(k') 降到 O(log k')，理论加速 10-50×。已是工业已知方向（Faiss 提供 `IndexHNSWFlat` 作 quantizer），但 CPU 上具体 wall-clock 收益**wiki 内无 anchored 数据**。
+
+### 实测数据点（NEW from queries/ivf-pq-vs-hnsw-cpu-build-cost.md, 2026-05-20）
+
+> [推测] 用户实测，d / 实现库 / 核数未充分参数化：
+> - 100M vectors, HNSW (M / efC unknown), CPU → **20 min**
+> - 100M vectors, IVF-PQ (nlist=10000, d unknown), CPU → **k-means 训练 7+ h, 整体未完成**
+
+两个数据点与 malkov-2016 200M SIFT (= 2× 数据规模) 比例一致：HNSW 100M 20min vs 200M 42min ≈ 0.5×，IVF-PQ 100M 7+h vs 200M 11h ≈ 0.6×。
+
+→ **诊断结论**：CPU 上 IVF-PQ build 7+ h 在量级上 normal，**不一定异常**。但若 d 是 768/1024（LLM embedding 时代）而非 128（SIFT），cost ×6×——这个 scaling 在 wiki 内无 anchored 数据，是 open question。
+
 ## Quantizer 家族中的位置（[Faiss 综述 §4](../systems/faiss.md)）
 
 [douze-2024-faiss-library §4] 把所有量化方法拉到一个 hierarchy：
@@ -211,5 +244,9 @@ PQ 仍是值得用的（节省内存），但**不再是 IVFADC 范式的不可�
 - IVFADC 的 coarse quantizer 用更优结构（如 IMI、HNSW-as-coarse-quantizer）能否进一步降低 k'·D 的查询开销？论文 §V.E 末尾承认对大 k' 用 hierarchical quantizer，工业界已有 HNSW + PQ 混合方案。**部分工程化**：[Faiss-GPU](./warpselect.md) [johnson-2017-faiss-gpu] 把 IVFADC 整体迁移到 GPU 后，coarse quantizer 反而变成相对小的开销（GPU brute-force 算 k'×D 极快），实际工程更关注 fused kernel 与 PQ lookup 表布局。
 - ~~RaBitQ / 现代 quantizer landscape 演化~~ **2026-05-08 ingest [gao-2024-rabitq] 已部分回答**：[RaBitQ](./rabitq.md) 走出 PQ "Cartesian product of sub-codebooks" 框架，提供 unbiased estimator + sharp error bound + 一半 code length。但 PQ 是否仍优于 RaBitQ 在某些场景？已知 (a) graph-based 索引集成 RaBitQ 仍开放，(b) 极高 D > 1000 (LLM embedding) 上 RaBitQ codebook 实证未做，(c) RaBitQ 与 [ScaNN anisotropic loss](./scann.md) 是否可 hybrid 未探索
 - **MRL prefix truncation 与 PQ 是 vector compression 的正交两 axis (NEW 2026-05-11 ingest)**: [Matryoshka Representation Learning](./matryoshka-embedding.md) (Kusupati 2022 NeurIPS) 提供 **training-time dim reduction**——单 d-维 embedding 内 nested O(log d) prefix, 0-cost truncate; PQ / OPQ / RaBitQ 是 **post-hoc lossy compression**. **关键 insight**: MRL 与 PQ 可叠加—— production state-of-the-art = MRL-trained embedding + PQ/OPQ/Binary quantization 双轨压缩. e.g., voyage-3 (MRL-trained, 1024-d) → prefix 取 256-d → PQ 16 byte → 单 vec storage 16 bytes (vs 4096 bytes float32 原始, 256× compress). **PQ subspace 边界与 MRL prefix 边界一致性**: PQ 把 1024-d 切 8 subspace (each 128-d); MRL prefix 是前 m 维 (e.g., 256). 若 PQ subspace 边界与 MRL granularity 对齐 (subspace_0 = prefix_{1:128}, subspace_1 = prefix_{129:256}, ...), 那么 **PQ codebook 在 prefix 上仍 valid**——即 MRL embedding 的 prefix 量化 = 全维量化的前 m/d 部分. **此论文不验证 PQ × MRL 兼容性**, 是当前 wiki 内 open question. Production 实际 case: OpenAI text-embedding-3-large 提供 MRL prefix (256 / 512 / 1024 / 1536 / 3072), 与 PQ 联合使用的 recall 退化曲线**不存在公开数据**。
+- **高维 (d ≥ 768) + 大 nlist IVF-PQ build time scaling**（NEW 2026-05-20）: wiki 内所有 IVFADC build time anchored 数据都在 128-d SIFT。LLM embedding 时代 d=768/1024 普遍，build cost 理论上 ×6× 但实证缺失。也无 ARM CPU (NEON SIMD) vs x86 (AVX-512) 在 PQ encode / k-means 训练上的差距数据。建议下次 ingest Lance native PQ build benchmark / Faiss tutorials 实测 / 鲲鹏 ARM ANN 数据
+- **K-means 训练 sample size × recall ablation**（NEW 2026-05-20）: jegou-2011-pq 经典默认 `k*=256` 但未做 sample size 与 recall 的 trade-off 曲线。多大训练样本足够 codebook 收敛、收益曲线长什么样——open
+- **HNSW-as-coarse-quantizer 在 CPU 上的 wall-clock 收益**（NEW 2026-05-20）: 工业已知方向（Faiss `IndexHNSWFlat` 已实现），但 CPU 上 N · k' assign 阶段被 HNSW 替代后的具体加速倍数 wiki 内无 anchored 数据
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md)
+Cited by: [queries/ivf-pq-vs-hnsw-cpu-build-cost.md](../queries/ivf-pq-vs-hnsw-cpu-build-cost.md)
