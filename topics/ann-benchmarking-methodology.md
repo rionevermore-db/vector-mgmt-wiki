@@ -43,7 +43,7 @@ updated: 2026-05-21
 ## benchmark 可信度（"benchmarks lie" 的三个陷阱）
 
 1. **调参努力不对称**：vendor 给自家产品调到最优、对手用默认参数。wiki 内实例——[ACORN 论文](../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md) 自承 "Milvus baseline 用 single-thread + 默认参数,production 可能高很多"。
-2. **厂商自测偏向**：VectorDBBench 由 Zilliz 维护;benchANT 维护独立 fork 用于第三方交叉验证。
+2. **厂商自测偏向**：VectorDBBench 由 Zilliz 维护;benchANT 维护独立 fork 用于第三方交叉验证。另一典型——[LanceDB Enterprise 自家 benchmark 页](../systems/lancedb.md)只给自己的 latency(1M×1536d vector P99 35ms 等),**无 recall / 无对比系统 / 无硬件规格**:vendor benchmark 的常见信息缺口(报喜不报忧)。**同源延伸——doc 摘要也会"lie"**:LanceDB 首轮 ingest 据 docs 摘要断言"first-class GPU index build",深化抓一手 indexing 文档却无法印证(见 [systems/lancedb.md §4](../systems/lancedb.md))——摘要 ≠ 一手,断言须可追到具体页。
 3. **leaderboard 数字易变**：VDBBench leaderboard 随版本 / 提交滚动,**绝对 QPS/QP$ 不可冻结引用**——引用方法论稳定,引用数值须标 "as of"。big-ann 的私有 query set + 标准化硬件是对这三个陷阱最强的对冲。
 
 ## Open Questions

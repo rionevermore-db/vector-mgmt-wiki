@@ -79,6 +79,7 @@
 | vectordbbench-docs | VectorDBBench: 系统级 vector DB benchmark 工具 + 公开 leaderboard (README WebFetch summary + VDBBench 1.0 streaming case) | Zilliz / VectorDBBench community | 2026-05-21 fetch | docs | docs/vectordbbench/{_meta.md, vectordbbench.md} | 2026-05-21 |
 | ann-benchmarks-docs | ann-benchmarks: 算法级 recall-QPS Pareto benchmark (README WebFetch summary, results as of April 2025) | Erik Bernhardsson 等 community | 2026-05-21 fetch | docs | docs/ann-benchmarks/{_meta.md, ann-benchmarks.md} | 2026-05-21 |
 | bigann-benchmarks-docs | Big ANN Benchmarks: NeurIPS 2021 Billion-Scale + 2023 Practical Vector Search 竞赛 (README + neurips21/23 WebFetch summary) | Harsha Vardhan Simhadri 等 (NeurIPS competition org) | 2026-05-21 fetch | docs | docs/big-ann-benchmarks/{_meta.md, big-ann-benchmarks.md} | 2026-05-21 |
+| lancedb-docs-2026-05 | LanceDB 官方文档深化快照 (docs.lancedb.com llms.txt + indexing/quantization/storage/enterprise/geneva 深页;深化 lancedb-docs partial) | LanceDB Inc. | 2026-05-21 fetch | docs | docs/lancedb-2026-05/{_meta.md, lancedb-deepened.md} | 2026-05-21 |
 
 ## 命名约定
 

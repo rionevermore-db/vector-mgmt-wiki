@@ -2,9 +2,9 @@
 title: RaBitQ（首个 unbiased + sharp error bound 的高维向量 quantization）
 type: concept
 sources: [gao-2024-rabitq, kusupati-2022-matryoshka]
-related: [product-quantization.md, scann.md, vgpq.md, hnsw.md, vamana.md, relaxed-monotonicity.md, matryoshka-embedding.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/vbase.md, ../systems/analyticdb-v.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/topk-vs-iterator-model.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
+related: [product-quantization.md, scann.md, vgpq.md, hnsw.md, vamana.md, relaxed-monotonicity.md, matryoshka-embedding.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/lancedb.md, ../systems/vbase.md, ../systems/analyticdb-v.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/topk-vs-iterator-model.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-08
-updated: 2026-05-11 (MRL as parallel training-time compression axis)
+updated: 2026-05-21 (production 采用: LanceDB IVF_RQ + Milvus IVF_RABITQ)
 ---
 
 # RaBitQ
@@ -277,6 +277,17 @@ VGPQ [wei-2020-analyticdb-v] 在 PQ 上加 Voronoi 几何剪枝——还在 PQ �
 **论文未提供 incremental insertion**——RaBitQ index 是否支持增量加点？理论上 yes（与 IVF 同），但 P 矩阵一旦采样必须 fixed（重 sample 会改变所有 codes）；实际工程需 vendor 实现 incremental append。
 
 C++ 源码：[github.com/gaoj0017/RaBitQ](https://github.com/gaoj0017/RaBitQ)（已迁移至 [VectorDB-NTU/RaBitQ-Library](https://github.com/VectorDB-NTU/RaBitQ-Library)）。
+
+## Production 采用（vendor 锚点，2026-05 更新）
+
+RaBitQ 从学术 SOTA(2024 SIGMOD)走向 production——wiki 内已有两个 OSS vendor 把它做成一等索引类型:
+
+| Vendor | 索引名 | 形态 | source |
+|---|---|---|---|
+| [LanceDB](../systems/lancedb.md) | **IVF_RQ** | RaBitQ-style "1 bit/dim",IVF 分区 + RaBitQ 量化;1024-d float32 4KB → ~几百 bytes;`num_bits` 默认 1 | [per sources/docs/lancedb-2026-05/lancedb-deepened.md] |
+| [Milvus](../systems/milvus.md) | **IVF_RABITQ** | v2.6.x 索引族中的 RaBitQ 量化索引 | [per sources/docs/milvus/site/en/userGuide/indexes/floating-vector/ivf-rabitq.md] |
+
+→ 这填补了此前 wiki 把"vendor 采用 RaBitQ"列为 *logical next step* 的空白:**RaBitQ 已是 production index type,不只学术 quantizer**。两家都走 **IVF + RaBitQ** 路径(与论文主实证一致),graph-based + RaBitQ 仍是 open(见下)。注意两家的 IVF_RQ/IVF_RABITQ **实测 recall/QPS 均未公开**——production claim 成立,但独立性能数仍只有 [RaBitQ 论文 6/6 dominate](../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md)。
 
 ## Open Questions
 
