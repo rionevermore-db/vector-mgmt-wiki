@@ -2,9 +2,9 @@
 title: BEIR（Heterogeneous Benchmark for Zero-shot IR Evaluation）
 type: benchmark
 sources: [thakur-2021-beir, formal-2021-splade-v2, santhanam-2022-colbertv2, muennighoff-2023-mteb]
-related: [mteb-massive-text-embedding-benchmark.md, ../concepts/splade-sparse-retrieval.md, ../concepts/colbertv2.md, ../concepts/clip.md, ../topics/sparse-dense-hybrid-retrieval.md]
+related: [mteb-massive-text-embedding-benchmark.md, ../concepts/splade-sparse-retrieval.md, ../concepts/colbertv2.md, ../concepts/clip.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/ann-benchmarking-methodology.md, big-ann-benchmarks.md]
 created: 2026-05-12
-updated: 2026-05-12
+updated: 2026-05-21 (邻域 benchmark cross-link: ANN benchmarking methodology + big-ann sparse track)
 ---
 
 # BEIR: A Heterogeneous Benchmark for Zero-shot IR Evaluation

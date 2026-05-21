@@ -2,14 +2,16 @@
 title: Attribute Filtering（向量+属性混合查询）
 type: topic
 sources: [wang-2021-milvus, douze-2024-faiss-library, gollapudi-2023-filtered-diskann, patel-2024-acorn, zhang-2023-vbase, qdrant-docs]
-related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/qdrant.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ../concepts/relaxed-monotonicity.md, ./index-selection.md, ./topk-vs-iterator-model.md, ./vector-range-query.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md]
+related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/qdrant.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ../concepts/relaxed-monotonicity.md, ./index-selection.md, ./topk-vs-iterator-model.md, ./vector-range-query.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/vectordbbench.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md]
 created: 2026-05-07
-updated: 2026-05-11 (Qdrant Filterable HNSW + ACORN production)
+updated: 2026-05-21 (benchmark-trio: VDBBench filtering case + big-ann filter track 作公平横测锚点)
 ---
 
 # Attribute Filtering
 
 **TL;DR**: "找与 query 最相似的 top-k 向量，**且满足属性条件 C_A**"——是工业向量检索最常见的混合查询场景（电商按价格、推荐按地域、监控按时间）。两条主流路线：**vector-first**（先 ANN 找候选再过滤）和 **attribute-first**（先按属性筛再扫向量）。[Faiss](../systems/faiss.md) 用 IDSelector callback、AnalyticDB-V 用 cost-based、Milvus 提出 partition-based（按高频 filter 属性预分区，比 cost-based 快 13.7×）。**Filtered-DiskANN** 是后继研究方向。
+
+> **公平横测 filter 性能怎么做**：本 page 给的是策略 taxonomy;**跨厂商 / 标准化硬件的 benchmark 锚点**见 [benchmarks/vectordbbench.md](../benchmarks/vectordbbench.md)（Filtering case：int-based + label-based，30+ vendor 横测）与 [benchmarks/big-ann-benchmarks.md](../benchmarks/big-ann-benchmarks.md)（NeurIPS 2023 **Filter track**：YFCC 10M + tag 过滤，FAISS baseline 3,200 QPS，标准化 Azure 硬件）。方法论(必须固定 embedding + 标明 A/B/C strategy + selectivity sweep + 防 vendor 调参不对称)见 [topics/ann-benchmarking-methodology.md](./ann-benchmarking-methodology.md)。
 
 ## 问题陈述
 

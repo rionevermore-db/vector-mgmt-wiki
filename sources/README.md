@@ -76,6 +76,9 @@
 | jia-2021-align | Scaling Up Visual and Vision-Language Representation Learning With Noisy Text Supervision (ALIGN) | Chao Jia, Yinfei Yang, Ye Xia, Yi-Ting Chen, Zarana Parekh, Hieu Pham, Quoc V. Le, Yunhsuan Sung, Zhen Li, Tom Duerig (Google Research) | 2021 (ICML, arXiv 2102.05918) | paper | papers/jia-2021-align.pdf | 2026-05-13 |
 | li-2023-blip2 | BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models | Junnan Li, Dongxu Li, Silvio Savarese, Steven Hoi (Salesforce Research) | 2023 (arXiv 2301.12597) | paper | papers/li-2023-blip2.pdf | 2026-05-13 |
 | girdhar-2023-imagebind | ImageBind: One Embedding Space To Bind Them All | Rohit Girdhar, Alaaeldin El-Nouby, Zhuang Liu, Mannat Singh, Kalyan Vasudev Alwala, Armand Joulin, Ishan Misra (FAIR, Meta AI) | 2023 (CVPR, arXiv 2305.05665) | paper | papers/girdhar-2023-imagebind.pdf | 2026-05-13 |
+| vectordbbench-docs | VectorDBBench: 系统级 vector DB benchmark 工具 + 公开 leaderboard (README WebFetch summary + VDBBench 1.0 streaming case) | Zilliz / VectorDBBench community | 2026-05-21 fetch | docs | docs/vectordbbench/{_meta.md, vectordbbench.md} | 2026-05-21 |
+| ann-benchmarks-docs | ann-benchmarks: 算法级 recall-QPS Pareto benchmark (README WebFetch summary, results as of April 2025) | Erik Bernhardsson 等 community | 2026-05-21 fetch | docs | docs/ann-benchmarks/{_meta.md, ann-benchmarks.md} | 2026-05-21 |
+| bigann-benchmarks-docs | Big ANN Benchmarks: NeurIPS 2021 Billion-Scale + 2023 Practical Vector Search 竞赛 (README + neurips21/23 WebFetch summary) | Harsha Vardhan Simhadri 等 (NeurIPS competition org) | 2026-05-21 fetch | docs | docs/big-ann-benchmarks/{_meta.md, big-ann-benchmarks.md} | 2026-05-21 |
 
 ## 命名约定
 

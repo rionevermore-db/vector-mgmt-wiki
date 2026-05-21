@@ -2,9 +2,9 @@
 title: MTEB（Massive Text Embedding Benchmark, 行业标准 embedding eval）
 type: benchmark
 sources: [muennighoff-2023-mteb]
-related: [../concepts/clip.md, ../concepts/matryoshka-embedding.md, ../concepts/splade-sparse-retrieval.md, ../concepts/colbertv2.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/multimodal-embedding-retrieval.md, ../topics/adaptive-retrieval-shortlist-rerank.md]
+related: [../concepts/clip.md, ../concepts/matryoshka-embedding.md, ../concepts/splade-sparse-retrieval.md, ../concepts/colbertv2.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/multimodal-embedding-retrieval.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../topics/ann-benchmarking-methodology.md]
 created: 2026-05-12
-updated: 2026-05-12
+updated: 2026-05-21 (邻域 benchmark cross-link: ANN benchmarking methodology)
 ---
 
 # MTEB: Massive Text Embedding Benchmark

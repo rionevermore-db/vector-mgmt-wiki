@@ -2,14 +2,16 @@
 title: Multimodal Embedding Retrieval（跨模态向量检索）
 type: topic
 sources: [radford-2021-clip, vespa-docs, turbopuffer-docs]
-related: [../concepts/clip.md, ../concepts/scann.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../systems/vespa.md, ../systems/milvus.md, ../systems/qdrant.md, ../systems/weaviate.md, ../systems/pinecone.md, ../systems/turbopuffer.md, attribute-filtering.md, multi-vector-queries.md, index-selection.md]
+related: [../concepts/clip.md, ../concepts/scann.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../systems/vespa.md, ../systems/milvus.md, ../systems/qdrant.md, ../systems/weaviate.md, ../systems/pinecone.md, ../systems/turbopuffer.md, attribute-filtering.md, multi-vector-queries.md, index-selection.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md]
 created: 2026-05-11
-updated: 2026-05-11
+updated: 2026-05-21 (benchmark-trio: big-ann OOD/cross-modal track 部分填补 cross-modal benchmark 空白)
 ---
 
 # Multimodal Embedding Retrieval
 
 **TL;DR**: 跨模态检索（text→image / image→text / audio→video / etc.）通过 **shared embedding space** 把所有模态的内容映射到同一 vector 空间，让 vector DB 用**单一 ANN query** 同时服务所有模态。**关键 algorithm 基础**: dual-encoder contrastive training (CLIP 范式), embeddings L2-normalized + cosine similarity. **关键 vector DB 含义**: multimodal retrieval **算法层完全在 embedding model side**, vector DB 端不需要新数据结构——cosine ANN over normalized vectors 即可服务所有 multimodal workload. **Wiki industry coverage gap**: 6 vendor 都 native 支持 cosine ANN over CLIP-style embeddings, 但**没有 vendor 公开 multimodal retrieval head-to-head benchmark**——这是 wiki 内 multimodal 维度仍是 coverage gap 的根本原因. 与 spatial retrieval 的 industry gap (仅 Vespa 有真 native spatial) 形成对称性: spatial 缺乏 algorithm 共识, multimodal 缺乏 benchmark 共识.
+
+> **2026-05 更新（部分填补）**：cross-modal 的 **algorithm-level** benchmark 现有 source 锚点——[big-ann-benchmarks NeurIPS 2023 **OOD track**](../benchmarks/big-ann-benchmarks.md)（Yandex Text-to-Image 10M，query 与 base 分布不同，正是 cross-modal 场景，DiskANN baseline 4,882 QPS @ 标准化 Azure 硬件）。但这是**算法级 + 单数据集**,**vendor-level multimodal head-to-head 仍空白**,**spatial / 三模(vector+scalar+spatial)横测依旧零 source**——见 [topics/ann-benchmarking-methodology.md](./ann-benchmarking-methodology.md) Open Questions。
 
 ## 问题陈述
 
