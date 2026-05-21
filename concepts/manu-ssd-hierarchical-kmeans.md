@@ -116,7 +116,7 @@ DRAM:
 - 该 challenge 的 baseline 是 DiskANN
 - 论文未直接给 absolute QPS / recall 数字（参考 challenge 网站）
 
-实验注：[Sun et al. 2022 NeurIPS 2021 winner challenge results paper] 给具体数字，但 wiki 当前未 ingest。
+实验注：[Sun et al. 2022 NeurIPS 2021 winner challenge results paper] 给具体数字，该 results paper 本身 wiki 未 ingest;但**竞赛结构 + Track 2(SSD)冠军 BBANN(= Zilliz,本方案)已由 [benchmarks/big-ann-benchmarks.md](../benchmarks/big-ann-benchmarks.md) 记录**(2026-05-21 lint 部分闭合)。
 
 ## Open Questions
 
@@ -125,6 +125,6 @@ DRAM:
 - **Update 在该 SSD index 上的成本**：vector update 需更新 4-8 个 replicas + 重建 cluster center（如 cluster 漂移）。Manu 论文未深入；可能因此论文用 stream indexing + 周期 rebuild 代替 in-place（与 [SPFresh](../systems/spfresh.md) 思路相反）
 - **vs SPANN closure clustering 直接对比**：两个 cluster-based SSD 方案应直接对比，但论文未做；[benchmarks/spann-vs-diskann-billion.md] 也未含 Manu
 - **[Milvus](../systems/milvus.md) 2.x 中是否当前默认使用此索引**：论文写于 2022；2.6.x docs 列 DISKANN 而非这个 hierarchical k-means + LSH —— 可能已被 DiskANN 集成取代
-- **NeurIPS 2021 winner 论文细节**：Sun et al. 2022 challenge results paper（[guo-2022-manu ref 72]）有更深技术；wiki 未 ingest
+- **NeurIPS 2021 winner 论文细节**：Sun et al. 2022 challenge results paper（[guo-2022-manu ref 72]）有更深技术;该 results paper wiki 未 ingest（但竞赛 + BBANN 冠军已由 [benchmarks/big-ann-benchmarks.md](../benchmarks/big-ann-benchmarks.md) 覆盖）
 
 Cited by: 待 query 引用

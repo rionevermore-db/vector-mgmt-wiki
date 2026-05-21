@@ -42,8 +42,8 @@ Pure sparse retrieval (BM25):
 - **[Matryoshka](../concepts/matryoshka-embedding.md)**: dense-side multi-tier embedding compression
 - **BM25**: classical sparse baseline, BlockMaxWAND optimization (Weaviate 默认)
 - **doc2query-T5 / DeepImpact / DeepCT**: SPLADE family 前辈
-- **ColBERT** (Khattab 2020, wiki 未 ingest): late-interaction sparse-dense bridge
-- **BGE-M3** (wiki 未 ingest): 单 model 同时输出 sparse + dense + ColBERT-style 多模态向量
+- **[ColBERT v2](../concepts/colbertv2.md)** (Santhanam 2022, 已 ingest): late-interaction sparse-dense bridge
+- **[BGE-M3](../concepts/bge-m3.md)** (已 ingest): 单 model 同时输出 sparse + dense + ColBERT-style 多向量
 
 ## 工业方案对比
 

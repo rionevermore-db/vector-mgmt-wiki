@@ -2,7 +2,7 @@
 title: Attribute Filtering（向量+属性混合查询）
 type: topic
 sources: [wang-2021-milvus, douze-2024-faiss-library, gollapudi-2023-filtered-diskann, patel-2024-acorn, zhang-2023-vbase, qdrant-docs]
-related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/qdrant.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ../concepts/relaxed-monotonicity.md, ./index-selection.md, ./topk-vs-iterator-model.md, ./vector-range-query.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/vectordbbench.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md]
+related: [../systems/milvus.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/qdrant.md, ../concepts/product-quantization.md, ../concepts/vgpq.md, ../concepts/filtered-vamana.md, ../concepts/acorn.md, ../concepts/hnsw.md, ../concepts/relaxed-monotonicity.md, ./index-selection.md, ./topk-vs-iterator-model.md, ./vector-range-query.md, ../benchmarks/filtered-diskann-vs-milvus-faiss-nhq.md, ../benchmarks/acorn-vs-filtered-diskann-nhq-milvus.md, ../benchmarks/vbase-8queries-recipe1m.md, ../benchmarks/vectordbbench.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md, ../concepts/range-filter-ann-2024.md]
 created: 2026-05-07
 updated: 2026-05-21 (benchmark-trio: VDBBench filtering case + big-ann filter track 作公平横测锚点)
 ---

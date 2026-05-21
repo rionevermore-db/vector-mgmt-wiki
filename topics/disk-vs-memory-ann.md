@@ -200,7 +200,7 @@ ANN 的搜索过程涉及大量随机访问（图节点跳转 / 倒排表扫描�
 - **网络存储 ANN**：所有"disk-resident"分析假设本地 NVMe；远程块设备 / 对象存储下 latency 完全不同。
 - ~~**持久内存（CXL、Optane）作为中间层**：DRAM 与 SSD 之间出现新的存储层；ANN 算法适配未在 wiki 任何 source 覆盖。~~ **2026-05-19 ingest [jang-2023-cxl-anns] 部分解** — [CXL-ANNS](../systems/cxl-anns.md) 覆盖 CXL 解耦内存作为 ANN scale 轴（caching+prefetch+near-data 算距离藏 far-memory）。**仍 open**：Optane PMEM 作为中间层的 ANN 适配（CXL-ANNS 把 PMEM 当 hierarchical baseline 而非自身介质）；CXL.mem 与 PMEM 作为内存层级的边界未系统化。
 - **SSD 寿命与 wear leveling**：高 QPS ANN 服务对 SSD 是持续随机读负载；写入压力低但寿命经济性需要量化。
-- **CAGRA / GGNN 等 GPU graph 索引**：把图算法移到 GPU，是与 SSD 路线平行的另一种 scale-out 思路。wiki 尚未 ingest。
+- ~~**CAGRA / GGNN 等 GPU graph 索引**：把图算法移到 GPU，是与 SSD 路线平行的另一种 scale-out 思路。wiki 尚未 ingest。~~ **2026-05-09 ingest 已解** — [CAGRA](../systems/cagra.md)（GPU-native graph）+ [concepts/cagra-graph.md](../concepts/cagra-graph.md) 已覆盖；GPU graph 是与 SSD 平行的 scale 路线，详见 [topics/gpu-vs-cpu-ann.md](./gpu-vs-cpu-ann.md)。
 - **DiskANN vs SPANN 的最终归宿**：两条路线各自有边界（DiskANN 在高 latency budget 下追平、SPANN 在 query 难度极不均时退化）；最终是融合方案（HBC + graph）还是路线分化是开放问题。
 
 Cited by: [queries/index-architecture-global-vs-routed.md](../queries/index-architecture-global-vs-routed.md), [queries/giga-scale-sharding.md](../queries/giga-scale-sharding.md)

@@ -2,9 +2,9 @@
 title: Vector Range Query（按距离阈值的全量返回）
 type: topic
 sources: [zhang-2023-vbase, yang-2020-pase]
-related: [../systems/vbase.md, ../systems/pase.md, ../systems/milvus.md, ../systems/analyticdb-v.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ./topk-vs-iterator-model.md, ./attribute-filtering.md, ../benchmarks/vbase-8queries-recipe1m.md]
+related: [../systems/vbase.md, ../systems/pase.md, ../systems/milvus.md, ../systems/analyticdb-v.md, ../concepts/relaxed-monotonicity.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ./topk-vs-iterator-model.md, ./attribute-filtering.md, ../concepts/range-filter-ann-2024.md, ../benchmarks/vbase-8queries-recipe1m.md]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-21 (lint: link numeric range-filter ANN concept)
 ---
 
 # Vector Range Query

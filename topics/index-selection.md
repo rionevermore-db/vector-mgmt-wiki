@@ -2,9 +2,9 @@
 title: Index Selection（如何在 Faiss 索引家族里选）
 type: topic
 sources: [douze-2024-faiss-library, jegou-2011-pq, malkov-2016-hnsw, fu-2017-nsg, guo-2019-scann, zhang-2023-vbase, gao-2024-rabitq, wang-2024-starling]
-related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/starling.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md, ./topk-vs-iterator-model.md]
+related: [../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/pinecone.md, ../systems/analyticdb-v.md, ../systems/pase.md, ../systems/vbase.md, ../systems/starling.md, ../concepts/hnsw.md, ../concepts/nsg.md, ../concepts/product-quantization.md, ../concepts/scann.md, ../concepts/warpselect.md, ../concepts/pinecone-serverless-slabs.md, ../concepts/relaxed-monotonicity.md, ../concepts/rabitq.md, ../concepts/block-shuffling.md, ./disk-vs-memory-ann.md, ./attribute-filtering.md, ./topk-vs-iterator-model.md, ../systems/mongodb-atlas-vector-search.md, ../systems/redis-stack.md]
 created: 2026-05-07
-updated: 2026-05-08 (RaBitQ)
+updated: 2026-05-21 (lint: link orphan vendor pages MongoDB Atlas + Redis Stack)
 ---
 
 # Index Selection

@@ -282,7 +282,7 @@ index.upsert([
 - **Turbopuffer SPLADE 支持**: docs §hybrid 仅提及 BM25 + vector, 是否客户可上传 SPLADE-encoded sparse value to namespace? docs 不明示
 - **SPLADE multilingual / cross-lingual**: BERT vocab 是 mostly English; multilingual SPLADE (mSPLADE / DistilSPLADE-multilingual) production case 不公开
 - **SPLADE + GPU index**: paper 用 CPU + Numba inverted index; 是否 production 跑 SPLADE on GPU (CAGRA-style sparse)? wiki 内 GPU sparse retrieval 完全空白
-- **SPLADE × MRL 联合 trained model**: 是否能在 single model 同时输出 sparse SPLADE + dense MRL? "BGE-M3" 是 production 实例 (sparse + dense + ColBERT-style 同 model) 但 wiki 未 ingest BGE-M3
+- **SPLADE × MRL 联合 trained model**: 是否能在 single model 同时输出 sparse SPLADE + dense MRL? [BGE-M3](./bge-m3.md)（已 ingest）是 production 实例 (sparse + dense + ColBERT-style 同 model)——但 SPLADE-style sparse + MRL-style nested dense 的**显式联合**仍未见 model
 - **FLOPS regularizer 与 inverted index 实际 lookup cost 关系**: paper §3 用 FLOPS as proxy; 实际 BlockMaxWAND-style inverted index 查询 cost 与 FLOPS 对应吗? 不验证
 - **SPLADE 在 long-document context**: BERT 256-token max; long doc (e.g., RAG passage 2K-8K token) 需要 chunking + SPLADE-per-chunk + 聚合, 论文不涵盖
 

@@ -2,9 +2,9 @@
 title: CLIP（Contrastive Language-Image Pre-training）
 type: concept
 sources: [radford-2021-clip, kusupati-2022-matryoshka, formal-2021-splade-v2]
-related: [../systems/vespa.md, product-quantization.md, scann.md, hnsw.md, matryoshka-embedding.md, splade-sparse-retrieval.md, ../topics/multimodal-embedding-retrieval.md, ../topics/multi-vector-queries.md, ../topics/mips-vs-l2-nn.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../topics/sparse-dense-hybrid-retrieval.md]
+related: [../systems/vespa.md, product-quantization.md, scann.md, hnsw.md, matryoshka-embedding.md, splade-sparse-retrieval.md, ../topics/multimodal-embedding-retrieval.md, ../topics/multi-vector-queries.md, ../topics/mips-vs-l2-nn.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../topics/sparse-dense-hybrid-retrieval.md, multimodal-embedding-foundations.md]
 created: 2026-05-11
-updated: 2026-05-12 (SPLADE as sparse-side neighbor in hybrid retrieval)
+updated: 2026-05-21 (lint: link multimodal-embedding-foundations ALIGN/BLIP-2/ImageBind bundle)
 ---
 
 # CLIP

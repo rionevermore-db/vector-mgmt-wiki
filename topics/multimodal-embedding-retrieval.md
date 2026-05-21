@@ -2,7 +2,7 @@
 title: Multimodal Embedding Retrieval（跨模态向量检索）
 type: topic
 sources: [radford-2021-clip, vespa-docs, turbopuffer-docs]
-related: [../concepts/clip.md, ../concepts/scann.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../systems/vespa.md, ../systems/milvus.md, ../systems/qdrant.md, ../systems/weaviate.md, ../systems/pinecone.md, ../systems/turbopuffer.md, attribute-filtering.md, multi-vector-queries.md, index-selection.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md]
+related: [../concepts/clip.md, ../concepts/scann.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../systems/vespa.md, ../systems/milvus.md, ../systems/qdrant.md, ../systems/weaviate.md, ../systems/pinecone.md, ../systems/turbopuffer.md, attribute-filtering.md, multi-vector-queries.md, index-selection.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md, ../concepts/multimodal-embedding-foundations.md]
 created: 2026-05-11
 updated: 2026-05-21 (benchmark-trio: big-ann OOD/cross-modal track 部分填补 cross-modal benchmark 空白)
 ---
