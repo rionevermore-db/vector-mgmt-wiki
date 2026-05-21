@@ -265,4 +265,4 @@ CAGRA 在 build time + search throughput **systematically dominate** all 3 GPU b
 - **CAGRA 与 Faiss-GPU IVFPQ 同 hardware 直接对比**: 论文未对比（不同 algorithm 路径）；wiki 内推论 CAGRA 高 recall + Faiss-GPU 大数据
 - **embedding model 升级**: 与 wiki 全 frontier 一致——zero coverage
 
-Cited by: 待 query 引用
+Cited by: [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md)

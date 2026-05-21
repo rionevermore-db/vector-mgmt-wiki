@@ -79,4 +79,4 @@ Milvus, Zilliz Cloud, Elasticsearch, Pinecone, Qdrant Cloud, Weaviate Cloud, PgV
 
 ## Cited by
 
-- queries/（待 query 引用时补）
+- [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md)

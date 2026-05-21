@@ -208,3 +208,5 @@ TripClick (1.06M, 10^8 predicates):
 | Production deployment | **学术** vs FilteredVamana 有 Microsoft A/B 实证 |
 | Streaming insert | partial（ACORN-1 OK； ACORN-γ 部分） |
 | Distributed | ✗ |
+
+Cited by: [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md)（LAION-25M HNSW build 是 100M 摄入速率外推的唯一 anchored 锚点）

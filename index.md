@@ -124,6 +124,8 @@
 - [Index Architecture: Global vs Routed (千亿/万亿)](./queries/index-architecture-global-vs-routed.md) — 工业主流走 (c) 层次路由；Meta 1.5T 部署给出具体形态。含 with vs without wiki 对比附录
 - [千亿/万亿 + 16 节点私有云分片](./queries/giga-scale-sharding.md) — 100B 走 SPANN 簇感知分片 + 16 节点 ~30-50ms P99 贴边可达；1T @ 50ms 在 wiki source 内 zero example。tracking-queries #1 主追踪 query
 - [IVF-PQ vs HNSW 在 CPU 上的 build 成本](./queries/ivf-pq-vs-hnsw-cpu-build-cost.md) — 100M / nlist=10000 / k-means 训练 7+ 小时不算严重异常（malkov-2016 §5.4 Table 3, 200M SIFT, Faiss IVFADC CPU = 11-12 h）；CPU 上 IVF-PQ build 比 HNSW 慢 5-15× 是已知 trade-off 换 memory 2-3×。含 with vs without wiki 错误自信对比
+- [Milvus 摄入 LAION 100M 的正常 ingest 速率](./queries/milvus-laion-100m-ingest-rate.md) — 纠口径(看 load duration 非裸 vec/s) + anchored 外推(LAION-25M HNSW build 1147s → 100M ~20K vec/s ~1.4h@512d / ~2h+@768d)；100M = VDBBench XLarge(load 预算 250h 天花板) + big-ann 12h/1B envelope；bulk_insert 唯一正确路径 + GPU_CAGRA build 快 2.2–27×；红旗:逐行 insert / 内存不足 spill(768d 需 ~330GB)。**首个动用 benchmark-trio 三新 page 的 query**，wiki 摄入盲点闭合后的回答框架
+
 
 ## Sources（原始资料速查）
 
