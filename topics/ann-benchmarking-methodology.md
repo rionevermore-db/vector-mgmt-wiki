@@ -53,4 +53,4 @@ updated: 2026-05-21
 - **GPU / 分布式公平对比**：ann-benchmarks 强制 CPU 单线程,big-ann T3 才容 GPU,VDBBench 看整库黑盒——**没有 benchmark 公平隔离 GPU-native（[CAGRA](../systems/cagra.md)）vs CPU graph 的算法贡献**。
 - **三方结果互译**：同一算法在算法级 Pareto 漂亮、系统级被运维开销吃掉、竞赛级被标准硬件拉平——三层结果如何互相换算尚无方法论。
 
-Cited by: [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md)
+Cited by: [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md), [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)

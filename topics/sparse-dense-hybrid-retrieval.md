@@ -142,3 +142,5 @@ expression: 0.4*bm25(field) + 0.4*dot_product(splade_field, query_splade) + 0.2*
 - **DistilSPLADE-max BEIR 11/14 best 在 production 真实 case 是否复现**: 论文 zero-shot BEIR 仅 test set; production 真实 query distribution / re-train 周期 / fine-tune cost 不公开
 - **SPLADE 在 long-context (8K+ token)**: BERT 256 token max → chunk + per-chunk SPLADE; chunk-level vs full-doc-level retrieval 论文不深入
 - **Hybrid retrieval 公平 benchmark methodology**: 类似 `vector-scalar-bench-methodology` query, hybrid 现 zero coverage of fair head-to-head between SPLADE+CLIP+RRF (Turbopuffer-style) vs Vespa rank-profile vs Weaviate hybrid(α)
+
+Cited by: [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)

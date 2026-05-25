@@ -125,4 +125,4 @@ updated: 2026-05-21 (邻域 benchmark cross-link: ANN benchmarking methodology +
 - **BEIR + filter / scalar workload**: BEIR pure retrieval, attribute filter integration 不评估
 - **Long-doc BEIR extension**: LoTTE / MLDR fill some gap but BEIR 自身未扩展
 
-Cited by: 待 query 引用
+Cited by: [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)

@@ -168,3 +168,5 @@ CLIP image + caption 双 embedding 存同一 doc → 多 vector query fusion 是
 - **ImageBind 6-modality vector DB pattern**: 6 modality (image / text / audio / depth / thermal / IMU) 同 1024-d embedding——production 是单 namespace 全 6 modality, 还是 6 namespace per modality? 哲学未明
 - **Cross-encoder 重排序 (CLIP first-stage + Cohere/Voyage reranker)**: production multimodal retrieval 常 first-stage CLIP + second-stage cross-encoder rerank——vector DB 仅服务 first stage, second stage 在应用层. 但融合 latency budget / quality tradeoff wiki zero coverage
 - **Multimodal embedding 安全 / fairness**: CLIP FairFace bias (Table 5-7); production multimodal retrieval 是否需要 bias mitigation layer? Wiki zero coverage
+
+Cited by: [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)

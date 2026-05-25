@@ -99,4 +99,4 @@ MTEB **不是 vector DB benchmark**, 是 embedding model benchmark. 但所有 ve
 - **MTEB ↔ ColBERTv2 / BGE-M3 三-way retrieval evaluation**: MTEB 当前主要 single-vector retrieval, 3-way hybrid 评估缺
 - **Cost-aware MTEB**: embedding 性能 vs API cost / latency / model size trade-off 不在 scope
 
-Cited by: 待 query 引用
+Cited by: [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)

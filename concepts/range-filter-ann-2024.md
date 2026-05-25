@@ -151,3 +151,5 @@ updated: 2026-05-12
 ## Cited by
 
 (将随未来 ingest 累积)
+
+Cited by: [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)

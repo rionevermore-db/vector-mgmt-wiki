@@ -90,3 +90,5 @@ Query `C_A = [50, 250]`：
 - [systems/faiss.md](../systems/faiss.md)
 - [systems/diskann.md](../systems/diskann.md)
 - [topics/index-selection.md](./index-selection.md)
+
+Cited by: [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)

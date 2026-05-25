@@ -76,3 +76,4 @@ Build 机器（T1/T2）：Azure F64s_v2（64 vCPU / 128 GB / 4 TB SSD）。
 ## Cited by
 
 - [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md)
+- [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md)
