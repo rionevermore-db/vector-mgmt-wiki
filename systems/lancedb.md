@@ -4,7 +4,7 @@ type: system
 sources: [lancedb-docs, lancedb-docs-2026-05]
 related: [chroma.md, pgvector.md, milvus.md, faiss.md, turbopuffer.md, pinecone.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/cagra-graph.md, cagra.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/multimodal-embedding-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/ann-benchmarking-methodology.md, ../benchmarks/vectordbbench.md]
 created: 2026-05-12
-updated: 2026-05-21 (2026-05 文档深化: Enterprise 架构 + 完整索引族 incl. RaBitQ + storage tiers + Geneva + GPU claim 待核实)
+updated: 2026-05-25 (补 §G 索引版本语义: reindexing + versioning — 数据多版本但索引单一增量,非 per-version 快照)
 ---
 
 # LanceDB
@@ -309,6 +309,20 @@ vs others:
 
 [geneva/index.md] 首轮未捕获的新组件:把 Python **UDF 作为 Lance table 的 virtual column**(prototype → UDF decorator → `Table.add_columns()` 注册 → backfill),执行可落 **本地 / Ray / KubeRay**。意义:**把 feature engineering 内嵌进 vector DB 的存储层**——这是 LanceDB "lakehouse-first" 哲学的具体落地(feature 计算不是外挂 pipeline 而是 table 的 virtual column),wiki 内**唯一 vendor 把分布式 feature engineering 作 first-class**。
 
+### G. 索引版本语义（reindexing —— 回答"索引是否多版本"）
+
+[per sources/docs/lancedb-2026-05/reindexing-versioning.md] —— 2026-05-25 补抓 `indexing/reindexing.md` + `tables/versioning.md`。
+
+**结论:LanceDB 的"多版本"是数据层的;索引不是"每个数据版本一份可时间旅行的快照",而是单一增量演化索引。**
+
+- **数据/表:多版本 ✓**——update/add/delete 产生 version,`checkout(version)` / `restore()` 快速回滚 without data duplication。
+- **索引:增量并入,非全量重建**——`optimize()` 把新数据 "adds newly-ingested data to **existing** vector/scalar/FTS indexes" + compaction + cleanup(**Enterprise 自动 / OSS 手动**)。
+- **reindex 前的新数据照样可查**——LanceDB "combine results from the existing index with **exhaustive/flat search on the new data**":不漏数据,但未索引数据越多 latency 越高。
+- **索引更新被记入版本号**——"`optimize()`, index updates, and table compaction **also increment table version numbers**":索引变更是版本时间线上的事件。
+- **但 per-version 索引快照 = docs 明确未覆盖**——版本是否捕获 index、checkout 老版本用哪一版索引,`reindexing.md` 与 `versioning.md` **都 explicitly 不回答**;且**旧文件版本默认 7 天后 prune**——这强烈暗示**不能可靠地对索引做远期 time-travel**。
+
+→ 一句话给用户:**"索引多版本"在 LanceDB ≈ 不成立**。索引是**单一、随 `optimize()` 增量合并**的对象,其更新虽然会 bump version number,但 LanceDB 不承诺"每个数据版本各自冻结一份可回溯的索引",且老版本默认 7 天回收。要"老数据版本 + 当时的索引"一起 time-travel,docs 无 source 支撑。
+
 ## Scale 边界
 
 [per sources/docs/lancedb/, sources/docs/lancedb-2026-05/lancedb-deepened.md]
@@ -352,7 +366,7 @@ vs others:
 - **Sparse vector + Lance format**: sparse vector representation in Lance format 不深入
 - **Hybrid retrieval native API**: LanceDB 当前依赖 SQL filter + vector search 手动 fusion, native RRF API 是否 future?
 - **MCP / AI agent protocol integration**: 未明示 native vs Chroma first-class
-- **Multi-version embedding migration**: zero-copy add column 模式 vs Chroma fork 模式 head-to-head
+- **Multi-version embedding migration**: zero-copy add column 模式 vs Chroma fork 模式 head-to-head。**2026-05-25 部分澄清(见 §G)**:数据层多版本 + 索引层单一增量(optimize 合并)已 source-confirmed;**仍 open**——per-version 索引快照 / checkout 老版本时的索引语义 docs 明确未覆盖,且旧版本默认 7 天 prune,索引远期 time-travel 无 source
 - **vs Milvus 在 multimodal + GPU 重叠领域**: Milvus 通过 CAGRA + 多 vector field 接近 LanceDB capability, head-to-head 不公开
 
 Cited by: 待 query 引用
