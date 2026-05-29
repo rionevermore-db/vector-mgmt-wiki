@@ -2,7 +2,7 @@
 title: LanceDB（multimodal lakehouse for AI, OSS embedded + Enterprise）
 type: system
 sources: [lancedb-docs, lancedb-docs-2026-05, lance-geo-blog-2026-02, lance-blogs-2026]
-related: [chroma.md, pgvector.md, milvus.md, faiss.md, turbopuffer.md, pinecone.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/cagra-graph.md, cagra.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/multimodal-embedding-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/ann-benchmarking-methodology.md, ../benchmarks/vectordbbench.md]
+related: [chroma.md, pgvector.md, milvus.md, faiss.md, turbopuffer.md, pinecone.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/lance-format.md, ../concepts/cagra-graph.md, cagra.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/multimodal-embedding-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/ann-benchmarking-methodology.md, ../benchmarks/vectordbbench.md]
 created: 2026-05-12
 updated: 2026-05-29 (§H 原生空间索引 R-Tree;§I blog 补充 10B 分布式/FTS/multivector;**GPU claim 再确认**——IVF KMeans GPU 真实存在,撤销"待核实"误降级)
 ---
@@ -171,7 +171,7 @@ vs 其他 vendor proprietary storage:
 - Schema evolution + multi-version support native
 - Multimodal data support (binary / variable-length column)
 
-→ LanceDB 是 wiki 内**唯一 vendor 把 storage format 作 OSS standard** (类似 Iceberg / Delta / Hudi 在 lakehouse 领域).
+→ LanceDB 是 wiki 内**唯一 vendor 把 storage format 作 OSS standard** (类似 Iceberg / Delta / Hudi 在 lakehouse 领域). **Lance format 的内核(random-access-first / 弃 row group / mini-block + full-zip 编码 / 2D 布局无重写加列 / ~2000× Parquet 随机点查)现有独立概念页**:[concepts/lance-format.md](../concepts/lance-format.md)。
 
 ### 2. Multimodal lakehouse philosophy
 
@@ -346,6 +346,8 @@ vs others:
 **(b) 原生 FTS + hybrid**:LanceDB **弃 Tantivy 自研 FTS**;hybrid = FTS + vector 合并 rerank,统一接口 + `explain_plan`/`analyze_plan`。实测 41M Wikipedia / 8-GPU cluster:**ingestion 60K+ docs/s,4 GB/s peak write,41M 向量索引 30 分钟**——一个 LanceDB 侧 ingest 吞吐实测点(呼应 [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md) 的摄入速率讨论)。
 
 **(c) multi-vector / late-interaction**:**截至 2024-09 不原生支持 ColBERT MaxSim**——patch embedding 存 flattened array + shape metadata,需外部自算 MaxSim(ColPali demo;FTS/vector pre-filter 把 query 从 30s 降到 ~6s)。⚠️ 日期早,可能已演进,需复核。
+
+**(d) 格式内核 + 对比**(详见独立概念页 [concepts/lance-format.md](../concepts/lance-format.md)):Lance format **random-access-first**——随机点查 **~2000× Parquet**(100M 行实测),full-zip 编码让 embedding 大值**无放大随机取**,v2 弃 row group。**vs Iceberg 互补**:Iceberg=分析数据交换标准 / Lance=ML/AI 格式;Iceberg 缺 native 多模态 + 低延迟 random access,但其 pluggable DataFile API 可查 Lance 数据。**OpenSearch vs LanceDB(⚠️ LanceDB 自测,Justin Miller @ LanceDB)**:COCO 287K + SigLIP-2 **1152-d**,both sub-50ms p95 + recall@10 >0.95;**100M 成本 LanceDB ~$779/mo(c6g.4xlarge 32GB)vs OpenSearch ~$3,333/mo(r6g.12xlarge 384GB)= 4.3× cheaper**("OpenSearch scales with index RAM,LanceDB scales with QPS not corpus size")——但 OpenSearch 赢 feature breadth(FTS/BM25/filter/agg)+ security/multi-tenancy + sub-10ms p99。按 [benchmarks lie 第 2 陷阱(厂商自测)](../topics/ann-benchmarking-methodology.md) 处理。
 
 ## Scale 边界
 
