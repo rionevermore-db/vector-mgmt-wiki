@@ -138,7 +138,7 @@ expression: 0.4*bm25(field) + 0.4*dot_product(splade_field, query_splade) + 0.2*
 - **Hybrid retrieval × MRL prefix shortlist combine**: dense path 用 MRL 256-d prefix shortlist + sparse SPLADE shortlist 并 fuse → 应用层 AR pipeline; production case 不公开
 - **Sparse retrieval × multimodal**: SPLADE 是 text-only; image/audio sparse retrieval (类似但 sparse-side) production case wiki zero
 - **GPU sparse retrieval**: 全 wiki sparse path 都假设 CPU + inverted index; GPU SPLADE / GPU BM25 production case zero
-- **Hybrid retrieval × spatial**: 5 vendor 仅 Vespa native spatial + 全 vendor native hybrid → 唯一可同时 tri-modal (text BM25 + dense vector + spatial bbox) 的 system. 实测 production case zero
+- **Hybrid retrieval × spatial**: 原生 spatial 此前仅 Vespa,**2026-02 LanceDB 加 R-Tree → 现 2 家** [per systems/lancedb.md §H];全 vendor native hybrid → 能同时 tri-modal (text BM25 + dense vector + spatial) 的 system 增多。但**实测 production case + 公平 benchmark 仍 zero**(capability ≠ benchmark)
 - **DistilSPLADE-max BEIR 11/14 best 在 production 真实 case 是否复现**: 论文 zero-shot BEIR 仅 test set; production 真实 query distribution / re-train 周期 / fine-tune cost 不公开
 - **SPLADE 在 long-context (8K+ token)**: BERT 256 token max → chunk + per-chunk SPLADE; chunk-level vs full-doc-level retrieval 论文不深入
 - **Hybrid retrieval 公平 benchmark methodology**: 类似 `vector-scalar-bench-methodology` query, hybrid 现 zero coverage of fair head-to-head between SPLADE+CLIP+RRF (Turbopuffer-style) vs Vespa rank-profile vs Weaviate hybrid(α)

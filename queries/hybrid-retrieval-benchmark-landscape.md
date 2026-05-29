@@ -19,7 +19,7 @@ updated: 2026-05-25
 三种混合检索的 benchmark 成熟度**差异极大**:
 - **vector + full-text**:**质量层成熟**——[BEIR](../benchmarks/beir-heterogeneous-zero-shot-ir.md)(主力)+ [MTEB](../benchmarks/mteb-massive-text-embedding-benchmark.md) + [big-ann Sparse track](../benchmarks/big-ann-benchmarks.md) + MS MARCO 底座;唯一薄的是**系统级融合性能横测**。
 - **vector + scalar**:**中等成熟**——有 system-level case([VectorDBBench](../benchmarks/vectordbbench.md) Filtering)+ 竞赛 track(big-ann 2023 Filter)+ 算法 benchmark(ACORN / Filtered-DiskANN / range-filter)+ 5-strategy 方法论框架。
-- **vector + spatial**:**整体空白**——三大通用 ANN benchmark 全无 spatial track,连质量层都没有标准 benchmark。
+- **vector + spatial**:**benchmark 整体空白**——三大通用 ANN benchmark 全无 spatial track(注:spatial **index 能力** 已有 Vespa + LanceDB R-Tree 两家,但**仍无公平 benchmark**;capability ≠ benchmark)。
 
 **两个真缺口**:vector+spatial(完全空白)+ vector+full-text 的**系统级 fusion 性能横测**。
 
@@ -55,7 +55,7 @@ updated: 2026-05-25
 
 - **三大通用 ANN benchmark 全无 spatial track**:ann-benchmarks / VectorDBBench(filter 是 int/label)/ big-ann(两届均未设)。
 - **根因**:能力**严重不对称**(真 spatial index / bbox 近似 / 完全没有)+ 算法**无共识**(geohash / R-tree / bbox-as-attribute)[per topics/multimodal-embedding-retrieval.md "vs Spatial Retrieval"]。
-- **仅有的相邻拼图**:[Vespa](../systems/vespa.md) 唯一 native spatial+vector(单系统,非 benchmark);[SeRF 2D segment graph](../concepts/range-filter-ann-2024.md) 是 lat/lon 2D range 的算法 building block;**YFCC 自带 geo 元数据但 big-ann 只用了 tag 过滤**——现成底座没被用作 spatial track。
+- **仅有的相邻拼图**:**原生 spatial index 现 2 家**——[Vespa](../systems/vespa.md)(position dimension)+ [LanceDB](../systems/lancedb.md)(**R-Tree,2026-02 新增** [per systems/lancedb.md §H]);[SeRF 2D segment graph](../concepts/range-filter-ann-2024.md) 是 lat/lon 2D range 的算法 building block;**YFCC 自带 geo 元数据但 big-ann 只用了 tag 过滤**——现成底座没被用作 spatial track。**这些都是 capability/算法,不是 benchmark——vector+spatial 公平横测仍 0**。
 - 业界也无 MTEB/BEIR 级别的 vector+spatial 标准 benchmark(相邻的 "spatial keyword search" 传统是 spatial+稀疏关键词,非 spatial+dense vector)。
 
 ### 成熟度总表
@@ -64,7 +64,7 @@ updated: 2026-05-25
 |---|---|---|---|---|
 | vector + scalar | ✓ 算法 + 竞赛 track | ✓ VDBBench Filtering | **中** | selectivity 曲线公平性 |
 | vector + full-text | **✓✓ BEIR/MTEB/big-ann sparse** | ✗ fusion 性能 zero | **质量成熟 / 系统缺** | BM25+vector fusion QPS 横测 |
-| vector + spatial | ✗ 无 | ✗ 无 | **空白** | 整条线 |
+| vector + spatial | ✗ 无 | ✗ 无 | **benchmark 空白** | benchmark 整条线（index 已有 Vespa + LanceDB,benchmark 仍 0） |
 
 ## Cited Pages
 

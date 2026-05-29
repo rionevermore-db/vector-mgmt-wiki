@@ -48,7 +48,7 @@ updated: 2026-05-21
 
 ## Open Questions
 
-- **空间 / geo 检索 benchmark 完全空白**：三个 benchmark 均无空间 track;呼应 [multimodal-embedding-retrieval.md](../topics/multimodal-embedding-retrieval.md) 记录的"空间能力严重不对称、无 head-to-head benchmark"——三模（vector+scalar+spatial）公平横测仍无 source。
+- **空间 / geo 检索 benchmark 完全空白**：三个 benchmark 均无空间 track;呼应 [multimodal-embedding-retrieval.md](../topics/multimodal-embedding-retrieval.md) 记录的"空间能力严重不对称、无 head-to-head benchmark"——三模（vector+scalar+spatial）公平横测仍无 source。**注**:spatial **index/algorithm 能力** 2026-02 起已 Vespa + LanceDB(R-Tree)两家有 [per systems/lancedb.md §H],但 **benchmark 仍空白**——这是 wiki 内 "algorithm-成熟先于 benchmark-成熟" 的典型 case。
 - **端到端 ingest throughput 的标准口径缺失**：VDBBench 有 load duration + streaming case,但"vec/s 摄入率"受 batch / bulk_insert vs row insert / 维度 / 是否并发建索引 强烈影响,无统一报告口径——这正是本 wiki 此前回答"Milvus 摄入速率正不正常"时反复标"未覆盖"的根因。
 - **GPU / 分布式公平对比**：ann-benchmarks 强制 CPU 单线程,big-ann T3 才容 GPU,VDBBench 看整库黑盒——**没有 benchmark 公平隔离 GPU-native（[CAGRA](../systems/cagra.md)）vs CPU graph 的算法贡献**。
 - **三方结果互译**：同一算法在算法级 Pareto 漂亮、系统级被运维开销吃掉、竞赛级被标准硬件拉平——三层结果如何互相换算尚无方法论。

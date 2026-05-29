@@ -1,10 +1,10 @@
 ---
 title: LanceDB（multimodal lakehouse for AI, OSS embedded + Enterprise）
 type: system
-sources: [lancedb-docs, lancedb-docs-2026-05]
+sources: [lancedb-docs, lancedb-docs-2026-05, lance-geo-blog-2026-02]
 related: [chroma.md, pgvector.md, milvus.md, faiss.md, turbopuffer.md, pinecone.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/cagra-graph.md, cagra.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/multimodal-embedding-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/ann-benchmarking-methodology.md, ../benchmarks/vectordbbench.md]
 created: 2026-05-12
-updated: 2026-05-25 (补 §G 索引版本语义: reindexing + versioning — 数据多版本但索引单一增量,非 per-version 快照)
+updated: 2026-05-29 (补 §H 原生空间索引: Lance R-Tree + GeoArrow + GeoDataFusion, 2026-02 新增 — 纠正此前"无 spatial"判断)
 ---
 
 # LanceDB
@@ -322,6 +322,16 @@ vs others:
 - **但 per-version 索引快照 = docs 明确未覆盖**——版本是否捕获 index、checkout 老版本用哪一版索引,`reindexing.md` 与 `versioning.md` **都 explicitly 不回答**;且**旧文件版本默认 7 天后 prune**——这强烈暗示**不能可靠地对索引做远期 time-travel**。
 
 → 一句话给用户:**"索引多版本"在 LanceDB ≈ 不成立**。索引是**单一、随 `optimize()` 增量合并**的对象,其更新虽然会 bump version number,但 LanceDB 不承诺"每个数据版本各自冻结一份可回溯的索引",且老版本默认 7 天回收。要"老数据版本 + 当时的索引"一起 time-travel,docs 无 source 支撑。
+
+### H. 原生空间索引（R-Tree，2026-02 新增）
+
+[per sources/docs/lance-geo-2026-02/geo-support.md] —— **纠正此前判断**:2026-05-21/25 深化基于更早 docs 快照得出"LanceDB 无原生 spatial 索引";**Lance 已于 2026-02-25 加入原生地理空间支持**(blog "How We Added Geospatial Support To Lance With No New Code")。是 Lance(格式/引擎)层,LanceDB 继承。三块:
+
+1. **真正的 R-Tree 空间索引(production-ready)**:static/immutable 2D,bounding-box,多层 hierarchical(leaf `(bbox,rowid)` / branch 子 bbox 聚合 / 单 root);**packed-build + Hilbert 曲线排序**;剪枝按 `ST_Intersects(geometry, query_bbox)` 从 root 逐层 descend/prune subtree;**需显式建索引**;由 **ByteDance Xin Sun** 贡献。
+2. **GeoArrow 扩展类型**:Point/LineString/Polygon/Multi*/GeometryCollection + CRS——这块是 "with no new code"(Arrow extension type 机制原生,**仅存储白嫖**)。
+3. **GeoDataFusion 空间函数**(OGC Simple Feature Access):ST_Distance/Intersects/Contains/Within/Touches/Crosses/Overlaps/Covers/CoveredBy——**新写的集成代码**。
+
+> **wiki 影响**:**LanceDB 成为 wiki 内第二个有原生 spatial 索引的 vendor**(继 [Vespa](./vespa.md) 之后),且是明确的 **R-Tree**(比 Vespa 的 R-tree-like 更具体)。这部分填补 wiki 长期"空间能力仅 Vespa native"的盘点空白——详见 [topics/multimodal-embedding-retrieval.md](../topics/multimodal-embedding-retrieval.md)。**但注意:这是 algorithm/index 能力,不是 benchmark**——vector+spatial 的公平横测 benchmark 仍空白(见 [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md))。**限制**:R-Tree 需显式建;Spark/Trino/DuckDB/Ray 引擎集成 + HF geo 数据集仍 future work。
 
 ## Scale 边界
 

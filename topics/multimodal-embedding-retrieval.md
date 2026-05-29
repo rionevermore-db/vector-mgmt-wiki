@@ -2,7 +2,7 @@
 title: Multimodal Embedding Retrieval（跨模态向量检索）
 type: topic
 sources: [radford-2021-clip, vespa-docs, turbopuffer-docs]
-related: [../concepts/clip.md, ../concepts/scann.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../systems/vespa.md, ../systems/milvus.md, ../systems/qdrant.md, ../systems/weaviate.md, ../systems/pinecone.md, ../systems/turbopuffer.md, attribute-filtering.md, multi-vector-queries.md, index-selection.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md, ../concepts/multimodal-embedding-foundations.md]
+related: [../concepts/clip.md, ../concepts/scann.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../systems/vespa.md, ../systems/milvus.md, ../systems/qdrant.md, ../systems/weaviate.md, ../systems/pinecone.md, ../systems/turbopuffer.md, attribute-filtering.md, multi-vector-queries.md, index-selection.md, ../benchmarks/big-ann-benchmarks.md, ./ann-benchmarking-methodology.md, ../concepts/multimodal-embedding-foundations.md, ../systems/lancedb.md]
 created: 2026-05-11
 updated: 2026-05-21 (benchmark-trio: big-ann OOD/cross-modal track 部分填补 cross-modal benchmark 空白)
 ---
@@ -61,7 +61,7 @@ updated: 2026-05-21 (benchmark-trio: big-ann OOD/cross-modal track 部分填补 
 | [Pinecone](../systems/pinecone.md) | 中等 | Pinecone Inference 提供 CLIP-style embedding model | namespace within index (有限) |
 | [Turbopuffer](../systems/turbopuffer.md) | **架构最自然** | namespace as architectural primitive (100M+ S3 prefix) 直接 enable per-tenant 独立 CLIP version | namespace = independent CLIP model+version (架构默认能力) |
 
-→ **关键 finding**: 所有 6 vendor 都 native 支持 multimodal retrieval 通过 cosine ANN——**没有 vendor 把 multimodal 当作"特殊 index type"**. multimodal retrieval 是 vector DB 的 **common-case workload**, 不是 special path. 这与 spatial retrieval (仅 Vespa native R-tree-like) 形成对照.
+→ **关键 finding**: 所有 6 vendor 都 native 支持 multimodal retrieval 通过 cosine ANN——**没有 vendor 把 multimodal 当作"特殊 index type"**. multimodal retrieval 是 vector DB 的 **common-case workload**, 不是 special path. 这与 spatial retrieval (原生 spatial index 此前仅 Vespa;**2026-02 起 LanceDB 加 R-Tree → 现 2 家**) 形成对照.
 
 ### Multimodal Production Workload 落地形态
 
@@ -134,9 +134,9 @@ cos(u, v) = u · v / (||u|| ||v||) = u · v   (after L2 norm)
 
 | | Multimodal | Spatial |
 |---|---|---|
-| Vector DB industry coverage | **6 vendor 全支持 (cosine ANN over CLIP)** | **仅 Vespa native (position dimension)** |
+| Vector DB industry coverage | **6 vendor 全支持 (cosine ANN over CLIP)** | **Vespa (position) + LanceDB (R-Tree, 2026-02) native;多数 vendor 仍缺** |
 | Algorithm consensus | CLIP family (CLIP / SigLIP / ALIGN / ImageBind) | 严重 fragmented (geohash / R-tree / bbox-as-attribute) |
-| Vector DB special index | **不需要** (cosine ANN 即可) | 需要真 spatial index (大多 vendor 缺) |
+| Vector DB special index | **不需要** (cosine ANN 即可) | 需要真 spatial index (Vespa + LanceDB 有;多数 vendor 缺) |
 | Benchmark coverage | **wiki gap (head-to-head 实测 zero)** | wiki gap (3-modal benchmark methodology zero coverage) |
 | Production frontier 关闭进度 | 算法成熟, 缺 benchmark | 算法 + benchmark 都 fragmented |
 
