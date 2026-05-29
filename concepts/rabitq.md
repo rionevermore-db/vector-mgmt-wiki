@@ -1,10 +1,10 @@
 ---
 title: RaBitQ（首个 unbiased + sharp error bound 的高维向量 quantization）
 type: concept
-sources: [gao-2024-rabitq, kusupati-2022-matryoshka]
+sources: [gao-2024-rabitq, kusupati-2022-matryoshka, lance-blogs-2026]
 related: [product-quantization.md, scann.md, vgpq.md, hnsw.md, vamana.md, relaxed-monotonicity.md, matryoshka-embedding.md, ../systems/faiss.md, ../systems/diskann.md, ../systems/spann.md, ../systems/milvus.md, ../systems/lancedb.md, ../systems/vbase.md, ../systems/analyticdb-v.md, ../topics/index-selection.md, ../topics/disk-vs-memory-ann.md, ../topics/topk-vs-iterator-model.md, ../topics/adaptive-retrieval-shortlist-rerank.md, ../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md]
 created: 2026-05-08
-updated: 2026-05-21 (production 采用: LanceDB IVF_RQ + Milvus IVF_RABITQ)
+updated: 2026-05-29 (LanceDB IVF_RQ vs IVF_PQ vendor 实测数字: DBpedia 96%+/495QPS, GIST1M 94%/build 21s)
 ---
 
 # RaBitQ
@@ -287,7 +287,9 @@ RaBitQ 从学术 SOTA(2024 SIGMOD)走向 production——wiki 内已有两个 OS
 | [LanceDB](../systems/lancedb.md) | **IVF_RQ** | RaBitQ-style "1 bit/dim",IVF 分区 + RaBitQ 量化;1024-d float32 4KB → ~几百 bytes;`num_bits` 默认 1 | [per sources/docs/lancedb-2026-05/lancedb-deepened.md] |
 | [Milvus](../systems/milvus.md) | **IVF_RABITQ** | v2.6.x 索引族中的 RaBitQ 量化索引 | [per sources/docs/milvus/site/en/userGuide/indexes/floating-vector/ivf-rabitq.md] |
 
-→ 这填补了此前 wiki 把"vendor 采用 RaBitQ"列为 *logical next step* 的空白:**RaBitQ 已是 production index type,不只学术 quantizer**。两家都走 **IVF + RaBitQ** 路径(与论文主实证一致),graph-based + RaBitQ 仍是 open(见下)。注意两家的 IVF_RQ/IVF_RABITQ **实测 recall/QPS 均未公开**——production claim 成立,但独立性能数仍只有 [RaBitQ 论文 6/6 dominate](../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md)。
+→ 这填补了此前 wiki 把"vendor 采用 RaBitQ"列为 *logical next step* 的空白:**RaBitQ 已是 production index type,不只学术 quantizer**。两家都走 **IVF + RaBitQ** 路径(与论文主实证一致),graph-based + RaBitQ 仍是 open(见下)。
+
+**LanceDB 公布了 IVF_RQ vs IVF_PQ vendor 自测**(2025-09)[per sources/docs/lance-blogs-2026/lance-blogs-digest.md]:1024-d 4KB → ~136 bytes(1 bit/dim + 2 corrective scalar,~32× 压缩);**DBpedia 768d**:Recall@10 **96%+ vs IVF_PQ ~92%**,**495 QPS vs ~350**;**GIST1M 960d**:**94% vs ~90%**,540-765 QPS vs ~420,且 **build 更快**(21s vs 130s)。这是 wiki 内首个 RaBitQ-vs-PQ 的 **production-vendor 实测**(此前仅 [RaBitQ 论文 6/6 dominate](../benchmarks/rabitq-vs-pq-opq-lsq-6datasets.md) 的独立实现数;两者方向一致:RaBitQ recall + QPS + build 全面优于 PQ)。**LanceDB 10B-scale 分布式栈也用 RaBitQ**(配 HNSW-over-centroids 路由)[per systems/lancedb.md §I]。Milvus IVF_RABITQ 实测仍未公开。
 
 ## Open Questions
 

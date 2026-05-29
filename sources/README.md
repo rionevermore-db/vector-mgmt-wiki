@@ -81,6 +81,7 @@
 | bigann-benchmarks-docs | Big ANN Benchmarks: NeurIPS 2021 Billion-Scale + 2023 Practical Vector Search 竞赛 (README + neurips21/23 WebFetch summary) | Harsha Vardhan Simhadri 等 (NeurIPS competition org) | 2026-05-21 fetch | docs | docs/big-ann-benchmarks/{_meta.md, big-ann-benchmarks.md} | 2026-05-21 |
 | lancedb-docs-2026-05 | LanceDB 官方文档深化快照 (docs.lancedb.com llms.txt + indexing/quantization/storage/enterprise/geneva 深页;深化 lancedb-docs partial) | LanceDB Inc. | 2026-05-21 fetch | docs | docs/lancedb-2026-05/{_meta.md, lancedb-deepened.md} | 2026-05-21 |
 | lance-geo-blog-2026-02 | "How We Added Geospatial Support To Lance With No New Code" (Lance 官方 blog;R-Tree spatial index + GeoArrow + GeoDataFusion;**首个进 wiki 的 Lance blog**) | LanceDB Inc. | 2026-05-29 fetch (post 发布 2026-02-25) | docs | docs/lance-geo-2026-02/{_meta.md, geo-support.md} | 2026-05-29 |
+| lance-blogs-2026 | Lance/LanceDB 官方技术 blog 精选 digest (sitemap 全量枚举 ~115 篇 → 筛技术篇;Tier-1: GPU indexing / 10B scale / RaBitQ / format v2.2 / FTS / multivector;Tier-2 待续) | LanceDB Inc. | 2026-05-29 fetch | docs | docs/lance-blogs-2026/{_meta.md, lance-blogs-digest.md} | 2026-05-29 |
 
 ## 命名约定
 

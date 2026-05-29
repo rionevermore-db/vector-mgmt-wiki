@@ -1,15 +1,15 @@
 ---
 title: LanceDB（multimodal lakehouse for AI, OSS embedded + Enterprise）
 type: system
-sources: [lancedb-docs, lancedb-docs-2026-05, lance-geo-blog-2026-02]
+sources: [lancedb-docs, lancedb-docs-2026-05, lance-geo-blog-2026-02, lance-blogs-2026]
 related: [chroma.md, pgvector.md, milvus.md, faiss.md, turbopuffer.md, pinecone.md, ../concepts/hnsw.md, ../concepts/product-quantization.md, ../concepts/rabitq.md, ../concepts/cagra-graph.md, cagra.md, ../topics/gpu-vs-cpu-ann.md, ../topics/disk-vs-memory-ann.md, ../topics/index-selection.md, ../topics/multimodal-embedding-retrieval.md, ../topics/sparse-dense-hybrid-retrieval.md, ../topics/ann-benchmarking-methodology.md, ../benchmarks/vectordbbench.md]
 created: 2026-05-12
-updated: 2026-05-29 (补 §H 原生空间索引: Lance R-Tree + GeoArrow + GeoDataFusion, 2026-02 新增 — 纠正此前"无 spatial"判断)
+updated: 2026-05-29 (§H 原生空间索引 R-Tree;§I blog 补充 10B 分布式/FTS/multivector;**GPU claim 再确认**——IVF KMeans GPU 真实存在,撤销"待核实"误降级)
 ---
 
 # LanceDB
 
-**TL;DR**: LanceDB 是 **"multimodal lakehouse for AI"** 哲学的 vector DBMS, 由 Chang She + Lei Xu 2022 创立 (Series A 2024). OSS Apache-2.0 embedded library (Python / TypeScript / Java / Rust) + LanceDB Enterprise (distributed managed multimodal lakehouse). **对 wiki 内 vector DBs 的核心独特性**: (1) **Lance columnar format = 独特存储 axis**——所有 wiki 内其他 vector DBMS 都用 vendor-specific storage (Milvus segment / Qdrant single binary / Chroma SQLite / pgvector Postgres heap / Vespa tensor / Pinecone slab / Turbopuffer object storage); LanceDB 用 **OSS Lance columnar format** (类似 Parquet 但 ML-optimized + vector index integration)——**wiki 内首个 vendor 以 OSS columnar format 作 primary storage substrate**, 与 Iceberg / Delta / Hudi 这类 lakehouse format philosophy 并列; (2) **Multimodal lakehouse 哲学**——单一 table 同时存 vector + metadata + 原始 multimodal data (text / image / video / point cloud) + 版本控制 + zero-copy ops——其他 vector DBs 普遍 vector + metadata only, raw data 推到 separate object storage; (3) **OSS embedded library + Enterprise 双模式** (类似 Chroma)——OSS dev / Enterprise petabyte-scale managed, 但**架构 unique**: 基于 Lance format 不切换 codebase (vs Chroma OSS Core HNSW → Cloud SPANN 不同 codebase); (4) **GPU index building（claim 待核实）**——2026-05-12 首轮 ingest 据 docs 摘要记为"first-class GPU index build",但 **2026-05 深化抓取的 indexing/quantization 文档完全未提 GPU build**——该 claim 现降级为待核实（见 Open Questions），不再作为 LanceDB 的确定差异化卖点; (5) **SQL query support + ML framework integration**——同 platform 内支持 LangChain / LlamaIndex / DuckDB / Pandas / Polars 直接 query, **超越纯 vector DB 边界进入 data engineering / feature engineering 领域**; (6) **Zero-copy versioning**——schema evolution + add new columns 不需 copy existing data, "table-level git-like" version control; (7) **Polyglot SDKs**: Python / TypeScript / Java / Rust 4 语言一等公民, Rust core + 多语言 binding. **Position**: 与 Chroma 同 "OSS embedded + Cloud" 双模式, 但走 **lakehouse-first** 而非 RAG-dev-first 路线. [per sources/docs/lancedb/]
+**TL;DR**: LanceDB 是 **"multimodal lakehouse for AI"** 哲学的 vector DBMS, 由 Chang She + Lei Xu 2022 创立 (Series A 2024). OSS Apache-2.0 embedded library (Python / TypeScript / Java / Rust) + LanceDB Enterprise (distributed managed multimodal lakehouse). **对 wiki 内 vector DBs 的核心独特性**: (1) **Lance columnar format = 独特存储 axis**——所有 wiki 内其他 vector DBMS 都用 vendor-specific storage (Milvus segment / Qdrant single binary / Chroma SQLite / pgvector Postgres heap / Vespa tensor / Pinecone slab / Turbopuffer object storage); LanceDB 用 **OSS Lance columnar format** (类似 Parquet 但 ML-optimized + vector index integration)——**wiki 内首个 vendor 以 OSS columnar format 作 primary storage substrate**, 与 Iceberg / Delta / Hudi 这类 lakehouse format philosophy 并列; (2) **Multimodal lakehouse 哲学**——单一 table 同时存 vector + metadata + 原始 multimodal data (text / image / video / point cloud) + 版本控制 + zero-copy ops——其他 vector DBs 普遍 vector + metadata only, raw data 推到 separate object storage; (3) **OSS embedded library + Enterprise 双模式** (类似 Chroma)——OSS dev / Enterprise petabyte-scale managed, 但**架构 unique**: 基于 Lance format 不切换 codebase (vs Chroma OSS Core HNSW → Cloud SPANN 不同 codebase); (4) **GPU index building（✓ 确认,2026-05-29 再修正）**——**确有**:IVF 的 KMeans 聚类训练支持 `accelerator="cuda"/"mps"`(CUDA + Apple MPS),20-26× 加速,production since v0.3.3 [per sources/docs/lance-blogs-2026/lance-blogs-digest.md];此前因 docs.lancedb.com indexing 页未提而误降级——功能在 blog 里(docs 覆盖盲点)。范围:**IVF KMeans 训练**(非全 graph、PQ 训练仍 CPU),与 Milvus GPU_CAGRA graph-native 不同层次; (5) **SQL query support + ML framework integration**——同 platform 内支持 LangChain / LlamaIndex / DuckDB / Pandas / Polars 直接 query, **超越纯 vector DB 边界进入 data engineering / feature engineering 领域**; (6) **Zero-copy versioning**——schema evolution + add new columns 不需 copy existing data, "table-level git-like" version control; (7) **Polyglot SDKs**: Python / TypeScript / Java / Rust 4 语言一等公民, Rust core + 多语言 binding. **Position**: 与 Chroma 同 "OSS embedded + Cloud" 双模式, 但走 **lakehouse-first** 而非 RAG-dev-first 路线. [per sources/docs/lancedb/]
 
 ## 与 wiki 内其他 system 的定位差异
 
@@ -19,7 +19,7 @@ updated: 2026-05-29 (补 §H 原生空间索引: Lance R-Tree + GeoArrow + GeoDa
 | Storage format 是否 OSS standard | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | Postgres native | partial | **✓ Lance OSS format** (类比 Iceberg/Delta/Hudi) |
 | Embedded library 模式 | ✗ (DBMS only) | ✗ (DBMS) | ✗ (DBMS) | ✗ (engine) | ✗ (SaaS only) | ✗ (SaaS) | extension | **✓ (OSS Core)** | **✓ (OSS) — primary mode** |
 | Multimodal raw data + vector 同 table | partial (多 vector field) | multiple vectors per point | named vectors | tensor + content | 不公开 | namespace-per-asset | sparsevec / vector type only | text + metadata + vector | **✓ vector + metadata + raw multimodal (image / video / point cloud)** |
-| GPU index build | ✓ via CAGRA (Milvus integration) | ✗ | ✗ | ✗ | 不公开 | ✗ | ✗ | ✗ | **? 待核实**（2026-05 indexing/quantization docs 未提及） |
+| GPU index build | ✓ via CAGRA (Milvus integration) | ✗ | ✗ | ✗ | 不公开 | ✗ | ✗ | ✗ | **✓ IVF KMeans 训练 (cuda/mps, 20-26×)**——非 graph/PQ |
 | SQL query support | partial (limited) | API | API | YQL | API | API | **full SQL native** | API | **✓ SQL + Python/JS/Java/Rust polyglot** |
 | Version control | snapshot-based | snapshot | snapshot | application package | namespace | namespace | row-level via SQL transactions | **CoW fork (Cloud)** | **zero-copy table versioning + schema evolution** |
 | ML framework integration | application | application | application | ONNX inline | application | application | application | LangChain / LlamaIndex (vendor-bundled) | **LangChain / LlamaIndex / DuckDB / Pandas / Polars native first-class** |
@@ -40,7 +40,7 @@ updated: 2026-05-29 (补 §H 原生空间索引: Lance R-Tree + GeoArrow + GeoDa
               │  LanceDB Rust core engine             │
               │                                       │
               │  Query (vector + SQL + FTS)           │
-              │  Index (IVF*/HNSW family; GPU build?) │
+              │  Index (IVF*/HNSW; IVF KMeans GPU ✓)  │
               └──────────────┬───────────────────────┘
                              │
                              ▼
@@ -194,15 +194,15 @@ vs Chroma OSS Core + Cloud:
 
 → LanceDB 双模式架构连续性更强 (相同 Lance format), Chroma 有 OSS → Cloud architectural break.
 
-### 4. GPU index building —— claim 待核实（2026-05 修正）
+### 4. GPU index building —— ✓ 确认存在（2026-05-29 再修正）
 
-⚠️ **此节为 2026-05-12 首轮 ingest 据 docs.lancedb.com 摘要写下的 claim,2026-05-21 深化抓取无法印证,降级为待核实。**
+**经历三段:claim(首轮摘要)→ 降级(深化 docs 无)→ 再确认(blog 有)。** 最终:**LanceDB 确有 GPU 加速索引构建**,范围精确——**IVF 的 KMeans 聚类训练**,不是全 graph build、也不含 PQ 训练。
 
-- 2026-05-12 [per sources/docs/lancedb/README.md WebFetch 摘要]:记 "GPU support for vector index building",据此 wiki 曾断言 LanceDB 是"唯一明示 GPU index 构建的 OSS vendor"。
-- 2026-05-21 [per sources/docs/lancedb-2026-05/lancedb-deepened.md]:深化抓取 `indexing/vector-index.md` + `indexing/quantization.md` **完全未提 GPU index build / CUDA**。
-- **结论**:GPU build 可能 (a) 已 deprecated、(b) 文档在别处(未抓到的 page)、(c) 首轮摘要误记。**在核实前不再作为 LanceDB 确定卖点**。Milvus 的 GPU index([CAGRA](./cagra.md) via NVIDIA RAFT)仍是 wiki 内唯一 source-confirmed 的 OSS GPU index 路径。
+- [per sources/docs/lance-blogs-2026/lance-blogs-digest.md "GPU-accelerated indexing"]:`create_index(..., accelerator="cuda" | "mps")`(CUDA + Apple MPS),**production since LanceDB v0.3.3 / Lance v0.8.10**;IVF_4096 KMeans 训练实测 **20-26× 加速**(L4 GPU 323s→12.5s;M2 Max MPS 397s→21s);需装 pytorch。**PQ 训练 + 向量 assign 仍是 CPU**(roadmap)。
+- **为何此前降级**:docs.lancedb.com 的 `indexing/vector-index.md` / `quantization.md` 未提 GPU——是**文档覆盖盲点**,不是功能不存在;功能在 **blog** 里。
+- 与 Milvus 对比:Milvus GPU_CAGRA 是 GPU-native **graph** 全程([CAGRA](./cagra.md) via RAFT);LanceDB 是 **IVF KMeans 训练**的 GPU 加速——**两者 GPU 用法不同层次**,不能简单说"谁更 GPU"。
 
-> **lint 教训**:首轮 docs 摘要(非全文)产生的断言,深化抓取一手页面后**反被证伪/无法印证**——这正是 [topics/ann-benchmarking-methodology.md](../topics/ann-benchmarking-methodology.md) "benchmarks/docs lie" 精神在 doc ingest 上的体现:摘要 ≠ 一手,断言须可追到具体页。
+> **lint 三段式教训**:claim → 降级 → 再确认。**docs 缺 ≠ 功能缺**;不同 source 类型(docs vs blog vs release notes)覆盖不同子集,穷尽才能定论。这比"摘要 ≠ 一手"更深一层——也说明这次"全量扫 blog"的价值:它救回了一个被误杀的真功能。
 
 ### 5. SQL-first query interface
 
@@ -333,6 +333,20 @@ vs others:
 
 > **wiki 影响**:**LanceDB 成为 wiki 内第二个有原生 spatial 索引的 vendor**(继 [Vespa](./vespa.md) 之后),且是明确的 **R-Tree**(比 Vespa 的 R-tree-like 更具体)。这部分填补 wiki 长期"空间能力仅 Vespa native"的盘点空白——详见 [topics/multimodal-embedding-retrieval.md](../topics/multimodal-embedding-retrieval.md)。**但注意:这是 algorithm/index 能力,不是 benchmark**——vector+spatial 的公平横测 benchmark 仍空白(见 [queries/hybrid-retrieval-benchmark-landscape.md](../queries/hybrid-retrieval-benchmark-landscape.md))。**限制**:R-Tree 需显式建;Spark/Trino/DuckDB/Ray 引擎集成 + HF geo 数据集仍 future work。
 
+### I. 2026 技术 blog 补充：10B 分布式 / FTS / multi-vector
+
+[per sources/docs/lance-blogs-2026/lance-blogs-digest.md]
+
+**(a) 10B-scale 分布式检索**(给 §A Enterprise 架构补上具体 scale + 路由):
+- 10B 表切 segment-level index 分布到多 Plan Executor(各 local SSD cache);query coordinator fan-out + merge top-k。
+- 三层优化:IVF 分布式 build + **HNSW over centroids**(快速找 nprobes,避免线性扫 centroid) + **RaBitQ 量化**(O(d log d) fast rotation)。
+- **实测:10B 向量(1536-d,1B×10 segment,10 节点)p50 18ms / p95 20ms / p99 21ms**(examined 20 partitions,top-100);index build 比单节点快 5×(10 worker)。
+- → **LanceDB Enterprise 是真 10B-scale 分布式系统**(远超 OSS 单节点);与 [CAGRA](./cagra.md) 单 GPU ~100M 是不同 budget,也补上了此前 wiki 对 LanceDB scale 的薄覆盖。
+
+**(b) 原生 FTS + hybrid**:LanceDB **弃 Tantivy 自研 FTS**;hybrid = FTS + vector 合并 rerank,统一接口 + `explain_plan`/`analyze_plan`。实测 41M Wikipedia / 8-GPU cluster:**ingestion 60K+ docs/s,4 GB/s peak write,41M 向量索引 30 分钟**——一个 LanceDB 侧 ingest 吞吐实测点(呼应 [queries/milvus-laion-100m-ingest-rate.md](../queries/milvus-laion-100m-ingest-rate.md) 的摄入速率讨论)。
+
+**(c) multi-vector / late-interaction**:**截至 2024-09 不原生支持 ColBERT MaxSim**——patch embedding 存 flattened array + shape metadata,需外部自算 MaxSim(ColPali demo;FTS/vector pre-filter 把 query 从 30s 降到 ~6s)。⚠️ 日期早,可能已演进,需复核。
+
 ## Scale 边界
 
 [per sources/docs/lancedb/, sources/docs/lancedb-2026-05/lancedb-deepened.md]
@@ -340,9 +354,9 @@ vs others:
 | Metric | LanceDB |
 |---|---|
 | OSS Core scale | up to billions of vectors single node |
-| Enterprise scale | petabyte-scale (multimodal: video + point cloud + image) |
+| Enterprise scale | petabyte-scale;**实测 10B 向量(1536d, 1B×10 segment, 10 节点): p50 18ms / p99 21ms** [per lance-blogs digest] |
 | Enterprise 实测 latency (vendor 自测) | 1M×1536d / 15M×256d: vector P99 35ms, +宽 filter P99 100ms |
-| GPU index building | **待核实**（2026-05 indexing docs 未提，见 §4 + Open Q） |
+| GPU index building | **✓ IVF KMeans 训练 (cuda/mps, 20-26×, since v0.3.3)**——非 graph/PQ(见 §4) |
 | Polyglot SDK | Python / TypeScript / Java / Rust |
 | Embedded library mode | ✓ (类似 SQLite for vector + multimodal) |
 | Multi-region | Enterprise only |
@@ -368,7 +382,7 @@ vs others:
 - **Lance format vs Parquet/Arrow performance**: 实测 random access / vector index integration 性能差异 不公开
 - **Lance format 跨 ecosystem 支持**: Iceberg / Delta / Hudi 是否 future integration?
 - **LanceDB OSS 到 Enterprise migration**: same Lance format core, migration cost vs Chroma OSS-to-Cloud cost
-- **GPU index building 是否真存在**: ⚠️ 2026-05-12 摘要记为支持,2026-05-21 深化抓 indexing/quantization docs **未提** → claim 待核实(deprecated? 别处文档? 摘要误记?)。在确认前不应宣称 LanceDB 有 GPU index build;CAGRA via Milvus 仍是 wiki 内唯一 source-confirmed OSS GPU index 路径
+- ~~**GPU index building 是否真存在**~~ **2026-05-29 已解**:确有——IVF KMeans 训练 GPU 加速(cuda/mps, 20-26×, since v0.3.3)[per sources/docs/lance-blogs-2026];此前因 docs 未提而误降级,blog 证实(见 §4)。仍 open:PQ 训练 GPU 化(roadmap 未完成)
 - **IVF_RQ (RaBitQ) 实测 vs IVF_PQ**: LanceDB docs 给 dim≤256 时 IVF_PQ 常优于 IVF_RQ 的定性,但无 head-to-head recall/QPS 数;[RaBitQ 论文](../concepts/rabitq.md)的 6/6 dominate 是独立实现,LanceDB IVF_RQ 实测未公开
 - **Lance format 多模态 storage cost vs separate object storage**: 实际 cost 对比不公开
 - **LanceDB Enterprise petabyte-scale production case**: 公开 customer scale 数据 不存在
